@@ -85,12 +85,12 @@ function hashText(value: string): number {
 }
 
 function pickVariant(items: string[], seed: number): string {
-  return items[Math.abs(seed) % items.length];
+  return items[Math.abs(seed) % items.length]!;
 }
 
 function composeTrendingPost(title: string, description: string | undefined, source: string, query: string): string {
   const summary = cleanDescription(description);
-  const sourceName = source.split("(")[0].trim();
+  const sourceName = (source.split("(")[0] ?? "").trim();
   const topic = query.trim().toLowerCase() || "this space";
   const seed = hashText(`${title}|${sourceName}|${topic}`);
 

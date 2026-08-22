@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 // Validate score is strictly 0-10 integer
 function validateScore(score: any): number {
-  const num = Number(score);
+  const num = Number(String(score ?? ""));
   if (isNaN(num)) return 0;
   // Clamp strictly between 0 and 10
   return Math.max(0, Math.min(10, Math.round(num)));

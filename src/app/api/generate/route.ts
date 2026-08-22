@@ -78,7 +78,7 @@ async function resolveNewsContext(topic: string, providedNews: NewsContext | nul
 
   const currentsArticles = await fetchCurrentsNewsByKeyword(topic, 5).catch(() => []);
   if (currentsArticles.length > 0) {
-    const article = currentsArticles[0];
+    const article = currentsArticles[0]!;
     return {
       title: article.title,
       description: article.description,
@@ -90,7 +90,7 @@ async function resolveNewsContext(topic: string, providedNews: NewsContext | nul
 
   const fallbackResults = await searchTrendingArticles(topic, 5).catch(() => ({ articles: [] }));
   if (fallbackResults.articles.length > 0) {
-    const article = fallbackResults.articles[0];
+    const article = fallbackResults.articles[0]!;
     return {
       title: article.title,
       description: article.description,

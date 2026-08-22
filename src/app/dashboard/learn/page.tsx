@@ -1675,7 +1675,7 @@ export default function LearnPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isNewsLoading, setIsNewsLoading] = useState(true);
 
-  const currentLesson = LESSONS[selectedLessonDay - 1] || LESSONS[0];
+  const currentLesson = (LESSONS[selectedLessonDay - 1] ?? LESSONS[0]!)!;
 
   useEffect(() => {
     async function loadLearnData() {

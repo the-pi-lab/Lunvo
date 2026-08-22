@@ -364,11 +364,16 @@ async function callNvidia(
       throw new Error(`status ${response.status}: ${errorText.slice(0, 240)}`);
     }
 
-    const payload: any = await response.json();
+    type NvidiaResponse = {
+      choices?: Array<{ message?: { content?: string } }>;
+      output_text?: string;
+      text?: string;
+    };
+    const payload = (await response.json()) as NvidiaResponse;
     const text =
-      payload?.choices?.[0]?.message?.content ||
-      payload?.output_text ||
-      payload?.text ||
+      payload.choices?.[0]?.message?.content ||
+      payload.output_text ||
+      payload.text ||
       "";
 
     if (!text || typeof text !== "string") {
@@ -376,8 +381,8 @@ async function callNvidia(
     }
 
     return text;
-  } catch (error: any) {
-    if (error?.name === "AbortError") {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === "AbortError") {
       throw new Error("request timeout after 15s");
     }
     throw error;

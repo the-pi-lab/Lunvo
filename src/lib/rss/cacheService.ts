@@ -58,7 +58,9 @@ export function pickRandomArticles(count: number): RssArticle[] {
 
   for (let index = articles.length - 1; index > 0; index -= 1) {
     const swapIndex = Math.floor(Math.random() * (index + 1));
-    [articles[index], articles[swapIndex]] = [articles[swapIndex], articles[index]];
+    const tmp = articles[index]!;
+    articles[index] = articles[swapIndex]!;
+    articles[swapIndex] = tmp;
   }
 
   return articles.slice(0, Math.max(0, count));
@@ -72,7 +74,9 @@ export function pickRandomGeneratedPosts(count: number): GeneratedLinkedInPost[]
 
   for (let index = posts.length - 1; index > 0; index -= 1) {
     const swapIndex = Math.floor(Math.random() * (index + 1));
-    [posts[index], posts[swapIndex]] = [posts[swapIndex], posts[index]];
+    const tmp = posts[index]!;
+    posts[index] = posts[swapIndex]!;
+    posts[swapIndex] = tmp;
   }
 
   const maxCount = Math.min(posts.length, Math.max(5, Math.min(10, count)));

@@ -81,7 +81,7 @@ function normalizeText(value: string): string {
 }
 
 function getSourceKey(source: string): string {
-  return source.split("(")[0].trim().toLowerCase();
+  return (source.split("(")[0] ?? "").trim().toLowerCase();
 }
 
 function queryTokens(query: string): string[] {
@@ -93,7 +93,7 @@ function queryTokens(query: string): string[] {
 }
 
 function getPrimaryKeyword(query: string): string {
-  return queryTokens(query)[0] || "technology";
+  return queryTokens(query)[0] ?? "technology";
 }
 
 function computeRelevance(article: RssArticle, normalizedQuery: string, tokens: string[]): number {
@@ -253,7 +253,7 @@ export async function searchTrendingArticles(
     }
 
     // Get unique sources from results
-    const sourcesSet = new Set(selected.map((a) => a.source.split("(")[0].trim()));
+    const sourcesSet = new Set(selected.map((a) => (a.source.split("(")[0] ?? "").trim()));
 
     const searchResult: SearchResult = {
       articles: selected.slice(0, limit),

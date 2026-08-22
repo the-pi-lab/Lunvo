@@ -101,25 +101,25 @@ function parseGithubTrendingHTML(html: string): GithubTrendingRepo[] {
       const nameMatch = article.match(namePattern);
       if (!nameMatch) continue;
 
-      const repoUrl = nameMatch[1];
+      const repoUrl = nameMatch[1]!;
       const name = repoUrl.split("/").filter(Boolean).join("/");
 
       // Extract description
       const descMatch = article.match(descPattern);
-      const description = descMatch ? normalizeDescription(descMatch[1]) : "No description";
+      const description = descMatch ? normalizeDescription(descMatch[1]!) : "No description";
 
       // Extract language
       const langMatch = article.match(langPattern);
-      const language = langMatch ? langMatch[1].trim() : "Unknown";
+      const language = langMatch ? langMatch[1]!.trim() : "Unknown";
 
       // Extract stars this week
       const starsMatch = article.match(starsPattern);
       let starsThisWeek = 0;
       if (starsMatch) {
-        const starsText = starsMatch[1];
+        const starsText = starsMatch[1]!;
         const match = starsText.match(/(\d+)/);
         if (match) {
-          starsThisWeek = parseInt(match[1], 10);
+          starsThisWeek = parseInt(match[1]!, 10);
         }
       }
 
@@ -171,17 +171,17 @@ export async function fetchGithubTrendingViaAPI(
       return [];
     }
 
-    const data: any = await response.json();
+    const data = (await response.json()) as { items?: Array<{ description?: string | null; full_name?: string; html_url?: string; updated_at?: string; stargazers_count?: number }> };
 
     // Only return repos with real descriptions (quality filter)
     return (data.items || [])
-      .filter((repo: any) => repo.description && repo.description.trim().length > 10)
+      .filter((repo: { description?: string | null }) => repo.description && repo.description.trim().length > 10)
       .slice(0, 15)
-      .map((repo: any) => ({
-        title: repo.full_name,
-        link: repo.html_url,
-        date: repo.updated_at,
-        description: normalizeDescription(repo.description),
+      .map((repo: { full_name?: string; html_url?: string; updated_at?: string; description?: string | null; stargazers_count?: number }) => ({
+        title: repo.full_name ?? "",
+        link: repo.html_url ?? "",
+        date: repo.updated_at ?? new Date().toISOString(),
+        description: normalizeDescription(repo.description ?? ""),
         source: `GitHub (${repo.stargazers_count} ⭐)`,
       }));
   } catch (error) {

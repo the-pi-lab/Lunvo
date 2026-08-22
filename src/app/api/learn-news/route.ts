@@ -32,7 +32,7 @@ export async function GET() {
       const fromCurrents = await fetchCurrentsNewsByKeyword(topic, 1).catch(() => []);
 
       if (fromCurrents.length > 0) {
-        const article = fromCurrents[0];
+        const article = fromCurrents[0]!;
         return {
           topic,
           article: {
@@ -48,7 +48,7 @@ export async function GET() {
       const fallback = await searchTrendingArticles(topic, 1).catch(() => ({ articles: [] }));
 
       if (fallback.articles.length > 0) {
-        const article = fallback.articles[0];
+        const article = fallback.articles[0]!;
         return {
           topic,
           article: {

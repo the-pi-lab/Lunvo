@@ -20,7 +20,7 @@ export async function callAnthropic(
     content: msg.content
   }));
 
-  const requestBody: any = {
+  const requestBody: Record<string, unknown> = {
     model: profile.model || 'claude-3-5-sonnet-20241022',
     messages,
     max_tokens: payload.maxTokens || 4096, // required field for anthropic

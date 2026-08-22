@@ -16,7 +16,7 @@ export async function callGemini(
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${profile.apiKey}`;
 
   // Convert our messages array to Gemini Content format
-  let systemInstruction: any = undefined;
+  let systemInstruction: unknown = undefined;
   if (payload.systemPrompt) {
     systemInstruction = {
       parts: [{ text: payload.systemPrompt }]
@@ -40,7 +40,7 @@ export async function callGemini(
     };
   });
 
-  const requestBody: any = {
+  const requestBody: Record<string, unknown> = {
     contents,
     generationConfig: {
       temperature: payload.temperature ?? 0.7,

@@ -56,7 +56,7 @@ function buildPrompt(article: RssArticle): string {
 
 function buildFallbackPost(article: RssArticle): string {
   const description = cleanDescription(article.description);
-  const sourceName = article.source.split("(")[0].trim();
+  const sourceName = (article.source.split("(")[0] ?? "").trim();
 
   return [
     article.title,
