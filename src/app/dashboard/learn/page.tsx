@@ -1756,11 +1756,11 @@ export default function LearnPage() {
   if (isLoading) {
     return (
       <div className="max-w-2xl mx-auto p-4 sm:p-6 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-        <div className="h-8 bg-gray-200 rounded w-3/4 mb-6"></div>
+        <div className="h-4 bg-surface-container-high rounded w-1/4 mb-4"></div>
+        <div className="h-8 bg-surface-container-high rounded w-3/4 mb-6"></div>
         <div className="space-y-3">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-4 bg-gray-200 rounded"></div>
+            <div key={i} className="h-4 bg-surface-container-high rounded"></div>
           ))}
         </div>
       </div>
@@ -1771,22 +1771,25 @@ export default function LearnPage() {
     <div className="max-w-2xl mx-auto p-4 sm:p-6">
       {/* Topic News */}
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-gray-900 mb-3">
+        <h2 className="text-sm font-semibold text-on-background mb-3">
           Daily Topic News (10 Focus Topics)
         </h2>
-        <p className="text-[0.68rem] text-gray-500 mb-3">
+        <p className="text-[0.68rem] text-on-surface-variant mb-3">
           Headlines link to original publishers. Rights remain with source websites.
         </p>
         {isNewsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-20 rounded-lg bg-gray-100 animate-pulse" />
+              <div key={i} className="h-20 rounded-lg bg-surface-container animate-pulse" />
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {topicNews.map((item) => (
-              <div key={item.topic} className="rounded-lg border border-gray-200 bg-white p-3">
+              <div
+                key={item.topic}
+                className="rounded-lg border border-outline-variant/40 bg-surface-container-lowest p-3"
+              >
                 <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-700 mb-1">
                   {item.topic}
                 </p>
@@ -1796,17 +1799,19 @@ export default function LearnPage() {
                       href={item.article.link}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
-                      className="text-sm font-semibold text-gray-900 hover:text-blue-700 line-clamp-2"
+                      className="text-sm font-semibold text-on-background hover:text-blue-700 line-clamp-2"
                     >
                       {item.article.title}
                     </a>
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                    <p className="text-xs text-on-surface-variant mt-1 line-clamp-2">
                       {item.article.description}
                     </p>
-                    <p className="text-[0.68rem] text-gray-400 mt-1">{item.article.source}</p>
+                    <p className="text-[0.68rem] text-on-surface-variant/70 mt-1">
+                      {item.article.source}
+                    </p>
                   </>
                 ) : (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-on-surface-variant">
                     No fresh article found for this topic yet.
                   </p>
                 )}
@@ -1818,7 +1823,9 @@ export default function LearnPage() {
 
       {/* Lesson Navigator */}
       <div className="mb-6">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Lessons</p>
+        <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-2">
+          Lessons
+        </p>
         <div className="grid grid-cols-5 sm:grid-cols-10 gap-2">
           {Array.from({ length: 30 }, (_, idx) => {
             const day = idx + 1;
@@ -1833,10 +1840,10 @@ export default function LearnPage() {
                 onClick={() => setSelectedLessonDay(day)}
                 className={`rounded-md px-2 py-2 text-[0.72rem] sm:text-xs font-semibold transition-colors ${
                   isLocked
-                    ? "bg-gray-100 text-gray-300 cursor-not-allowed"
+                    ? "bg-surface-container text-on-surface-variant/40 cursor-not-allowed"
                     : isActive
                       ? "bg-blue-600 text-white"
-                      : "bg-white border border-gray-200 text-gray-700 hover:border-blue-400"
+                      : "bg-surface-container-lowest border border-outline-variant/40 text-on-surface hover:border-blue-400"
                 }`}
                 title={isLocked ? `Unlocks on Day ${day}` : `Open Day ${day}`}
               >
@@ -1853,26 +1860,28 @@ export default function LearnPage() {
           <span className="text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 px-3 py-1 rounded-full">
             Day {userDayNumber} of 30
           </span>
-          <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+          <span className="text-xs text-on-surface-variant/70 bg-surface-container px-3 py-1 rounded-full">
             {currentLesson.tag}
           </span>
-          <span className="text-xs text-gray-400">{currentLesson.duration}</span>
+          <span className="text-xs text-on-surface-variant/70">{currentLesson.duration}</span>
         </div>
-        <h1 className="text-2xl font-semibold text-gray-900 mt-3">{currentLesson.title}</h1>
+        <h1 className="text-2xl font-semibold text-on-background mt-3">{currentLesson.title}</h1>
         {/* Progress bar */}
-        <div className="mt-4 bg-gray-100 rounded-full h-1.5">
+        <div className="mt-4 bg-surface-container rounded-full h-1.5">
           <div
             className="bg-blue-600 h-1.5 rounded-full transition-all duration-500"
             style={{ width: `${(userDayNumber / 30) * 100}%` }}
           />
         </div>
-        <p className="text-xs text-gray-400 mt-1">{userDayNumber}/30 lessons complete</p>
+        <p className="text-xs text-on-surface-variant/70 mt-1">
+          {userDayNumber}/30 lessons complete
+        </p>
       </div>
 
       {/* Lesson Content */}
       <div className="prose prose-sm max-w-none mb-8">
         {currentLesson.content.split("\n\n").map((paragraph, idx) => (
-          <p key={idx} className="text-gray-700 leading-relaxed mb-4 whitespace-pre-line text-sm">
+          <p key={idx} className="text-on-surface leading-relaxed mb-4 whitespace-pre-line text-sm">
             {paragraph}
           </p>
         ))}
@@ -1904,7 +1913,7 @@ export default function LearnPage() {
         {currentLesson.action} →
       </button>
 
-      <p className="text-xs text-gray-400 text-center mt-4">
+      <p className="text-xs text-on-surface-variant/70 text-center mt-4">
         Future lessons unlock day-by-day. You can revisit any past lesson anytime.
       </p>
     </div>

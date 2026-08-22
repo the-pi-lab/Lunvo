@@ -190,7 +190,7 @@ export function DnaTuner({ initialDna, onSave }: DnaTunerProps) {
         </div>
 
         <div>
-          <label className="block text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-2 text-red-600 dark:text-red-400">
+          <label className="block text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-2 text-red-600">
             Banned Words (Jargon to avoid)
           </label>
           <input
@@ -205,7 +205,7 @@ export function DnaTuner({ initialDna, onSave }: DnaTunerProps) {
                 },
               })
             }
-            className="w-full rounded-md border border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-950/20 px-3 py-2 text-sm text-slate-900 focus:ring-red-500 focus:border-red-500"
+            className="w-full rounded-md border border-red-300 bg-red-50/50 px-3 py-2 text-sm text-on-background focus:ring-red-500 focus:border-red-500"
           />
         </div>
 
@@ -213,7 +213,7 @@ export function DnaTuner({ initialDna, onSave }: DnaTunerProps) {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-lg text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors"
+            className="flex items-center space-x-2 px-6 py-2 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-lg text-sm font-medium hover:bg-surface-container-highest dark:hover:bg-surface-container transition-colors"
           >
             <Save className="w-4 h-4" />
             <span>{isSaving ? "Saving..." : "Save DNA Profile"}</span>

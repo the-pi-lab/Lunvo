@@ -177,7 +177,7 @@ export default function SettingsPage() {
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full px-4 py-3.5 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.4)] focus:ring-[2px] focus:ring-primary focus:bg-white outline-none text-[0.9375rem] font-medium transition-all"
+              className="w-full px-4 py-3.5 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.4)] focus:ring-[2px] focus:ring-primary focus:bg-surface-container-lowest outline-none text-[0.9375rem] font-medium transition-all"
             />
           </div>
           <div>
@@ -236,7 +236,7 @@ export default function SettingsPage() {
               placeholder="AIzaSy..."
               value={geminiKey}
               onChange={(e) => setGeminiKey(e.target.value)}
-              className="w-full px-4 py-3.5 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.4)] focus:ring-[2px] focus:ring-primary focus:bg-white outline-none text-[0.9375rem] font-medium transition-all font-mono"
+              className="w-full px-4 py-3.5 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.4)] focus:ring-[2px] focus:ring-primary focus:bg-surface-container-lowest outline-none text-[0.9375rem] font-medium transition-all font-mono"
             />
           </div>
           <div>
@@ -248,7 +248,7 @@ export default function SettingsPage() {
               placeholder="gsk_..."
               value={groqKey}
               onChange={(e) => setGroqKey(e.target.value)}
-              className="w-full px-4 py-3.5 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.4)] focus:ring-[2px] focus:ring-primary focus:bg-white outline-none text-[0.9375rem] font-medium transition-all font-mono"
+              className="w-full px-4 py-3.5 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.4)] focus:ring-[2px] focus:ring-primary focus:bg-surface-container-lowest outline-none text-[0.9375rem] font-medium transition-all font-mono"
             />
           </div>
           <button
@@ -305,7 +305,7 @@ export default function SettingsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
             href="/support"
-            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group"
+            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-surface-container-lowest hover:shadow-premium transition-all group"
           >
             <div>
               <div className="text-[0.8125rem] font-bold text-on-background">Help Center</div>
@@ -317,7 +317,7 @@ export default function SettingsPage() {
           </Link>
           <Link
             href="/privacy"
-            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group"
+            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-surface-container-lowest hover:shadow-premium transition-all group"
           >
             <div>
               <div className="text-[0.8125rem] font-bold text-on-background">Privacy Protocol</div>
@@ -329,7 +329,7 @@ export default function SettingsPage() {
           </Link>
           <Link
             href="/terms"
-            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group"
+            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-surface-container-lowest hover:shadow-premium transition-all group"
           >
             <div>
               <div className="text-[0.8125rem] font-bold text-on-background">Terms of Service</div>
@@ -341,7 +341,7 @@ export default function SettingsPage() {
           </Link>
           <a
             href="mailto:hello@thepilab.in"
-            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group"
+            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-surface-container-lowest hover:shadow-premium transition-all group"
           >
             <div>
               <div className="text-[0.8125rem] font-bold text-on-background">Contact Concierge</div>
@@ -355,7 +355,7 @@ export default function SettingsPage() {
             href="https://www.thepilab.in"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group"
+            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-surface-container-lowest hover:shadow-premium transition-all group"
           >
             <div>
               <div className="text-[0.8125rem] font-bold text-on-background">THE Π LAB Website</div>
@@ -367,7 +367,7 @@ export default function SettingsPage() {
             href="https://www.linkedin.com/company/the-%CF%80-lab/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group"
+            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-surface-container-lowest hover:shadow-premium transition-all group"
           >
             <div>
               <div className="text-[0.8125rem] font-bold text-on-background">

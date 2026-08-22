@@ -15,7 +15,7 @@ export default function SignupPage() {
     !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder.supabase.co") &&
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.includes("placeholder-anon-key")
   );
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -36,7 +36,9 @@ export default function SignupPage() {
     e.preventDefault();
 
     if (!isSupabaseConfigured) {
-      setError("Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local, then restart the dev server.");
+      setError(
+        "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local, then restart the dev server."
+      );
       return;
     }
 
@@ -63,7 +65,9 @@ export default function SignupPage() {
       console.error("Signup error:", err);
       const message = String(err?.message || "");
       if (/failed to fetch|placeholder|invalid url/i.test(message)) {
-        setError("Unable to connect to authentication service. Check Supabase URL/Anon key in .env.local.");
+        setError(
+          "Unable to connect to authentication service. Check Supabase URL/Anon key in .env.local."
+        );
       } else {
         setError(message || "An error occurred during registration.");
       }
@@ -79,13 +83,22 @@ export default function SignupPage() {
         <div className="absolute top-0 right-0 p-24 opacity-[0.03] pointer-events-none">
           <Sparkles className="w-96 h-96 text-primary rotate-12" />
         </div>
-        
+
         <div className="relative z-10">
-          <Link href="/" className="inline-flex items-center gap-2 mb-16 px-4 py-2 bg-primary/5 rounded-[6px] ring-1 ring-primary/10">
-            <img src="/brand/lunvo-logo.png" alt="LUNVO logo" className="w-4 h-4 rounded-[3px] object-contain" />
-            <span className="text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-primary">LUNVO</span>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 mb-16 px-4 py-2 bg-primary/5 rounded-[6px] ring-1 ring-primary/10"
+          >
+            <img
+              src="/brand/lunvo-logo.png"
+              alt="LUNVO logo"
+              className="w-4 h-4 rounded-[3px] object-contain"
+            />
+            <span className="text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-primary">
+              LUNVO
+            </span>
           </Link>
-          
+
           <h1 className="text-6xl font-serif text-on-background leading-[1.1] mb-6">
             Scale Your <br /> Influence.
           </h1>
@@ -96,7 +109,9 @@ export default function SignupPage() {
 
         <div className="relative z-10">
           <div className="p-6 bg-surface-2 rounded-[12px] ring-1 ring-outline-variant/10 max-w-xs">
-            <div className="text-[0.625rem] font-bold uppercase tracking-widest text-primary mb-2">Protocol Active</div>
+            <div className="text-[0.625rem] font-bold uppercase tracking-widest text-primary mb-2">
+              Protocol Active
+            </div>
             <div className="text-[0.85rem] font-medium text-on-surface-variant">
               High-accuracy trend analysis and semantic hook generation enabled.
             </div>
@@ -109,7 +124,9 @@ export default function SignupPage() {
         <div className="w-full max-w-[420px]">
           <div className="mb-12">
             <h2 className="text-3xl font-serif text-on-background mb-3">Create Profile</h2>
-            <p className="text-[0.95rem] font-medium text-on-surface-variant">Set up your workspace to initiate optimization protocols.</p>
+            <p className="text-[0.95rem] font-medium text-on-surface-variant">
+              Set up your workspace to initiate optimization protocols.
+            </p>
           </div>
 
           {error && (
@@ -120,14 +137,16 @@ export default function SignupPage() {
 
           <form onSubmit={handleSignup} className="space-y-6">
             <div>
-              <label className="block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-on-surface-variant/80 mb-2 mt-4 ml-1">Editorial Name</label>
+              <label className="block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-on-surface-variant/80 mb-2 mt-4 ml-1">
+                Editorial Name
+              </label>
               <div className="relative group">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/40 group-focus-within:text-primary transition-colors" />
                 <input
                   type="text"
                   required
                   placeholder="Johnathan Doe"
-                  className="w-full pl-11 pr-4 py-4 bg-surface-2 border-none ring-1 ring-outline-variant/20 rounded-[8px] focus:ring-[2px] focus:ring-primary focus:bg-white focus:shadow-sm outline-none transition-all text-[0.95rem] font-medium"
+                  className="w-full pl-11 pr-4 py-4 bg-surface-2 border-none ring-1 ring-outline-variant/20 rounded-[8px] focus:ring-[2px] focus:ring-primary focus:bg-surface-container-lowest focus:shadow-sm outline-none transition-all text-[0.95rem] font-medium"
                   value={formData.fullName}
                   onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 />
@@ -135,14 +154,16 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label className="block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-on-surface-variant/80 mb-2 mt-4 ml-1">Identity Key</label>
+              <label className="block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-on-surface-variant/80 mb-2 mt-4 ml-1">
+                Identity Key
+              </label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/40 group-focus-within:text-primary transition-colors" />
                 <input
                   type="email"
                   required
                   placeholder="contact@suite.com"
-                  className="w-full pl-11 pr-4 py-4 bg-surface-2 border-none ring-1 ring-outline-variant/20 rounded-[8px] focus:ring-[2px] focus:ring-primary focus:bg-white focus:shadow-sm outline-none transition-all text-[0.95rem] font-medium font-mono"
+                  className="w-full pl-11 pr-4 py-4 bg-surface-2 border-none ring-1 ring-outline-variant/20 rounded-[8px] focus:ring-[2px] focus:ring-primary focus:bg-surface-container-lowest focus:shadow-sm outline-none transition-all text-[0.95rem] font-medium font-mono"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
@@ -150,14 +171,16 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label className="block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-on-surface-variant/80 mb-2 mt-4 ml-1">Security Sequence</label>
+              <label className="block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-on-surface-variant/80 mb-2 mt-4 ml-1">
+                Security Sequence
+              </label>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/40 group-focus-within:text-primary transition-colors" />
                 <input
                   type="password"
                   required
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-4 bg-surface-2 border-none ring-1 ring-outline-variant/20 rounded-[8px] focus:ring-[2px] focus:ring-primary focus:bg-white focus:shadow-sm outline-none transition-all text-[0.95rem] font-medium font-mono"
+                  className="w-full pl-11 pr-4 py-4 bg-surface-2 border-none ring-1 ring-outline-variant/20 rounded-[8px] focus:ring-[2px] focus:ring-primary focus:bg-surface-container-lowest focus:shadow-sm outline-none transition-all text-[0.95rem] font-medium font-mono"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
@@ -182,7 +205,10 @@ export default function SignupPage() {
 
           <p className="mt-12 text-center text-on-surface-variant text-[0.85rem] font-medium">
             Already have a sequence?{" "}
-            <Link href="/login" className="text-primary font-bold hover:underline decoration-2 underline-offset-4">
+            <Link
+              href="/login"
+              className="text-primary font-bold hover:underline decoration-2 underline-offset-4"
+            >
               Access Suite
             </Link>
           </p>

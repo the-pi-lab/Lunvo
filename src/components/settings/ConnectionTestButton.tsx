@@ -51,13 +51,11 @@ export function ConnectionTestButton({ profile }: ConnectionTestButtonProps) {
       <button
         onClick={handleTest}
         disabled={status === "testing"}
-        className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-700 disabled:opacity-50 flex items-center justify-center space-x-2 transition-all w-fit"
+        className="px-4 py-2 bg-primary text-on-primary rounded-lg text-sm font-medium hover:bg-primary-container disabled:opacity-50 flex items-center justify-center space-x-2 transition-all w-fit"
       >
         {status === "testing" && <Loader2 className="w-4 h-4 animate-spin" />}
         {status === "idle" && <ServerCrash className="w-4 h-4" />}
-        <span>
-          {status === "testing" ? "Pinging Provider..." : "Test Connection"}
-        </span>
+        <span>{status === "testing" ? "Pinging Provider..." : "Test Connection"}</span>
       </button>
 
       {status === "success" && (

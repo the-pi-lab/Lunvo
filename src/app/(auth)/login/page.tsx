@@ -13,7 +13,7 @@ export default function LoginPage() {
     !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder.supabase.co") &&
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.includes("placeholder-anon-key")
   );
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -25,7 +25,9 @@ export default function LoginPage() {
     e.preventDefault();
 
     if (!isSupabaseConfigured) {
-      setError("Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local, then restart the dev server.");
+      setError(
+        "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local, then restart the dev server."
+      );
       return;
     }
 
@@ -68,7 +70,9 @@ export default function LoginPage() {
       console.error("Login error:", err);
       const message = err instanceof Error ? err.message : "";
       if (/failed to fetch|placeholder|invalid url/i.test(message)) {
-        setError("Unable to connect to authentication service. Check Supabase URL/Anon key in .env.local.");
+        setError(
+          "Unable to connect to authentication service. Check Supabase URL/Anon key in .env.local."
+        );
       } else {
         setError(message || "Invalid credentials.");
       }
@@ -84,16 +88,23 @@ export default function LoginPage() {
         <div className="absolute top-0 right-0 p-24 opacity-[0.03] pointer-events-none">
           <Sparkles className="w-96 h-96 text-primary" />
         </div>
-        
+
         <div className="relative z-10">
-          <Link href="/" className="inline-flex items-center gap-2 mb-16 px-4 py-2 bg-primary/5 rounded-[6px] ring-1 ring-primary/10">
-            <img src="/brand/lunvo-logo.png" alt="LUNVO logo" className="w-4 h-4 rounded-[3px] object-contain" />
-            <span className="text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-primary">LUNVO</span>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 mb-16 px-4 py-2 bg-primary/5 rounded-[6px] ring-1 ring-primary/10"
+          >
+            <img
+              src="/brand/lunvo-logo.png"
+              alt="LUNVO logo"
+              className="w-4 h-4 rounded-[3px] object-contain"
+            />
+            <span className="text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-primary">
+              LUNVO
+            </span>
           </Link>
-          
-          <h1 className="text-6xl font-serif text-on-background leading-[1.1] mb-6">
-            LUNVO
-          </h1>
+
+          <h1 className="text-6xl font-serif text-on-background leading-[1.1] mb-6">LUNVO</h1>
           <p className="text-xl font-medium text-on-surface-variant max-w-md leading-relaxed">
             Smarter LinkedIn content. Zero guesswork.
           </p>
@@ -112,7 +123,9 @@ export default function LoginPage() {
         <div className="w-full max-w-[420px]">
           <div className="mb-12">
             <h2 className="text-3xl font-serif text-on-background mb-3">Welcome back</h2>
-            <p className="text-[0.95rem] font-medium text-on-surface-variant">Enter your credentials to access your professional suite.</p>
+            <p className="text-[0.95rem] font-medium text-on-surface-variant">
+              Enter your credentials to access your professional suite.
+            </p>
           </div>
 
           {error && (
@@ -123,14 +136,16 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-on-surface-variant/80 mb-2 mt-4 ml-1">Identity Key</label>
+              <label className="block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-on-surface-variant/80 mb-2 mt-4 ml-1">
+                Identity Key
+              </label>
               <div className="relative group">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/40 group-focus-within:text-primary transition-colors" />
                 <input
                   type="email"
                   required
                   placeholder="you@domain.com"
-                  className="w-full pl-11 pr-4 py-4 bg-surface-2 border-none ring-1 ring-outline-variant/20 rounded-[8px] focus:ring-[2px] focus:ring-primary focus:bg-white focus:shadow-sm outline-none transition-all text-[0.95rem] font-medium font-mono"
+                  className="w-full pl-11 pr-4 py-4 bg-surface-2 border-none ring-1 ring-outline-variant/20 rounded-[8px] focus:ring-[2px] focus:ring-primary focus:bg-surface-container-lowest focus:shadow-sm outline-none transition-all text-[0.95rem] font-medium font-mono"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
@@ -139,8 +154,15 @@ export default function LoginPage() {
 
             <div>
               <div className="flex items-center justify-between mb-2 mt-4 ml-1">
-                <label className="block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-on-surface-variant/80">Security Sequence</label>
-                <Link href="#" className="text-[0.6875rem] font-bold text-primary/70 hover:text-primary uppercase tracking-wider">Reset PK</Link>
+                <label className="block text-[0.6875rem] font-bold uppercase tracking-[0.1em] text-on-surface-variant/80">
+                  Security Sequence
+                </label>
+                <Link
+                  href="#"
+                  className="text-[0.6875rem] font-bold text-primary/70 hover:text-primary uppercase tracking-wider"
+                >
+                  Reset PK
+                </Link>
               </div>
               <div className="relative group">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant/40 group-focus-within:text-primary transition-colors" />
@@ -148,7 +170,7 @@ export default function LoginPage() {
                   type="password"
                   required
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-4 bg-surface-2 border-none ring-1 ring-outline-variant/20 rounded-[8px] focus:ring-[2px] focus:ring-primary focus:bg-white focus:shadow-sm outline-none transition-all text-[0.95rem] font-medium font-mono"
+                  className="w-full pl-11 pr-4 py-4 bg-surface-2 border-none ring-1 ring-outline-variant/20 rounded-[8px] focus:ring-[2px] focus:ring-primary focus:bg-surface-container-lowest focus:shadow-sm outline-none transition-all text-[0.95rem] font-medium font-mono"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
@@ -173,7 +195,10 @@ export default function LoginPage() {
 
           <p className="mt-12 text-center text-on-surface-variant text-[0.85rem] font-medium">
             Not registered in this suite?{" "}
-            <Link href="/signup" className="text-primary font-bold hover:underline decoration-2 underline-offset-4">
+            <Link
+              href="/signup"
+              className="text-primary font-bold hover:underline decoration-2 underline-offset-4"
+            >
               Create Profile
             </Link>
           </p>
