@@ -52,15 +52,43 @@ const nvidiaClients: Record<NvidiaModelKey, NvidiaTextClient> = {
     name: "nvidia_deepseek",
     modelKey: "deepseek",
     apiKey: getEnvValue("NVIDIA_API_KEY_DEEPSEEK", "NVIDIA_SHARED_API_KEY", "NVIDIA_NIM_API_KEY_2"),
-    baseURL: getEnvValue("NVIDIA_BASE_URL", "NVIDIA_SHARED_BASE_URL", "NVIDIA_NIM_BASE_URL_2", "NVIDIA_NIM_BASE_URL") || DEFAULT_NVIDIA_BASE_URL,
-    model: getEnvValue("NVIDIA_MODEL_DEEPSEEK", "NVIDIA_SHARED_MODEL", "NVIDIA_NIM_MODEL_2", "NVIDIA_NIM_MODEL") || DEFAULT_DEEPSEEK_MODEL,
+    baseURL:
+      getEnvValue(
+        "NVIDIA_BASE_URL",
+        "NVIDIA_SHARED_BASE_URL",
+        "NVIDIA_NIM_BASE_URL_2",
+        "NVIDIA_NIM_BASE_URL"
+      ) || DEFAULT_NVIDIA_BASE_URL,
+    model:
+      getEnvValue(
+        "NVIDIA_MODEL_DEEPSEEK",
+        "NVIDIA_SHARED_MODEL",
+        "NVIDIA_NIM_MODEL_2",
+        "NVIDIA_NIM_MODEL"
+      ) || DEFAULT_DEEPSEEK_MODEL,
   },
   moonshot: {
     name: "nvidia_moonshot",
     modelKey: "moonshot",
-    apiKey: getEnvValue("NVIDIA_API_KEY_MOONSHOT", "NVIDIA_PREMIUM_API_KEY", "NVIDIA_NIM_API_KEY_1"),
-    baseURL: getEnvValue("NVIDIA_BASE_URL", "NVIDIA_PREMIUM_BASE_URL", "NVIDIA_NIM_BASE_URL_1", "NVIDIA_NIM_BASE_URL") || DEFAULT_NVIDIA_BASE_URL,
-    model: getEnvValue("NVIDIA_MODEL_MOONSHOT", "NVIDIA_PREMIUM_MODEL", "NVIDIA_NIM_MODEL_1", "NVIDIA_NIM_MODEL") || DEFAULT_MOONSHOT_MODEL,
+    apiKey: getEnvValue(
+      "NVIDIA_API_KEY_MOONSHOT",
+      "NVIDIA_PREMIUM_API_KEY",
+      "NVIDIA_NIM_API_KEY_1"
+    ),
+    baseURL:
+      getEnvValue(
+        "NVIDIA_BASE_URL",
+        "NVIDIA_PREMIUM_BASE_URL",
+        "NVIDIA_NIM_BASE_URL_1",
+        "NVIDIA_NIM_BASE_URL"
+      ) || DEFAULT_NVIDIA_BASE_URL,
+    model:
+      getEnvValue(
+        "NVIDIA_MODEL_MOONSHOT",
+        "NVIDIA_PREMIUM_MODEL",
+        "NVIDIA_NIM_MODEL_1",
+        "NVIDIA_NIM_MODEL"
+      ) || DEFAULT_MOONSHOT_MODEL,
   },
 };
 
@@ -261,7 +289,14 @@ export async function callAI(
 
   if (customKeys?.groq) {
     try {
-      return await callGroq(systemPrompt, userPrompt, MODELS.groqFallback, temperature, maxTokens, customKeys.groq);
+      return await callGroq(
+        systemPrompt,
+        userPrompt,
+        MODELS.groqFallback,
+        temperature,
+        maxTokens,
+        customKeys.groq
+      );
     } catch (error) {
       providerErrors.push(`custom groq: ${normalizeError(error)}`);
       console.warn("Custom Groq failed:", error);
@@ -335,7 +370,7 @@ async function callNvidia(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${client.apiKey}`,
+        Authorization: `Bearer ${client.apiKey}`,
       },
       body: JSON.stringify({
         model: client.model,
@@ -371,10 +406,7 @@ async function callNvidia(
     };
     const payload = (await response.json()) as NvidiaResponse;
     const text =
-      payload.choices?.[0]?.message?.content ||
-      payload.output_text ||
-      payload.text ||
-      "";
+      payload.choices?.[0]?.message?.content || payload.output_text || payload.text || "";
 
     if (!text || typeof text !== "string") {
       throw new Error("empty response payload from NVIDIA NIM");
