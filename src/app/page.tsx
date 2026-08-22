@@ -246,9 +246,9 @@ export default function LandingPage() {
 
             {showSignupGate && !isLoggedIn ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-blue-50 border border-blue-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="w-16 h-16 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
                   <svg
-                    className="w-7 h-7 text-blue-600"
+                    className="w-7 h-7 text-primary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -262,10 +262,10 @@ export default function LandingPage() {
                   </svg>
                 </div>
 
-                <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+                <h2 className="text-2xl font-serif font-bold text-on-background mb-3">
                   You&apos;ve used your free analysis
                 </h2>
-                <p className="text-gray-500 text-base mb-8 max-w-sm mx-auto">
+                <p className="text-on-surface-variant text-base mb-8 max-w-sm mx-auto">
                   Sign up free to analyze unlimited posts, generate content, and track your LinkedIn
                   growth.
                 </p>
@@ -273,20 +273,22 @@ export default function LandingPage() {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <a
                     href="/signup"
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-xl text-base transition-colors"
+                    className="bg-gradient-to-br from-primary to-primary-container text-on-primary font-medium px-8 py-3 rounded-xl text-base transition-colors hover:shadow-premium"
                   >
                     Create free account →
                   </a>
                   <a
                     href="/login"
-                    className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium px-8 py-3 rounded-xl text-base transition-colors"
+                    className="bg-surface-container-lowest border border-[rgba(229,226,218,0.5)] hover:bg-surface-container-low text-on-background font-medium px-8 py-3 rounded-xl text-base transition-colors"
                   >
                     Log in
                   </a>
                 </div>
 
-                <div className="mt-10 bg-gray-50 border border-gray-200 rounded-xl p-6 max-w-sm mx-auto text-left">
-                  <p className="text-sm font-medium text-gray-700 mb-3">Free account includes:</p>
+                <div className="mt-10 bg-surface-container-low border border-[rgba(229,226,218,0.4)] rounded-[12px] p-6 max-w-sm mx-auto text-left">
+                  <p className="text-sm font-semibold text-on-background mb-3">
+                    Free account includes:
+                  </p>
                   <ul className="space-y-2">
                     {[
                       "2 post analyses per day",
@@ -295,9 +297,12 @@ export default function LandingPage() {
                       "30-day LinkedIn learning course",
                       "Saved drafts",
                     ].map((item) => (
-                      <li key={item} className="flex items-center gap-2 text-sm text-gray-600">
+                      <li
+                        key={item}
+                        className="flex items-center gap-2 text-sm text-on-surface-variant"
+                      >
                         <svg
-                          className="w-4 h-4 text-green-500 flex-shrink-0"
+                          className="w-4 h-4 text-secondary shrink-0"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -315,7 +320,9 @@ export default function LandingPage() {
                   </ul>
                 </div>
 
-                <p className="text-xs text-gray-400 mt-6">No credit card required. Free forever.</p>
+                <p className="text-xs text-on-surface-variant/50 mt-6">
+                  No credit card required. Free forever.
+                </p>
               </div>
             ) : (
               <>
@@ -327,9 +334,9 @@ export default function LandingPage() {
                 />
                 {analyzeError && (
                   <div className="max-w-6xl mx-auto mt-4">
-                    <div className="flex items-center gap-3 p-4 rounded-[8px] bg-red-50 border border-red-200">
-                      <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                      <p className="text-sm text-red-700">{analyzeError}</p>
+                    <div className="flex items-center gap-3 p-4 rounded-[8px] bg-error/10 border border-error/20">
+                      <AlertCircle className="w-5 h-5 text-error shrink-0" />
+                      <p className="text-sm text-error">{analyzeError}</p>
                     </div>
                   </div>
                 )}
@@ -344,7 +351,7 @@ export default function LandingPage() {
                   {[...ratingsFeed, ...ratingsFeed].map((item, idx) => (
                     <div
                       key={`${item.display_name}-${item.created_at}-${idx}`}
-                      className="min-w-[280px] rounded-[8px] border border-[rgba(229,226,218,0.5)] bg-white px-3 py-2"
+                      className="min-w-[280px] rounded-[8px] border border-[rgba(229,226,218,0.5)] bg-surface-container-lowest px-3 py-2"
                     >
                       <p className="text-[0.75rem] font-semibold text-on-background">
                         {item.display_name} rated {"★".repeat(item.rating)}

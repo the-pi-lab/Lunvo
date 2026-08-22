@@ -15,6 +15,7 @@ import {
   Sparkles,
   BookOpen,
 } from "lucide-react";
+import DnaTrainer from "@/components/voice-dna/DnaTrainer";
 
 interface UserProfile {
   full_name: string;
@@ -51,14 +52,15 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/login"); return; }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/login");
+        return;
+      }
 
-      const { data } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", user.id)
-        .single();
+      const { data } = await supabase.from("users").select("*").eq("id", user.id).single();
 
       const p: UserProfile = {
         full_name: data?.full_name || "",
@@ -84,13 +86,12 @@ export default function SettingsPage() {
   const handleSave = async () => {
     if (!fullName.trim()) return;
     setSaving(true);
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return;
 
-    await supabase
-      .from("users")
-      .update({ full_name: fullName.trim() })
-      .eq("id", user.id);
+    await supabase.from("users").update({ full_name: fullName.trim() }).eq("id", user.id);
 
     setSaving(false);
     setSaved(true);
@@ -127,9 +128,14 @@ export default function SettingsPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
       <div className="pt-2">
-        <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-2">Configuration</p>
+        <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-2">
+          Configuration
+        </p>
         <h1 className="text-4xl font-serif text-on-background">Settings</h1>
       </div>
+
+      {/* Voice DNA Engine */}
+      <DnaTrainer />
 
       {/* Profile Section */}
       <SettingsCard
@@ -155,7 +161,9 @@ export default function SettingsPage() {
             </label>
             <div className="flex items-center gap-3 px-4 py-3.5 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.3)]">
               <Mail className="w-4 h-4 text-on-surface-variant/30 flex-shrink-0" />
-              <span className="text-[0.9375rem] font-mono text-on-surface-variant/70">{profile?.email}</span>
+              <span className="text-[0.9375rem] font-mono text-on-surface-variant/70">
+                {profile?.email}
+              </span>
             </div>
           </div>
           <button
@@ -170,7 +178,9 @@ export default function SettingsPage() {
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : saved ? (
-              <><Check className="w-4 h-4" /> Saved</>
+              <>
+                <Check className="w-4 h-4" /> Saved
+              </>
             ) : (
               "Save Changes"
             )}
@@ -187,8 +197,9 @@ export default function SettingsPage() {
         <div className="space-y-5">
           <div className="bg-surface-2 p-4 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.3)] mb-4">
             <p className="text-[0.8125rem] text-on-surface-variant leading-relaxed">
-              LUNVO is 100% free because you provide your own API keys. 
-              Keys are stored securely in your browser's local storage and are only sent directly to our backend during generation.
+              LUNVO is 100% free because you provide your own API keys. Keys are stored securely in
+              your browser's local storage and are only sent directly to our backend during
+              generation.
             </p>
           </div>
           <div>
@@ -223,7 +234,13 @@ export default function SettingsPage() {
                 : "bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-md hover:shadow-premium"
             }`}
           >
-            {keysSaved ? <><Check className="w-4 h-4" /> Keys Saved locally</> : "Save API Keys"}
+            {keysSaved ? (
+              <>
+                <Check className="w-4 h-4" /> Keys Saved locally
+              </>
+            ) : (
+              "Save API Keys"
+            )}
           </button>
         </div>
       </SettingsCard>
@@ -237,8 +254,12 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <div className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)]">
             <div>
-              <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-1">Password</div>
-              <div className="text-[0.9375rem] font-mono text-on-surface-variant/60">••••••••••••</div>
+              <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-1">
+                Password
+              </div>
+              <div className="text-[0.9375rem] font-mono text-on-surface-variant/60">
+                ••••••••••••
+              </div>
             </div>
             <button
               onClick={handlePasswordReset}
@@ -257,51 +278,84 @@ export default function SettingsPage() {
         subtitle="Platform governance and support"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link href="/support" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+          <Link
+            href="/support"
+            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group"
+          >
             <div>
               <div className="text-[0.8125rem] font-bold text-on-background">Help Center</div>
-              <div className="text-[0.6875rem] text-on-surface-variant/60">FAQs & Analysis Guides</div>
+              <div className="text-[0.6875rem] text-on-surface-variant/60">
+                FAQs & Analysis Guides
+              </div>
             </div>
             <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
           </Link>
-          <Link href="/privacy" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+          <Link
+            href="/privacy"
+            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group"
+          >
             <div>
               <div className="text-[0.8125rem] font-bold text-on-background">Privacy Protocol</div>
-              <div className="text-[0.6875rem] text-on-surface-variant/60">Data Governance Standards</div>
+              <div className="text-[0.6875rem] text-on-surface-variant/60">
+                Data Governance Standards
+              </div>
             </div>
             <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
           </Link>
-          <Link href="/terms" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+          <Link
+            href="/terms"
+            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group"
+          >
             <div>
               <div className="text-[0.8125rem] font-bold text-on-background">Terms of Service</div>
-              <div className="text-[0.6875rem] text-on-surface-variant/60">Usage & Editorial Policy</div>
+              <div className="text-[0.6875rem] text-on-surface-variant/60">
+                Usage & Editorial Policy
+              </div>
             </div>
             <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
           </Link>
-          <a href="mailto:hello@thepilab.in" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+          <a
+            href="mailto:hello@thepilab.in"
+            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group"
+          >
             <div>
               <div className="text-[0.8125rem] font-bold text-on-background">Contact Concierge</div>
-              <div className="text-[0.6875rem] text-on-surface-variant/60">Direct Strategic Support</div>
+              <div className="text-[0.6875rem] text-on-surface-variant/60">
+                Direct Strategic Support
+              </div>
             </div>
             <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
           </a>
-          <a href="https://www.thepilab.in" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+          <a
+            href="https://www.thepilab.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group"
+          >
             <div>
               <div className="text-[0.8125rem] font-bold text-on-background">THE Π LAB Website</div>
               <div className="text-[0.6875rem] text-on-surface-variant/60">www.thepilab.in</div>
             </div>
             <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
           </a>
-          <a href="https://www.linkedin.com/company/the-%CF%80-lab/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group">
+          <a
+            href="https://www.linkedin.com/company/the-%CF%80-lab/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)] hover:bg-white hover:shadow-premium transition-all group"
+          >
             <div>
-              <div className="text-[0.8125rem] font-bold text-on-background">THE Π LAB LinkedIn</div>
-              <div className="text-[0.6875rem] text-on-surface-variant/60">Official company profile</div>
+              <div className="text-[0.8125rem] font-bold text-on-background">
+                THE Π LAB LinkedIn
+              </div>
+              <div className="text-[0.6875rem] text-on-surface-variant/60">
+                Official company profile
+              </div>
             </div>
             <ArrowRight className="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
           </a>
         </div>
       </SettingsCard>
-
     </div>
   );
 }
@@ -333,12 +387,24 @@ function SettingsCard({
   );
 }
 
-function QuotaChip({ label, value, suffix = "left" }: { label: string; value: number | string; suffix?: string }) {
+function QuotaChip({
+  label,
+  value,
+  suffix = "left",
+}: {
+  label: string;
+  value: number | string;
+  suffix?: string;
+}) {
   return (
     <div className="p-4 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.3)] text-center">
       <div className="text-2xl font-serif text-on-background mb-1">{value}</div>
-      <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono">{label}</div>
-      <div className="text-[0.5rem] font-mono text-on-surface-variant/30 uppercase tracking-widest mt-0.5">{suffix}</div>
+      <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono">
+        {label}
+      </div>
+      <div className="text-[0.5rem] font-mono text-on-surface-variant/30 uppercase tracking-widest mt-0.5">
+        {suffix}
+      </div>
     </div>
   );
 }
