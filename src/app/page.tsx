@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import PlaygroundHero from "@/components/landing/PlaygroundHero";
+import Reveal from "@/components/motion/Reveal";
 
 interface Score {
   score: number;
@@ -231,13 +232,15 @@ export default function LandingPage() {
               <p className="text-[0.75rem] font-bold uppercase tracking-[0.12em] text-primary/80 mb-5">
                 LUNVO • Open Source LinkedIn OS - Zero-Ban. BYOK. Local-First.
               </p>
-              <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif text-on-background leading-[1.05] mb-6">
-                Is your post
-                <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-container">
-                  scroll-worthy?
-                </span>
-              </h1>
+              <Reveal>
+                <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif text-on-background leading-[1.05] mb-6">
+                  Is your post
+                  <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-container">
+                    scroll-worthy?
+                  </span>
+                </h1>
+              </Reveal>
               <p className="text-base sm:text-lg md:text-xl font-medium text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
                 Paste your draft. Watch live scores update as you type. Then get a full AI editorial
                 rewrite - free.
@@ -369,69 +372,70 @@ export default function LandingPage() {
           {/* Feature Strip */}
           <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-20">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {FEATURES.map(({ icon: Icon, label, desc }) => (
-                <div
-                  key={label}
-                  className="p-4 sm:p-6 bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium hover:ring-primary/15 transition-all"
-                >
-                  <div className="w-9 h-9 bg-primary/5 rounded-[8px] flex items-center justify-center mb-4">
-                    <Icon className="w-4.5 h-4.5 text-primary" />
+              {FEATURES.map(({ icon: Icon, label, desc }, i) => (
+                <Reveal key={label} delay={i * 0.06}>
+                  <div className="p-4 sm:p-6 h-full bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium hover:ring-primary/15 transition-all">
+                    <div className="w-9 h-9 bg-primary/5 rounded-[8px] flex items-center justify-center mb-4">
+                      <Icon className="w-4.5 h-4.5 text-primary" />
+                    </div>
+                    <div className="text-[0.875rem] font-bold text-on-background mb-1">{label}</div>
+                    <div className="text-[0.8125rem] font-medium text-on-surface-variant leading-relaxed">
+                      {desc}
+                    </div>
                   </div>
-                  <div className="text-[0.875rem] font-bold text-on-background mb-1">{label}</div>
-                  <div className="text-[0.8125rem] font-medium text-on-surface-variant leading-relaxed">
-                    {desc}
-                  </div>
-                </div>
+                </Reveal>
               ))}
             </div>
           </div>
 
           {/* Comparison Table */}
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-20">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl sm:text-3xl font-serif text-on-background mb-2">
-                Why pay $199/mo?
-              </h2>
-              <p className="text-sm font-medium text-on-surface-variant">
-                Same workflow as paid tools - open source, self-hosted, yours.
-              </p>
-            </div>
-            <div className="overflow-x-auto bg-surface-container-lowest rounded-[16px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium">
-              <table className="w-full text-sm min-w-[560px]">
-                <thead>
-                  <tr className="border-b border-[rgba(229,226,218,0.4)]">
-                    <th className="text-left px-4 sm:px-6 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono">
-                      Feature
-                    </th>
-                    <th className="text-left px-4 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono">
-                      Taplio
-                    </th>
-                    <th className="text-left px-4 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono">
-                      Supergrow
-                    </th>
-                    <th className="text-left px-4 sm:px-6 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-primary font-mono">
-                      LUNVO
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {COMPARISON.map((row) => (
-                    <tr
-                      key={row.feature}
-                      className="border-b border-[rgba(229,226,218,0.25)] last:border-0"
-                    >
-                      <td className="px-4 sm:px-6 py-3.5 font-bold text-on-background">
-                        {row.feature}
-                      </td>
-                      <td className="px-4 py-3.5 text-on-surface-variant">{row.taplio}</td>
-                      <td className="px-4 py-3.5 text-on-surface-variant">{row.supergrow}</td>
-                      <td className="px-4 sm:px-6 py-3.5 font-bold text-primary">{row.lunvo}</td>
+          <Reveal>
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-20">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl sm:text-3xl font-serif text-on-background mb-2">
+                  Why pay $199/mo?
+                </h2>
+                <p className="text-sm font-medium text-on-surface-variant">
+                  Same workflow as paid tools - open source, self-hosted, yours.
+                </p>
+              </div>
+              <div className="overflow-x-auto bg-surface-container-lowest rounded-[16px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium">
+                <table className="w-full text-sm min-w-[560px]">
+                  <thead>
+                    <tr className="border-b border-[rgba(229,226,218,0.4)]">
+                      <th className="text-left px-4 sm:px-6 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono">
+                        Feature
+                      </th>
+                      <th className="text-left px-4 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono">
+                        Taplio
+                      </th>
+                      <th className="text-left px-4 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono">
+                        Supergrow
+                      </th>
+                      <th className="text-left px-4 sm:px-6 py-4 text-[0.625rem] font-bold uppercase tracking-widest text-primary font-mono">
+                        LUNVO
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {COMPARISON.map((row) => (
+                      <tr
+                        key={row.feature}
+                        className="border-b border-[rgba(229,226,218,0.25)] last:border-0"
+                      >
+                        <td className="px-4 sm:px-6 py-3.5 font-bold text-on-background">
+                          {row.feature}
+                        </td>
+                        <td className="px-4 py-3.5 text-on-surface-variant">{row.taplio}</td>
+                        <td className="px-4 py-3.5 text-on-surface-variant">{row.supergrow}</td>
+                        <td className="px-4 sm:px-6 py-3.5 font-bold text-primary">{row.lunvo}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       )}
 
