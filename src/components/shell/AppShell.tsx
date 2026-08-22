@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { runBootMaintenance } from "@/lib/cacheBust";
+import PWARegister from "@/components/PWARegister";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import CommandK from "./CommandK";
@@ -122,6 +123,8 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
       </div>
 
       <CommandK open={cmdkOpen} onClose={() => setCmdkOpen(false)} onLogout={handleLogout} />
+
+      <PWARegister />
     </div>
   );
 }
