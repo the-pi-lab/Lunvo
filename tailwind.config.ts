@@ -39,10 +39,10 @@ const config: Config = {
         mono: ["var(--font-jetbrains-mono)", "monospace"],
       },
       boxShadow: {
-        'premium': '0 12px 40px rgba(26, 24, 20, 0.06)',
-      }
+        premium: "0 12px 40px rgba(26, 24, 20, 0.06)",
+      },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };
 export default config;
