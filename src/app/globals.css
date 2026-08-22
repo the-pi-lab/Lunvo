@@ -2,29 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /* Core Brand Tokens */
-  --primary: #2563eb;
-  --secondary: #6366f1;
-  --tertiary: #f59e0b;
-  
-  /* Surface Tokens */
-  --background: #FBFAF9;
-  --on-background: #1A1814;
-  --surface: #FFFFFF;
-  --surface-container: #F1EFE9;
-  --surface-container-low: #F7F5F0;
-  --surface-container-lowest: #FFFFFF;
-  
-  /* Outline Tokens */
-  --outline: rgba(26, 24, 20, 0.12);
-  --outline-variant: rgba(26, 24, 20, 0.06);
+/* ============================================================
+   LUNVO Design Tokens 2.0 — Single Source of Truth (Phase 11)
+   Format: RGB triplets ("R G B") so Tailwind <alpha-value> works.
+   Usage: rgb(var(--primary) / <alpha-value>) in tailwind.config.ts
+   Theme switching: html[data-theme="dark"] (see src/lib/design/theme.ts)
+   ============================================================ */
 
-  /* Radius Tokens */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+:root {
+  /* Surfaces — warm cream (Light) */
+  --background: 255 248 240; /* #fff8f0 */
+  --on-background: 30 27 22; /* #1e1b16 */
+  --surface: 255 248 240;
+  --surface-2: 241 239 233; /* #f1efe9 */
+  --on-surface: 30 27 22;
+  --on-surface-variant: 67 70 85; /* #434655 */
+
+  --surface-container-lowest: 255 255 255;
+  --surface-container-low: 249 243 234; /* #f9f3ea */
+  --surface-container: 244 237 228; /* #f4ede4 */
+  --surface-container-high: 238 231 222; /* #eee7de */
+  --surface-container-highest: 232 226 217; /* #e8e2d9 */
+  --surface-bright: 255 248 240;
+  --surface-dim: 223 217 208; /* #dfd9d0 */
+
+  /* Brand */
+  --primary: 0 74 198; /* #004ac6 */
+  --on-primary: 255 255 255;
+  --primary-container: 37 99 235; /* #2563eb */
+  --secondary: 0 110 45; /* #006e2d */
+  --secondary-container: 124 249 148; /* #7cf994 */
+  --tertiary: 130 69 0; /* #824500 */
+  --tertiary-container: 166 89 0; /* #a65900 */
+  --on-tertiary-container: 255 237 225; /* #ffede1 */
+
+  /* System */
+  --outline-variant: 195 198 215; /* #c3c6d7 */
+  --error: 186 26 26; /* #ba1a1a */
+}
+
+html[data-theme="dark"] {
+  /* Surfaces — warm charcoal (Dark) */
+  --background: 21 19 14; /* #15130e */
+  --on-background: 234 225 213; /* #eae1d5 */
+  --surface: 21 19 14;
+  --surface-2: 30 27 21; /* #1e1b15 */
+  --on-surface: 234 225 213;
+  --on-surface-variant: 205 196 182; /* #cdc4b6 */
+
+  --surface-container-lowest: 15 13 10; /* #0f0d0a */
+  --surface-container-low: 26 23 18; /* #1a1712 */
+  --surface-container: 32 28 22; /* #201c16 */
+  --surface-container-high: 43 38 31; /* #2b261f */
+  --surface-container-highest: 54 48 40; /* #363028 */
+  --surface-bright: 60 55 47; /* #3c372f */
+  --surface-dim: 21 19 14;
+
+  /* Brand — lifted tones for dark contrast */
+  --primary: 171 199 255; /* #abc7ff */
+  --on-primary: 0 47 102; /* #002f66 */
+  --primary-container: 30 79 174; /* #1e4fae */
+  --secondary: 127 217 154; /* #7fd99a */
+  --secondary-container: 0 83 31; /* #00531f */
+  --tertiary: 255 184 120; /* #ffb878 */
+  --tertiary-container: 101 50 0; /* #653200 */
+  --on-tertiary-container: 255 220 196; /* #ffdcc4 */
+
+  --outline-variant: 73 69 57; /* #494539 */
+  --error: 255 180 171; /* #ffb4ab */
 }
 
 @layer base {
@@ -41,6 +86,9 @@
 
   body {
     @apply bg-background text-on-background font-sans antialiased selection:bg-primary/10 selection:text-primary;
+    transition:
+      background-color 200ms ease-out,
+      color 200ms ease-out;
   }
 
   img,
