@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { callAI, parseAIJson } from "../../../lib/ai/router";
 import { LINKEDIN_SYSTEM_PROMPT, buildGeneratePrompt, AI_CONFIG } from "@/lib/ai/prompts";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
 import { predictEngagementRate } from "@/lib/ai/scoringEngine";
 import { fetchCurrentsNewsByKeyword } from "@/lib/news/currentsService";
 import { searchTrendingArticles } from "@/lib/rss/searchService";
@@ -66,12 +67,17 @@ function appendNewsContextToPrompt(basePrompt: string, newsContext: NewsContext 
     lines.push(`URL: ${newsContext.link}`);
   }
 
-  lines.push("Instructions: Keep claims grounded in the context above. Do not invent facts or numbers.");
+  lines.push(
+    "Instructions: Keep claims grounded in the context above. Do not invent facts or numbers."
+  );
 
   return `${basePrompt}\n${lines.join("\n")}`;
 }
 
-async function resolveNewsContext(topic: string, providedNews: NewsContext | null): Promise<NewsContext | null> {
+async function resolveNewsContext(
+  topic: string,
+  providedNews: NewsContext | null
+): Promise<NewsContext | null> {
   if (providedNews) {
     return providedNews;
   }
@@ -120,14 +126,14 @@ export async function POST(req: NextRequest) {
     const providedNews = normalizeNewsContext(body?.news);
 
     if (!topic || topic.length < 5) {
-      return NextResponse.json(
-        { error: "Topic is too short (min 5 characters)" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Topic is too short (min 5 characters)" }, { status: 400 });
     }
 
     const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -146,14 +152,16 @@ export async function POST(req: NextRequest) {
 
     const userPlan = (userData.plan as any) || "free";
 
-    const { data: limitCheck, error: limitError } = await supabase
-      .rpc("check_and_increment_generate", {
+    const { data: limitCheck, error: limitError } = await supabase.rpc(
+      "check_and_increment_generate",
+      {
         p_user_id: user.id,
         p_plan: userPlan,
-      });
+      }
+    );
 
     if (limitError) {
-      console.error("Limit check error:", limitError);
+      logger.error("Limit check error", limitError, { route: "generate", step: "limit-check" });
       return NextResponse.json({ error: "Service error" }, { status: 500 });
     }
 
@@ -282,7 +290,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (saveError) {
-      console.error("Post save error:", saveError);
+      logger.error("Post save error", saveError, { route: "generate" });
       return NextResponse.json({ error: "Failed to save generated post" }, { status: 500 });
     }
 
@@ -311,9 +319,8 @@ export async function POST(req: NextRequest) {
     };
 
     return NextResponse.json(responsePayload);
-
   } catch (error: any) {
-    console.error("Generation API Error:", error);
+    logger.error("Generation API Error", error, { route: "generate" });
 
     const message = typeof error?.message === "string" ? error.message : "Generation failed";
     const lowered = message.toLowerCase();

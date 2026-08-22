@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { logger } from "@/lib/logger";
 import Groq from "groq-sdk";
 
 let _gemini: GoogleGenerativeAI | null = null;
@@ -283,7 +284,7 @@ export async function callAI(
       return await callGemini(systemPrompt, userPrompt, temperature, maxTokens, customKeys.gemini);
     } catch (error) {
       providerErrors.push(`custom gemini: ${normalizeError(error)}`);
-      console.warn("Custom Gemini failed:", error);
+      logger.warn("Custom Gemini failed", { provider: "custom-gemini" }, error);
     }
   }
 
@@ -299,7 +300,7 @@ export async function callAI(
       );
     } catch (error) {
       providerErrors.push(`custom groq: ${normalizeError(error)}`);
-      console.warn("Custom Groq failed:", error);
+      logger.warn("Custom Groq failed", { provider: "custom-groq" }, error);
     }
   }
 
@@ -325,7 +326,7 @@ export async function callAI(
     } catch (error) {
       const message = normalizeError(error);
       providerErrors.push(`${client.name}: ${message}`);
-      console.warn(`NVIDIA call failed (${client.name}):`, message);
+      logger.warn("NVIDIA call failed", { client: client.name, message });
     }
   }
 
@@ -334,7 +335,7 @@ export async function callAI(
       return await callGemini(systemPrompt, userPrompt, temperature, maxTokens);
     } catch (error) {
       providerErrors.push(`gemini fallback: ${normalizeError(error)}`);
-      console.warn("Gemini fallback failed:", error);
+      logger.warn("Gemini fallback failed", { provider: "gemini" }, error);
     }
   } else {
     providerErrors.push("gemini fallback unavailable (missing GEMINI_API_KEY)");
@@ -345,7 +346,7 @@ export async function callAI(
       return await callGroq(systemPrompt, userPrompt, MODELS.groqFallback, temperature, maxTokens);
     } catch (error) {
       providerErrors.push(`groq fallback: ${normalizeError(error)}`);
-      console.warn("Groq fallback failed:", error);
+      logger.warn("Groq fallback failed", { provider: "groq" }, error);
     }
   } else {
     providerErrors.push("groq fallback unavailable (missing GROQ_API_KEY)");
@@ -490,7 +491,7 @@ export function parseAIJson<T>(rawText: string): T {
       try {
         return JSON.parse(jsonContent) as T;
       } catch {
-        console.error("Failed to parse extracted JSON block:", jsonContent);
+        logger.error("Failed to parse extracted JSON block", jsonContent);
       }
     }
 
@@ -501,7 +502,7 @@ export function parseAIJson<T>(rawText: string): T {
     try {
       return JSON.parse(repaired) as T;
     } catch {
-      console.error("All AI JSON parsing attempts failed for text:", rawText);
+      logger.error("All AI JSON parsing attempts failed for text", rawText);
       throw new Error("Could not parse AI response as valid data structure.");
     }
   }
