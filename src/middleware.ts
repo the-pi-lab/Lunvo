@@ -11,6 +11,18 @@ export async function middleware(request: NextRequest) {
     .getAll()
     .some((cookie) => cookie.name.includes("auth-token"));
 
+  // Check if we are in Local Mode (no Supabase URL)
+  const isLocalMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.trim() === '';
+
+  if (isLocalMode) {
+    // Bypass all Supabase auth logic in Local Mode
+    return NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    });
+  }
+
   // Fast path: if no auth cookie, avoid expensive auth roundtrip.
   if (!hasAuthCookie) {
     if (isAdminRoute) {
