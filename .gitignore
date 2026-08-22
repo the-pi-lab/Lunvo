@@ -46,3 +46,10 @@ Ebook-The Hustle-LinkedIn Success Database_ 50 Viral Posts Decoded-1.pdf
 # lunvo backups
 *.backup.*
 REBUILD_PLAN.md.backup*
+
+# testing
+coverage
+playwright-report
+test-results
+playwright/.cache
+
