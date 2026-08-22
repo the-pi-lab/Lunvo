@@ -16,6 +16,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import DnaTrainer from "@/components/voice-dna/DnaTrainer";
+import { isLocalMode, getLocalProfile } from "@/lib/localMode";
 
 interface UserProfile {
   full_name: string;
@@ -52,6 +53,21 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      if (isLocalMode()) {
+        const lp = getLocalProfile();
+        setProfile({
+          full_name: lp.full_name,
+          email: lp.email,
+          plan: lp.plan,
+          daily_analyze_count: 0,
+          daily_generate_count: 0,
+          streak_count: 0,
+        });
+        setFullName(lp.full_name);
+        setLoading(false);
+        return;
+      }
+
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -86,10 +102,19 @@ export default function SettingsPage() {
   const handleSave = async () => {
     if (!fullName.trim()) return;
     setSaving(true);
+    if (isLocalMode()) {
+      setSaving(false);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+      return;
+    }
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      setSaving(false);
+      return;
+    }
 
     await supabase.from("users").update({ full_name: fullName.trim() }).eq("id", user.id);
 

@@ -12,6 +12,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { isLocalMode } from "@/lib/localMode";
 import { getApiHeaders } from "@/lib/apiHelper";
 
 // --- Types ---
@@ -39,7 +40,8 @@ export default function AnalyzePostPage() {
   const [postContent, setPostContent] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const supabase = createClient();
-  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const searchParams =
+    typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
 
   useEffect(() => {
     // Check for content in URL
@@ -81,7 +83,6 @@ export default function AnalyzePostPage() {
   return (
     <div className="max-w-4xl mx-auto">
       <AnimatePresence mode="wait">
-
         {/* INPUT */}
         {view === "input" && (
           <motion.div
@@ -92,9 +93,13 @@ export default function AnalyzePostPage() {
             className="space-y-8"
           >
             <div className="pt-2">
-              <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-2">Analysis Engine</p>
+              <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-2">
+                Analysis Engine
+              </p>
               <h1 className="text-4xl font-serif text-on-background mb-2">Audit your post.</h1>
-              <p className="text-[0.95rem] font-medium text-on-surface-variant">Paste any LinkedIn post. Get a full editorial breakdown in seconds.</p>
+              <p className="text-[0.95rem] font-medium text-on-surface-variant">
+                Paste any LinkedIn post. Get a full editorial breakdown in seconds.
+              </p>
             </div>
 
             <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium focus-within:ring-primary/30 transition-all">
@@ -131,7 +136,9 @@ export default function AnalyzePostPage() {
             className="flex flex-col items-center justify-center min-h-[60vh]"
           >
             <Loader2 className="w-10 h-10 text-primary animate-spin mb-6" />
-            <h2 className="text-xl font-serif text-on-background mb-2">Running editorial analysis...</h2>
+            <h2 className="text-xl font-serif text-on-background mb-2">
+              Running editorial analysis...
+            </h2>
             <div className="mt-6 space-y-3 w-full max-w-xs">
               <div className="h-2 bg-surface-container rounded-full animate-pulse w-4/5" />
               <div className="h-2 bg-surface-container rounded-full animate-pulse w-full" />
@@ -162,12 +169,20 @@ export default function AnalyzePostPage() {
 
               <div className="bg-surface-container-lowest rounded-[12px] p-5 ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium flex items-center gap-5">
                 <div>
-                  <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-1">Overall Quality</div>
-                  <div className={`text-4xl font-serif leading-none ${
-                    (result?.overall_score ?? 0) <= 4 ? "text-error" :
-                    (result?.overall_score ?? 0) <= 6 ? "text-tertiary" : "text-secondary"
-                  }`}>
-                    {result?.overall_score}<span className="text-xl text-on-surface-variant/30">/10</span>
+                  <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-1">
+                    Overall Quality
+                  </div>
+                  <div
+                    className={`text-4xl font-serif leading-none ${
+                      (result?.overall_score ?? 0) <= 4
+                        ? "text-error"
+                        : (result?.overall_score ?? 0) <= 6
+                          ? "text-tertiary"
+                          : "text-secondary"
+                    }`}
+                  >
+                    {result?.overall_score}
+                    <span className="text-xl text-on-surface-variant/30">/10</span>
                   </div>
                 </div>
               </div>
@@ -175,20 +190,32 @@ export default function AnalyzePostPage() {
 
             {/* Score Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {result && Object.entries(result.scores).map(([key, value]) => (
-                <div
-                  key={key}
-                  className="bg-surface-container-lowest rounded-[12px] p-6 ring-1 ring-[rgba(229,226,218,0.4)] hover:shadow-premium transition-all"
-                >
-                  <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-3">{key}</div>
-                  <div className={`text-3xl font-serif mb-3 ${
-                    value.score <= 4 ? "text-error" : value.score <= 6 ? "text-tertiary" : "text-secondary"
-                  }`}>
-                    {value.score}<span className="text-base text-on-surface-variant/30">/10</span>
+              {result &&
+                Object.entries(result.scores).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className="bg-surface-container-lowest rounded-[12px] p-6 ring-1 ring-[rgba(229,226,218,0.4)] hover:shadow-premium transition-all"
+                  >
+                    <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-3">
+                      {key}
+                    </div>
+                    <div
+                      className={`text-3xl font-serif mb-3 ${
+                        value.score <= 4
+                          ? "text-error"
+                          : value.score <= 6
+                            ? "text-tertiary"
+                            : "text-secondary"
+                      }`}
+                    >
+                      {value.score}
+                      <span className="text-base text-on-surface-variant/30">/10</span>
+                    </div>
+                    <p className="text-[0.8125rem] font-medium text-on-surface-variant leading-relaxed">
+                      {value.explanation}
+                    </p>
                   </div>
-                  <p className="text-[0.8125rem] font-medium text-on-surface-variant leading-relaxed">{value.explanation}</p>
-                </div>
-              ))}
+                ))}
             </div>
 
             {/* Problems + Rewrite */}
@@ -200,7 +227,10 @@ export default function AnalyzePostPage() {
                 </div>
                 <ul className="space-y-4">
                   {result?.top_problems.map((problem, i) => (
-                    <li key={i} className="flex gap-3 text-on-surface font-medium text-[0.9375rem] leading-relaxed">
+                    <li
+                      key={i}
+                      className="flex gap-3 text-on-surface font-medium text-[0.9375rem] leading-relaxed"
+                    >
                       <span className="text-error/30 font-mono">—</span> {problem}
                     </li>
                   ))}
@@ -226,7 +256,8 @@ export default function AnalyzePostPage() {
               <div className="relative z-10 max-w-xl mx-auto">
                 <h3 className="text-2xl font-serif mb-3">Scale your editorial precision.</h3>
                 <p className="text-on-primary/80 font-medium text-[0.95rem] mb-8 leading-relaxed">
-                  Every post you write will be automatically optimized to perfectly match your brand voice, career goals, and target audience.
+                  Every post you write will be automatically optimized to perfectly match your brand
+                  voice, career goals, and target audience.
                 </p>
                 <a
                   href="/dashboard/create"
@@ -238,9 +269,7 @@ export default function AnalyzePostPage() {
             </div>
           </motion.div>
         )}
-
       </AnimatePresence>
-
     </div>
   );
 }

@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { isLocalMode } from "@/lib/localMode";
 
 // 30 LinkedIn lessons — fully static, zero API cost
 const LESSONS = [
@@ -47,8 +48,9 @@ Telling someone to stop doing something they do = instant attention.
 Take your last LinkedIn post (or any post you were planning). 
 Rewrite just the first line using one of the 3 patterns above.
 Paste it in the analyzer and see if your Hook score improves.`,
-    takeaway: "Your hook is worth 50% of your post's success. Write it last, after you know what the post is about.",
-    action: "Rewrite a hook"
+    takeaway:
+      "Your hook is worth 50% of your post's success. Write it last, after you know what the post is about.",
+    action: "Rewrite a hook",
   },
   {
     day: 2,
@@ -101,8 +103,9 @@ This is why consistency compounds — each post builds on the last.
 Next time you post, set a timer for 60 minutes.
 Reply to every comment that comes in during that hour.
 Watch what happens to your reach compared to posts where you didn't reply.`,
-    takeaway: "The first hour after posting is everything. Be present, reply fast, and never add external links in the post body.",
-    action: "Generate a post"
+    takeaway:
+      "The first hour after posting is everything. Be present, reply fast, and never add external links in the post body.",
+    action: "Generate a post",
   },
   {
     day: 3,
@@ -149,8 +152,9 @@ Both reward consistency over perfect timing.
 Decide on YOUR posting time based on your target audience.
 Set a calendar reminder. Stick to it for 30 days.
 Consistency beats perfect timing every time.`,
-    takeaway: "Wednesday 6 PM is peak. But consistency at any time beats perfect timing inconsistently.",
-    action: "Schedule a reminder"
+    takeaway:
+      "Wednesday 6 PM is peak. But consistency at any time beats perfect timing inconsistently.",
+    action: "Schedule a reminder",
   },
   {
     day: 4,
@@ -203,8 +207,9 @@ In 90 days, you become "the person who knows about X."
 Look at your last 5 LinkedIn posts.
 Would a recruiter in your target industry see expertise and clear thinking?
 If not — what ONE topic could you own?`,
-    takeaway: "Recruiters look at your posts before your resume. Post about ONE thing consistently and show your thinking, not just your wins.",
-    action: "Generate a post"
+    takeaway:
+      "Recruiters look at your posts before your resume. Post about ONE thing consistently and show your thinking, not just your wins.",
+    action: "Generate a post",
   },
   {
     day: 5,
@@ -257,8 +262,9 @@ CTA: "What's the ONE thing that finally broke your job search open?"
 Take any idea you've been thinking about.
 Fit it into the 5-part structure above.
 Paste it in the post generator with your topic — then compare.`,
-    takeaway: "Hook → Tension → Evidence → Lesson → CTA. Every line must earn its place or get cut.",
-    action: "Generate a post"
+    takeaway:
+      "Hook → Tension → Evidence → Lesson → CTA. Every line must earn its place or get cut.",
+    action: "Generate a post",
   },
   {
     day: 6,
@@ -307,8 +313,9 @@ Most people see a 40-60% increase in profile views within 30 days.
 Find 3 posts in your niche right now.
 Leave one genuine, specific, valuable comment on each.
 Not "Great post!" — something that shows you actually read and thought about it.`,
-    takeaway: "Comments on others' posts are free advertising. One great comment on a viral post can send hundreds of people to your profile.",
-    action: "Generate a post"
+    takeaway:
+      "Comments on others' posts are free advertising. One great comment on a viral post can send hundreds of people to your profile.",
+    action: "Generate a post",
   },
   {
     day: 7,
@@ -362,8 +369,9 @@ But: "I spent 3 months building X. Here's what I got completely wrong."
 Look at your last 5 posts.
 How many are company-focused vs experience-focused?
 Rewrite one company-focused post to center YOUR experience.`,
-    takeaway: "People follow people. Post as a human with experiences, not as a brand with features.",
-    action: "Generate a post"
+    takeaway:
+      "People follow people. Post as a human with experiences, not as a brand with features.",
+    action: "Generate a post",
   },
   {
     day: 8,
@@ -416,8 +424,9 @@ Think of one genuine failure or mistake from your work/career.
 Not catastrophic. Just real.
 Write the first line of that story as a hook.
 Paste it in the generator and see what comes out.`,
-    takeaway: "Failure posts get 1.34x more reach because they feel real. Share the specific moment, not the vague lesson.",
-    action: "Generate a post"
+    takeaway:
+      "Failure posts get 1.34x more reach because they feel real. Share the specific moment, not the vague lesson.",
+    action: "Generate a post",
   },
   {
     day: 9,
@@ -467,8 +476,9 @@ Take your next post idea.
 Write it, then count the words.
 If it's over 200, cut until it's 150-180.
 If it's under 100, you need more story.`,
-    takeaway: "150-200 words is the sweet spot. Enough to trigger 'See more', short enough to actually be read.",
-    action: "Analyze a post"
+    takeaway:
+      "150-200 words is the sweet spot. Enough to trigger 'See more', short enough to actually be read.",
+    action: "Analyze a post",
   },
   {
     day: 10,
@@ -517,7 +527,7 @@ Find your 2 permanent hashtags.
 Use them on every post. Consistently.
 Track if posts with these 2 tags get more reach than posts without.`,
     takeaway: "2 hashtags maximum. Put them at the end. Use niche-specific, not generic ones.",
-    action: "Generate a post"
+    action: "Generate a post",
   },
   {
     day: 11,
@@ -569,8 +579,9 @@ Both reward consistency within a niche.
 Write down: What is ONE topic I know more about than most people I know?
 That's your primary pillar.
 Commit to it for 90 days. No exceptions.`,
-    takeaway: "Pick ONE topic and own it for 90 days. You can't be known for everything. Be known for something.",
-    action: "Generate a post"
+    takeaway:
+      "Pick ONE topic and own it for 90 days. You can't be known for everything. Be known for something.",
+    action: "Generate a post",
   },
   {
     day: 12,
@@ -621,8 +632,9 @@ This works because THEY initiated. You're following their signal.
 Find 3 people who engaged with your posts this week.
 Send them a thoughtful follow-up DM using the formula above.
 No pitch. Just a genuine continuation of the conversation.`,
-    takeaway: "DMs work when you've given first. Comment authentically, then DM. Reference specifics, not generics.",
-    action: "Generate a post"
+    takeaway:
+      "DMs work when you've given first. Comment authentically, then DM. Reference specifics, not generics.",
+    action: "Generate a post",
   },
   {
     day: 13,
@@ -670,8 +682,9 @@ Look at your best-performing post ever.
 Pick 3 of the 10 formats above.
 Outline what each repurposed post would look like.
 Schedule them for the coming weeks.`,
-    takeaway: "1 great idea = 10 different posts. Most followers never saw the original. Repurposing is not repetition.",
-    action: "Generate a post"
+    takeaway:
+      "1 great idea = 10 different posts. Most followers never saw the original. Repurposing is not repetition.",
+    action: "Generate a post",
   },
   {
     day: 14,
@@ -727,7 +740,7 @@ Go through each item in the audit above.
 Write down your 3 biggest gaps.
 Those become your focus for the next 7 days.`,
     takeaway: "Review beats create. Know what's working before you create more content.",
-    action: "Analyze a post"
+    action: "Analyze a post",
   },
   {
     day: 15,
@@ -780,8 +793,9 @@ You're just the person who went through the experience.
 Think of a real moment in your life/career that had genuine tension.
 Write just the first 3 lines using the STSC framework.
 Share it through the post generator and see how it develops.`,
-    takeaway: "Scene → Tension → Shift → Consequence. Drop readers into the moment, not into context.",
-    action: "Generate a post"
+    takeaway:
+      "Scene → Tension → Shift → Consequence. Drop readers into the moment, not into context.",
+    action: "Generate a post",
   },
   {
     day: 16,
@@ -835,8 +849,9 @@ Many will check your profile. Some will follow.
 Find 5 creators in your niche right now.
 Follow them. Comment on their most recent post.
 Set a reminder to do this every day for the next 30 days.`,
-    takeaway: "0-500 is an active game. Comment strategically on bigger accounts daily. Post consistently even when it gets no reach.",
-    action: "Generate a post"
+    takeaway:
+      "0-500 is an active game. Comment strategically on bigger accounts daily. Post consistently even when it gets no reach.",
+    action: "Generate a post",
   },
   {
     day: 17,
@@ -890,8 +905,9 @@ If the caption hooks them, they'll swipe.
 Think of one framework or process you know well.
 Outline it as an 8-slide carousel using the structure above.
 Note it for when image/carousel generation launches in this tool.`,
-    takeaway: "Carousels get 3x reach because slide views count as engagement signals. One idea per slide, hook on slide 1.",
-    action: "Generate a post"
+    takeaway:
+      "Carousels get 3x reach because slide views count as engagement signals. One idea per slide, hook on slide 1.",
+    action: "Generate a post",
   },
   {
     day: 18,
@@ -944,8 +960,9 @@ If no → find the angle that would.
 Think about something that happened at work this week.
 Not a win. Not a milestone. Just something real.
 Write the first line using one of the 5 formats above.`,
-    takeaway: "Don't describe your role. Share your experiences. Roles are boring. Experiences are interesting.",
-    action: "Generate a post"
+    takeaway:
+      "Don't describe your role. Share your experiences. Roles are boring. Experiences are interesting.",
+    action: "Generate a post",
   },
   {
     day: 19,
@@ -995,8 +1012,9 @@ If no → you're posting for posting's sake. Stop and refocus.
 Look at your follower count this week vs last week.
 Is it growing, flat, or shrinking?
 If flat or shrinking: which of the 5 reasons above might apply to you?`,
-    takeaway: "Losing followers is a signal problem. Stay on topic, maintain quality, and engage — don't just broadcast.",
-    action: "Analyze a post"
+    takeaway:
+      "Losing followers is a signal problem. Stay on topic, maintain quality, and engage — don't just broadcast.",
+    action: "Analyze a post",
   },
   {
     day: 20,
@@ -1055,8 +1073,9 @@ If you're a student: What are you currently learning or building?
 Write the first line of a post about it.
 If you're not a student: What do you know now that you wish you'd known as a student?
 That's a post.`,
-    takeaway: "Students who post consistently have near-zero competition on LinkedIn. Document your learning journey before it's over.",
-    action: "Generate a post"
+    takeaway:
+      "Students who post consistently have near-zero competition on LinkedIn. Document your learning journey before it's over.",
+    action: "Generate a post",
   },
   {
     day: 21,
@@ -1110,8 +1129,9 @@ Write down 3 honest answers:
 3. What is the ONE thing I will change in week 4?
 
 Then generate a post about your 3-week journey. Authenticity gets engagement.`,
-    takeaway: "3 weeks shows direction, not destination. If engagement trends up, keep going. If flat, it's a quality issue.",
-    action: "Generate a post"
+    takeaway:
+      "3 weeks shows direction, not destination. If engagement trends up, keep going. If flat, it's a quality issue.",
+    action: "Generate a post",
   },
   {
     day: 22,
@@ -1169,8 +1189,9 @@ This works because you've created a specific reason to comment.
 Take your last 3 posts.
 Rewrite the CTA of each using the "GREAT" format.
 Save these rewrites — use them in future posts.`,
-    takeaway: "Great CTAs are specific, personal, and answerable. 'What do you think?' is not a CTA — it's a shrug.",
-    action: "Analyze a post"
+    takeaway:
+      "Great CTAs are specific, personal, and answerable. 'What do you think?' is not a CTA — it's a shrug.",
+    action: "Analyze a post",
   },
   {
     day: 23,
@@ -1227,8 +1248,9 @@ Go back and look at your "failed" posts.
 What do they have in common?
 What did the higher-performing posts do differently?
 Write down the 1 pattern you notice.`,
-    takeaway: "Every post is a compound. Deleting breaks the chain. Even low-performing posts build your presence.",
-    action: "Analyze a post"
+    takeaway:
+      "Every post is a compound. Deleting breaks the chain. Even low-performing posts build your presence.",
+    action: "Analyze a post",
   },
   {
     day: 24,
@@ -1285,8 +1307,9 @@ If no → reconsider.
 What's ONE thing you genuinely believe about your industry that most people don't say publicly?
 That's your controversial post.
 Write it using the "Industry myth-busting" or "Honest uncomfortable truth" format.`,
-    takeaway: "Bold posts outperform neutral posts. Controversy = discussion. But attack ideas, not people.",
-    action: "Generate a post"
+    takeaway:
+      "Bold posts outperform neutral posts. Controversy = discussion. But attack ideas, not people.",
+    action: "Generate a post",
   },
   {
     day: 25,
@@ -1350,8 +1373,9 @@ If you can't remember the numbers — estimate. "Roughly 3x" is better than noth
 Rewrite your headline using the formula above.
 Then rewrite the first paragraph of your About section in first person.
 These two changes alone can significantly increase profile view-to-connection rate.`,
-    takeaway: "Your headline is your 24/7 ad. Make it say what you do and who you help — not just your job title.",
-    action: "Analyze a post"
+    takeaway:
+      "Your headline is your 24/7 ad. Make it say what you do and who you help — not just your job title.",
+    action: "Analyze a post",
   },
   {
     day: 26,
@@ -1409,8 +1433,9 @@ Creative sessions benefit from focus and flow — not daily interruptions.
 Set a 2-hour block this weekend for content batching.
 Before that session, add to your "Post Ideas" note every time something interesting happens.
 Come to the session with ideas, not a blank page.`,
-    takeaway: "Batch write all posts in one 2-hour session per week. Context switching kills consistency.",
-    action: "Generate a post"
+    takeaway:
+      "Batch write all posts in one 2-hour session per week. Context switching kills consistency.",
+    action: "Generate a post",
   },
   {
     day: 27,
@@ -1467,8 +1492,9 @@ Open your LinkedIn analytics right now.
 Write down your current follower count, total post impressions this week, and comment count.
 This is your baseline.
 Check again next Monday.`,
-    takeaway: "Track comments, follower growth, and profile visits. Ignore impressions and total reactions.",
-    action: "Analyze a post"
+    takeaway:
+      "Track comments, follower growth, and profile visits. Ignore impressions and total reactions.",
+    action: "Analyze a post",
   },
   {
     day: 28,
@@ -1530,8 +1556,9 @@ What feels boring to you is fascinating to your audience.
 What's the most interesting thing that happened in your work this week?
 Write the first draft of a post about it using the building-in-public framework.
 Share it before it feels "ready."`,
-    takeaway: "Build in public. Share the mistakes, surprises, and decisions — not just the wins. That's what builds a founder audience.",
-    action: "Generate a post"
+    takeaway:
+      "Build in public. Share the mistakes, surprises, and decisions — not just the wins. That's what builds a founder audience.",
+    action: "Generate a post",
   },
   {
     day: 29,
@@ -1589,8 +1616,9 @@ What do you want your LinkedIn to look like?
 How many followers? What kind of opportunities?
 Make it specific. Put it somewhere you'll see it.
 On days when a post gets 3 likes — read it.`,
-    takeaway: "The first 2 months are the hardest and least rewarding. Month 6 is where the compounding shows. Don't quit before month 6.",
-    action: "Generate a post"
+    takeaway:
+      "The first 2 months are the hardest and least rewarding. Month 6 is where the compounding shows. Don't quit before month 6.",
+    action: "Generate a post",
   },
   {
     day: 30,
@@ -1652,9 +1680,10 @@ This kind of reflection post almost always performs well.
 Because readers are also learning — and they want to know they're not alone.
 
 You've built something here. Keep building.`,
-    takeaway: "You have the knowledge. Now you need the reps. 1 post/week + 10 comments/week for 6 months = real growth.",
-    action: "Generate a post"
-  }
+    takeaway:
+      "You have the knowledge. Now you need the reps. 1 post/week + 10 comments/week for 6 months = real growth.",
+    action: "Generate a post",
+  },
 ];
 
 interface LearnNewsItem {
@@ -1679,15 +1708,21 @@ export default function LearnPage() {
 
   useEffect(() => {
     async function loadLearnData() {
+      if (isLocalMode()) {
+        setIsLoading(false);
+        return;
+      }
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         setIsLoading(false);
       } else {
         const { data } = await supabase
-          .from('users')
-          .select('created_at')
-          .eq('id', user.id)
+          .from("users")
+          .select("created_at")
+          .eq("id", user.id)
           .single();
 
         if (data) {
@@ -1703,13 +1738,13 @@ export default function LearnPage() {
       }
 
       try {
-        const response = await fetch('/api/learn-news', { cache: 'no-store' });
+        const response = await fetch("/api/learn-news", { cache: "no-store" });
         if (response.ok) {
           const payload = await response.json();
           setTopicNews((payload.items || []) as LearnNewsItem[]);
         }
       } catch (error) {
-        console.error('Failed to fetch learn news:', error);
+        console.error("Failed to fetch learn news:", error);
       } finally {
         setIsNewsLoading(false);
       }
@@ -1736,8 +1771,12 @@ export default function LearnPage() {
     <div className="max-w-2xl mx-auto p-4 sm:p-6">
       {/* Topic News */}
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-gray-900 mb-3">Daily Topic News (10 Focus Topics)</h2>
-        <p className="text-[0.68rem] text-gray-500 mb-3">Headlines link to original publishers. Rights remain with source websites.</p>
+        <h2 className="text-sm font-semibold text-gray-900 mb-3">
+          Daily Topic News (10 Focus Topics)
+        </h2>
+        <p className="text-[0.68rem] text-gray-500 mb-3">
+          Headlines link to original publishers. Rights remain with source websites.
+        </p>
         {isNewsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {[...Array(4)].map((_, i) => (
@@ -1748,7 +1787,9 @@ export default function LearnPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {topicNews.map((item) => (
               <div key={item.topic} className="rounded-lg border border-gray-200 bg-white p-3">
-                <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-700 mb-1">{item.topic}</p>
+                <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-blue-700 mb-1">
+                  {item.topic}
+                </p>
                 {item.article ? (
                   <>
                     <a
@@ -1759,11 +1800,15 @@ export default function LearnPage() {
                     >
                       {item.article.title}
                     </a>
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{item.article.description}</p>
+                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                      {item.article.description}
+                    </p>
                     <p className="text-[0.68rem] text-gray-400 mt-1">{item.article.source}</p>
                   </>
                 ) : (
-                  <p className="text-xs text-gray-500">No fresh article found for this topic yet.</p>
+                  <p className="text-xs text-gray-500">
+                    No fresh article found for this topic yet.
+                  </p>
                 )}
               </div>
             ))}
@@ -1788,10 +1833,10 @@ export default function LearnPage() {
                 onClick={() => setSelectedLessonDay(day)}
                 className={`rounded-md px-2 py-2 text-[0.72rem] sm:text-xs font-semibold transition-colors ${
                   isLocked
-                    ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                    ? "bg-gray-100 text-gray-300 cursor-not-allowed"
                     : isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white border border-gray-200 text-gray-700 hover:border-blue-400'
+                      ? "bg-blue-600 text-white"
+                      : "bg-white border border-gray-200 text-gray-700 hover:border-blue-400"
                 }`}
                 title={isLocked ? `Unlocks on Day ${day}` : `Open Day ${day}`}
               >
@@ -1811,13 +1856,9 @@ export default function LearnPage() {
           <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
             {currentLesson.tag}
           </span>
-          <span className="text-xs text-gray-400">
-            {currentLesson.duration}
-          </span>
+          <span className="text-xs text-gray-400">{currentLesson.duration}</span>
         </div>
-        <h1 className="text-2xl font-semibold text-gray-900 mt-3">
-          {currentLesson.title}
-        </h1>
+        <h1 className="text-2xl font-semibold text-gray-900 mt-3">{currentLesson.title}</h1>
         {/* Progress bar */}
         <div className="mt-4 bg-gray-100 rounded-full h-1.5">
           <div
@@ -1830,11 +1871,8 @@ export default function LearnPage() {
 
       {/* Lesson Content */}
       <div className="prose prose-sm max-w-none mb-8">
-        {currentLesson.content.split('\n\n').map((paragraph, idx) => (
-          <p
-            key={idx}
-            className="text-gray-700 leading-relaxed mb-4 whitespace-pre-line text-sm"
-          >
+        {currentLesson.content.split("\n\n").map((paragraph, idx) => (
+          <p key={idx} className="text-gray-700 leading-relaxed mb-4 whitespace-pre-line text-sm">
             {paragraph}
           </p>
         ))}
@@ -1853,12 +1891,12 @@ export default function LearnPage() {
       {/* Action Button */}
       <button
         onClick={() => {
-          if (currentLesson.action === 'Generate a post') {
-            window.location.href = '/dashboard/create';
-          } else if (currentLesson.action === 'Analyze a post') {
-            window.location.href = '/dashboard/analyze';
+          if (currentLesson.action === "Generate a post") {
+            window.location.href = "/dashboard/create";
+          } else if (currentLesson.action === "Analyze a post") {
+            window.location.href = "/dashboard/analyze";
           } else {
-            window.location.href = '/dashboard/create';
+            window.location.href = "/dashboard/create";
           }
         }}
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-xl text-sm transition-colors"

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
@@ -100,6 +101,18 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
           onOpenMobile={() => setMobileOpen(true)}
           onOpenCmdK={() => setCmdkOpen(true)}
         />
+
+        {localMode && (
+          <div className="px-4 sm:px-6 lg:px-8 pt-4">
+            <div className="max-w-7xl mx-auto flex items-center gap-2.5 px-4 py-2.5 rounded-[10px] bg-tertiary/10 border border-tertiary/25">
+              <Zap className="w-3.5 h-3.5 text-tertiary shrink-0" />
+              <p className="text-xs font-semibold text-on-background">
+                Local Mode — no login needed. Everything runs on your machine; add an API key in
+                Settings for AI.
+              </p>
+            </div>
+          </div>
+        )}
 
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
           {children}
