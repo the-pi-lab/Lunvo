@@ -6,7 +6,7 @@ const ADMIN_EMAIL = "vinayakmahavar45@gmail.com";
 export const dynamic = "force-dynamic";
 
 async function checkAdmin() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

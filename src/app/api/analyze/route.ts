@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Get user session (REQUIRED)
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {

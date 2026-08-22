@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 const ADMIN_EMAIL = "vinayakmahavar45@gmail.com";
 
 export async function POST(req: NextRequest) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

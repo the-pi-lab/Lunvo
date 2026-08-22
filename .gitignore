@@ -42,3 +42,7 @@ stitch_linkedin_ai_growth_assistant/
 # Large data files
 influencers_data.csv
 Ebook-The Hustle-LinkedIn Success Database_ 50 Viral Posts Decoded-1.pdf
+
+# lunvo backups
+*.backup.*
+REBUILD_PLAN.md.backup*
