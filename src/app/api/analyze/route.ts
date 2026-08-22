@@ -19,6 +19,10 @@ function calculateOverall(hook: number, read: number, eng: number, str: number):
 
 export async function POST(req: NextRequest) {
   try {
+    const customKeys = {
+      gemini: req.headers.get("x-gemini-key") || undefined,
+      groq: req.headers.get("x-groq-key") || undefined,
+    };
     const { post } = await req.json();
 
     if (!post || post.length < 20) {
@@ -92,7 +96,8 @@ export async function POST(req: NextRequest) {
       userPrompt,
       userPlan,
       AI_CONFIG.temperature.analyze,
-      AI_CONFIG.max_tokens.analyze
+      AI_CONFIG.max_tokens.analyze,
+      customKeys
     );
 
     // 5. Parse JSON response

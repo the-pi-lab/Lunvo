@@ -10,13 +10,18 @@ export async function POST(req: NextRequest) {
   try {
     startRssScheduler();
 
+    const customKeys = {
+      gemini: req.headers.get("x-gemini-key") || undefined,
+      groq: req.headers.get("x-groq-key") || undefined,
+    };
+
     // Check if user wants to force refresh
     const body = await req.json().catch(() => ({}));
     const forceRefresh = body.forceRefresh === true;
 
     // If force refresh requested, refresh the system
     if (forceRefresh) {
-      await refreshRssSystem();
+      await refreshRssSystem(customKeys);
     }
 
     // Get cached posts
@@ -25,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     if (posts.length === 0) {
       // If no posts cached, try refreshing
-      await refreshRssSystem();
+      await refreshRssSystem(customKeys);
       const newSnapshot = getRssSystemSnapshot();
       return NextResponse.json({
         success: true,

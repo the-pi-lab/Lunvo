@@ -12,7 +12,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import Paywall from "@/components/shared/Paywall";
+import { getApiHeaders } from "@/lib/apiHelper";
 
 // --- Types ---
 interface Score {
@@ -38,7 +38,6 @@ export default function AnalyzePostPage() {
   const [view, setView] = useState<"input" | "loading" | "results">("input");
   const [postContent, setPostContent] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [showPaywall, setShowPaywall] = useState(false);
   const supabase = createClient();
   const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
 
@@ -57,12 +56,12 @@ export default function AnalyzePostPage() {
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getApiHeaders(),
         body: JSON.stringify({ post: postContent }),
       });
 
       if (response.status === 429) {
-        setShowPaywall(true);
+        alert("Rate limit exceeded. Please check your API settings.");
         setView("input");
         return;
       }
@@ -74,7 +73,7 @@ export default function AnalyzePostPage() {
       setView("results");
     } catch (error: any) {
       console.error("Analysis failed:", error);
-      setShowPaywall(true);
+      alert("An error occurred during analysis.");
       setView("input");
     }
   };
@@ -242,11 +241,6 @@ export default function AnalyzePostPage() {
 
       </AnimatePresence>
 
-      <Paywall
-        isOpen={showPaywall}
-        onClose={() => setShowPaywall(false)}
-        reason="daily_limit"
-      />
     </div>
   );
 }

@@ -66,9 +66,9 @@ export async function middleware(request: NextRequest) {
 
   // Admin route protection
   if (isAdminRoute) {
-    const ADMIN_EMAIL = 'vinayakmahavar45@gmail.com';
+    const adminEmail = process.env.ADMIN_EMAIL;
 
-    if (!user || user.email !== ADMIN_EMAIL) {
+    if (!adminEmail || !user || user.email !== adminEmail) {
       // Silent redirect to home — don't reveal admin page exists
       return NextResponse.redirect(new URL('/', request.url));
     }

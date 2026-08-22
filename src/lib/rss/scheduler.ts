@@ -13,10 +13,11 @@ import {
 } from "./cacheService";
 import { generateLinkedInPostsFromArticles } from "./aiService";
 import type { RssArticle } from "./types";
+import type { AICustomKeys } from "../ai/router";
 
 const REFRESH_INTERVAL_MS = 60 * 60 * 1000;
 
-async function rebuildCaches(): Promise<void> {
+async function rebuildCaches(customKeys?: AICustomKeys): Promise<void> {
   setRefreshing(true);
 
   try {
@@ -64,7 +65,7 @@ async function rebuildCaches(): Promise<void> {
 
     // Generate LinkedIn posts from selected articles
     if (selectedArticles.length > 0) {
-      const generatedPosts = await generateLinkedInPostsFromArticles(selectedArticles);
+      const generatedPosts = await generateLinkedInPostsFromArticles(selectedArticles, customKeys);
       if (generatedPosts.length > 0) {
         setGeneratedPostsCache(generatedPosts);
       }
@@ -80,8 +81,8 @@ async function rebuildCaches(): Promise<void> {
   }
 }
 
-export async function refreshRssSystem(): Promise<void> {
-  await rebuildCaches();
+export async function refreshRssSystem(customKeys?: AICustomKeys): Promise<void> {
+  await rebuildCaches(customKeys);
 }
 
 export function startRssScheduler(): void {

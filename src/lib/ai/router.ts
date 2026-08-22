@@ -224,24 +224,51 @@ const MODELS = {
   groqFallback: "llama-3.1-8b-instant",
 };
 
+export type AICustomKeys = {
+  gemini?: string;
+  groq?: string;
+};
+
 export async function callAI(
   systemPrompt: string,
   userPrompt: string,
   userPlan: UserPlan,
   temperature: number = 0.5,
-  maxTokens: number = 1000
+  maxTokens: number = 1000,
+  customKeys?: AICustomKeys
 ): Promise<string> {
   const plan = resolvePlanTier(userPlan);
   const hasDeepseek = nvidiaClients.deepseek.apiKey.length > 0;
   const hasMoonshot = nvidiaClients.moonshot.apiKey.length > 0;
-  const hasGemini = hasEnv("GEMINI_API_KEY");
-  const hasGroq = hasEnv("GROQ_API_KEY");
+  const hasGemini = Boolean(customKeys?.gemini || hasEnv("GEMINI_API_KEY"));
+  const hasGroq = Boolean(customKeys?.groq || hasEnv("GROQ_API_KEY"));
 
   if (!hasDeepseek && !hasMoonshot && !hasGemini && !hasGroq) {
-    throw new Error("No AI provider configured. Set NVIDIA_API_KEY_DEEPSEEK and NVIDIA_API_KEY_MOONSHOT, or fallback keys.");
+    throw new Error("No AI provider configured. Set API keys in your .env file or Settings page.");
   }
 
   const providerErrors: string[] = [];
+
+  // 1. Try Custom Keys First
+  if (customKeys?.gemini) {
+    try {
+      return await callGemini(systemPrompt, userPrompt, temperature, maxTokens, customKeys.gemini);
+    } catch (error) {
+      providerErrors.push(`custom gemini: ${normalizeError(error)}`);
+      console.warn("Custom Gemini failed:", error);
+    }
+  }
+
+  if (customKeys?.groq) {
+    try {
+      return await callGroq(systemPrompt, userPrompt, MODELS.groqFallback, temperature, maxTokens, customKeys.groq);
+    } catch (error) {
+      providerErrors.push(`custom groq: ${normalizeError(error)}`);
+      console.warn("Custom Groq failed:", error);
+    }
+  }
+
+  // 2. Try Default Providers
   const nvidiaCandidates = getPlanCandidates(plan);
 
   for (const client of nvidiaCandidates) {
@@ -363,9 +390,12 @@ async function callGemini(
   systemPrompt: string,
   userPrompt: string,
   temperature: number,
-  maxTokens: number
+  maxTokens: number,
+  apiKey?: string
 ): Promise<string> {
-  const model = getGemini().getGenerativeModel({
+  const key = apiKey || process.env.GEMINI_API_KEY;
+  if (!key) throw new Error("Gemini API key is required");
+  const model = new GoogleGenerativeAI(key).getGenerativeModel({
     model: MODELS.gemini,
     systemInstruction: systemPrompt,
     generationConfig: {
@@ -386,9 +416,13 @@ async function callGroq(
   userPrompt: string,
   modelName: string,
   temperature: number,
-  maxTokens: number
+  maxTokens: number,
+  apiKey?: string
 ): Promise<string> {
-  const completion = await getGroq().chat.completions.create({
+  const key = apiKey || process.env.GROQ_API_KEY;
+  if (!key) throw new Error("Groq API key is required");
+  const groqClient = new Groq({ apiKey: key });
+  const completion = await groqClient.chat.completions.create({
     model: modelName,
     temperature,
     max_tokens: maxTokens,

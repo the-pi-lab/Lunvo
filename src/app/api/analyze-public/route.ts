@@ -6,6 +6,10 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
+    const customKeys = {
+      gemini: req.headers.get("x-gemini-key") || undefined,
+      groq: req.headers.get("x-groq-key") || undefined,
+    };
     const body = await req.json();
     const post = String(body?.post || "").trim();
 
@@ -35,7 +39,8 @@ export async function POST(req: NextRequest) {
       userPrompt,
       "free",
       AI_CONFIG.temperature.analyze,
-      AI_CONFIG.max_tokens.analyze
+      AI_CONFIG.max_tokens.analyze,
+      customKeys
     );
 
     const result = parseAIJson(rawResponse);

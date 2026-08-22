@@ -1,4 +1,4 @@
-import { callAI } from "../ai/router";
+import { callAI, type AICustomKeys } from "../ai/router";
 import type { GeneratedLinkedInPost, RssArticle } from "./types";
 
 const LINKEDIN_RSS_PROMPT = `Convert this tech news update into a high-performing LinkedIn post.
@@ -69,9 +69,9 @@ function buildFallbackPost(article: RssArticle): string {
   ].join("\n");
 }
 
-export async function generateLinkedInPostFromArticle(article: RssArticle): Promise<GeneratedLinkedInPost> {
+export async function generateLinkedInPostFromArticle(article: RssArticle, customKeys?: AICustomKeys): Promise<GeneratedLinkedInPost> {
   try {
-    const post = await callAI(LINKEDIN_SYSTEM_PROMPT, buildPrompt(article), "free", 0.7, 280);
+    const post = await callAI(LINKEDIN_SYSTEM_PROMPT, buildPrompt(article), "free", 0.7, 280, customKeys);
 
     return {
       post: post.trim(),
@@ -93,12 +93,12 @@ export async function generateLinkedInPostFromArticle(article: RssArticle): Prom
   }
 }
 
-export async function generateLinkedInPostsFromArticles(articles: RssArticle[]): Promise<GeneratedLinkedInPost[]> {
+export async function generateLinkedInPostsFromArticles(articles: RssArticle[], customKeys?: AICustomKeys): Promise<GeneratedLinkedInPost[]> {
   if (!articles.length) {
     return [];
   }
 
   const limit = Math.min(10, articles.length);
   const selectedArticles = articles.slice(0, limit);
-  return Promise.all(selectedArticles.map((article) => generateLinkedInPostFromArticle(article)));
+  return Promise.all(selectedArticles.map((article) => generateLinkedInPostFromArticle(article, customKeys)));
 }

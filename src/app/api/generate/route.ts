@@ -111,6 +111,10 @@ function validateScore(score: any): number {
 
 export async function POST(req: NextRequest) {
   try {
+    const customKeys = {
+      gemini: req.headers.get("x-gemini-key") || undefined,
+      groq: req.headers.get("x-groq-key") || undefined,
+    };
     const body = await req.json();
     const topic = cleanText(body?.topic);
     const providedNews = normalizeNewsContext(body?.news);
@@ -228,7 +232,8 @@ export async function POST(req: NextRequest) {
       userPrompt,
       userPlan,
       AI_CONFIG.temperature.generate,
-      AI_CONFIG.max_tokens.generate
+      AI_CONFIG.max_tokens.generate,
+      customKeys
     );
 
     // 3. Parse JSON response

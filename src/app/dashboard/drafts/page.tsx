@@ -1,223 +1,77 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import {
-  Bookmark,
-  Trash2,
-  Copy,
-  PenTool,
-  Clock,
-  FileText,
-  ArrowRight,
-  Loader2,
-} from "lucide-react";
-import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
-
-// --- Types ---
-interface Draft {
-  id: string;
-  improved_content: string;
-  created_at: string;
-  topic?: string;
-}
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
+import { FileText, Calendar, PenTool } from "lucide-react";
 
 export default function DraftsPage() {
-  const supabase = useMemo(() => createClient(), []);
-  const [loading, setLoading] = useState(true);
-  const [drafts, setDrafts] = useState<Draft[]>([]);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true;
-
+    // Basic fetch setup (assuming a 'drafts' table exists in Supabase)
     const fetchDrafts = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        if (isMounted) {
-          setLoading(false);
-        }
-        return;
+      const supabase = createClient();
+      const { data, error } = await supabase.from('drafts').select('*').order('created_at', { ascending: false });
+      
+      if (!error && data) {
+        setDrafts(data);
       }
-
-      const { data } = await supabase
-        .from("posts")
-        .select("*")
-        .eq("user_id", user.id)
-        .eq("type", "draft")
-        .order("created_at", { ascending: false });
-
-      if (!isMounted) {
-        return;
-      }
-
-      setDrafts(data || []);
-      setLoading(false);
+      setIsLoading(false);
     };
 
-    void fetchDrafts();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [supabase]);
-
-  const handleDelete = async (id: string) => {
-    await supabase.from("posts").delete().eq("id", id);
-    setDrafts((prev) => prev.filter((d) => d.id !== id));
-  };
-
-  const handleCopy = (id: string, content: string) => {
-    navigator.clipboard.writeText(content);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
-  if (loading) {
-    return (
-      <div className="space-y-4 animate-pulse">
-        <div className="h-10 bg-surface-container rounded-[8px] w-1/3" />
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-40 bg-surface-container rounded-[12px]" />
-        ))}
-      </div>
-    );
-  }
+    fetchDrafts();
+  }, []);
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="pt-2">
-        <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-2">Archive</p>
-        <div className="flex items-end justify-between gap-4">
-          <h1 className="text-4xl font-serif text-on-background">Saved Drafts</h1>
-          {drafts.length > 0 && (
-            <span className="text-[0.6875rem] font-bold font-mono text-on-surface-variant/50 uppercase tracking-wider">
-              {drafts.length} document{drafts.length !== 1 ? "s" : ""}
-            </span>
-          )}
-        </div>
+    <div className="max-w-5xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Drafts & History</h1>
+        <p className="text-slate-500 mt-2">Manage your AI-generated posts and version history.</p>
       </div>
 
-      {/* Empty State */}
-      {drafts.length === 0 ? (
-        <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium p-16 text-center">
-          <div className="w-16 h-16 bg-surface-2 rounded-[12px] flex items-center justify-center mx-auto mb-6">
-            <FileText className="w-8 h-8 text-on-surface-variant/30" />
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
+        {isLoading ? (
+          <div className="p-8 text-center text-slate-500">Loading drafts...</div>
+        ) : drafts.length === 0 ? (
+          <div className="p-12 flex flex-col items-center justify-center text-center">
+            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+              <FileText className="w-8 h-8 text-slate-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No drafts yet</h3>
+            <p className="text-sm text-slate-500 max-w-sm mb-6">
+              When you generate posts in the Content Factory and save them, they will appear here.
+            </p>
+            <a href="/dashboard/create" className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+              Go to Content Factory
+            </a>
           </div>
-          <h2 className="text-2xl font-serif text-on-background mb-3">No drafts yet.</h2>
-          <p className="text-[0.9375rem] font-medium text-on-surface-variant mb-8 max-w-xs mx-auto leading-relaxed">
-            Your saved drafts will appear here. Start by generating your first post.
-          </p>
-          <Link
-            href="/dashboard/create"
-            className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] shadow-md hover:shadow-premium transition-all"
-          >
-            <PenTool className="w-4 h-4" /> Create Post
-          </Link>
-        </div>
-      ) : (
-        /* Drafts List */
-        <div className="space-y-4">
-          {drafts.map((draft) => (
-            <DraftCard
-              key={draft.id}
-              draft={draft}
-              isCopied={copiedId === draft.id}
-              onCopy={() => handleCopy(draft.id, draft.improved_content)}
-              onDelete={() => handleDelete(draft.id)}
-            />
-          ))}
-
-          <div className="pt-4 text-center">
-            <Link
-              href="/dashboard/create"
-              className="inline-flex items-center gap-2 text-[0.8125rem] font-bold text-primary hover:underline underline-offset-4 uppercase tracking-[0.05em] font-mono"
-            >
-              Generate another post <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+        ) : (
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            {drafts.map((draft) => (
+              <div key={draft.id} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white line-clamp-1">
+                    {draft.topic || "Untitled Draft"}
+                  </h3>
+                  <p className="text-sm text-slate-500 mt-1 line-clamp-2">
+                    {draft.content}
+                  </p>
+                  <div className="flex items-center space-x-4 mt-3 text-xs text-slate-400">
+                    <span className="flex items-center">
+                      <Calendar className="w-3.5 h-3.5 mr-1" />
+                      {new Date(draft.created_at).toLocaleDateString()}
+                    </span>
+                    <span className="flex items-center">
+                      <PenTool className="w-3.5 h-3.5 mr-1" />
+                      Score: {draft.score}/100
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function DraftCard({
-  draft,
-  isCopied,
-  onCopy,
-  onDelete,
-}: {
-  draft: Draft;
-  isCopied: boolean;
-  onCopy: () => void;
-  onDelete: () => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  const preview = (draft.improved_content || "").slice(0, 220);
-  const isLong = (draft.improved_content || "").length > 220;
-
-  return (
-    <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium hover:ring-primary/15 transition-all overflow-hidden group">
-      {/* Card Header */}
-      <div className="flex items-center justify-between px-7 py-4 border-b border-[rgba(229,226,218,0.3)]">
-        <div className="flex items-center gap-2 text-on-surface-variant/50">
-          <Bookmark className="w-3.5 h-3.5" />
-          <span className="text-[0.5625rem] font-bold uppercase tracking-widest font-mono">Draft</span>
-        </div>
-        <div className="flex items-center gap-2 text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/40 font-mono">
-          <Clock className="w-3 h-3" />
-          {formatDistanceToNow(new Date(draft.created_at), { addSuffix: true })}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="px-7 py-5">
-        <p
-          className="text-[0.9375rem] font-mono text-on-background leading-[1.8] whitespace-pre-wrap cursor-pointer"
-          onClick={() => setExpanded(!expanded)}
-        >
-          {expanded || !isLong ? draft.improved_content : `${preview}…`}
-        </p>
-        {isLong && (
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="mt-3 text-[0.6875rem] font-bold text-primary/70 hover:text-primary font-mono uppercase tracking-widest transition-colors"
-          >
-            {expanded ? "Collapse ↑" : "Expand ↓"}
-          </button>
         )}
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center gap-2 px-7 py-4 border-t border-[rgba(229,226,218,0.3)]">
-        <button
-          onClick={onCopy}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-[6px] text-[0.75rem] font-bold uppercase tracking-wider font-mono transition-all ${
-            isCopied
-              ? "bg-secondary/10 text-secondary ring-1 ring-secondary/20"
-              : "bg-surface-2 text-on-surface-variant ring-1 ring-[rgba(229,226,218,0.4)] hover:ring-primary/30 hover:text-primary"
-          }`}
-        >
-          <Copy className="w-3.5 h-3.5" />
-          {isCopied ? "Copied ✓" : "Copy"}
-        </button>
-
-        <Link
-          href="/dashboard/create"
-          className="flex items-center gap-1.5 px-4 py-2 bg-surface-2 text-on-surface-variant ring-1 ring-[rgba(229,226,218,0.4)] hover:ring-primary/30 hover:text-primary rounded-[6px] text-[0.75rem] font-bold uppercase tracking-wider font-mono transition-all"
-        >
-          <PenTool className="w-3.5 h-3.5" /> Edit
-        </Link>
-
-        <button
-          onClick={onDelete}
-          className="ml-auto flex items-center gap-1.5 px-4 py-2 bg-surface-2 text-on-surface-variant/40 ring-1 ring-[rgba(229,226,218,0.3)] hover:bg-error/5 hover:text-error hover:ring-error/20 rounded-[6px] text-[0.75rem] font-bold uppercase tracking-wider font-mono transition-all"
-        >
-          <Trash2 className="w-3.5 h-3.5" /> Delete
-        </button>
       </div>
     </div>
   );

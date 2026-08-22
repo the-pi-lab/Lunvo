@@ -45,8 +45,9 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [fullName, setFullName] = useState("");
-  const [referralData, setReferralData] = useState<any>(null);
-  const [copied, setCopied] = useState(false);
+  const [geminiKey, setGeminiKey] = useState("");
+  const [groqKey, setGroqKey] = useState("");
+  const [keysSaved, setKeysSaved] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -70,11 +71,10 @@ export default function SettingsPage() {
       setProfile(p);
       setFullName(p.full_name);
 
-      const referralResponse = await fetch("/api/referral/stats");
-      if (referralResponse.ok) {
-        const referralJson = await referralResponse.json();
-        setReferralData(referralJson);
-      }
+      const storedGemini = localStorage.getItem("lunvo_gemini_key");
+      const storedGroq = localStorage.getItem("lunvo_groq_key");
+      if (storedGemini) setGeminiKey(storedGemini);
+      if (storedGroq) setGroqKey(storedGroq);
 
       setLoading(false);
     };
@@ -95,6 +95,13 @@ export default function SettingsPage() {
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handleSaveKeys = () => {
+    localStorage.setItem("lunvo_gemini_key", geminiKey.trim());
+    localStorage.setItem("lunvo_groq_key", groqKey.trim());
+    setKeysSaved(true);
+    setTimeout(() => setKeysSaved(false), 2500);
   };
 
   const handlePasswordReset = async () => {
@@ -171,168 +178,53 @@ export default function SettingsPage() {
         </div>
       </SettingsCard>
 
-      {/* Referral Section */}
+      {/* AI Configuration (BYOK) */}
       <SettingsCard
         icon={<Sparkles className="w-4 h-4" />}
-        title="Referral Program"
-        subtitle="Share your link and track rewards"
-      >
-        {referralData ? (
-          <div className="space-y-4">
-
-            {/* Points Progress */}
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <p className="text-sm font-medium text-blue-900">Your referral points</p>
-                  <p className="text-2xl font-bold text-blue-600 mt-1">
-                    {referralData.points} <span className="text-base font-normal text-blue-400">/ 150</span>
-                  </p>
-                </div>
-                {referralData.is_eligible_for_upgrade && (
-                  <span className="bg-green-100 text-green-700 text-xs font-medium px-3 py-1 rounded-full border border-green-200">
-                    🎉 Eligible for upgrade!
-                  </span>
-                )}
-              </div>
-
-              {/* Progress bar */}
-              <div className="bg-blue-200 rounded-full h-2">
-                <div
-                  className="bg-blue-600 h-2 rounded-full transition-all"
-                  style={{ width: `${Math.min(100, (referralData.points / 150) * 100)}%` }}
-                />
-              </div>
-              <p className="text-xs text-blue-600 mt-2">
-                {referralData.is_eligible_for_upgrade
-                  ? "You've earned 1 month Starter free! Admin will approve shortly."
-                  : `${referralData.points_remaining} more referrals needed for 1 month Starter free`
-                }
-              </p>
-            </div>
-
-            {/* Referral Link */}
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-              <p className="text-sm font-medium text-gray-700 mb-3">Your referral link</p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={referralData.referral_link}
-                  readOnly
-                  className="flex-1 text-sm bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-gray-600"
-                />
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(referralData.referral_link);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
-                >
-                  {copied ? "Copied! ✓" : "Copy link"}
-                </button>
-              </div>
-              <p className="text-xs text-gray-400 mt-2">
-                Share this link. When someone signs up using it, you get +1 point.
-              </p>
-            </div>
-
-            {/* Referral History */}
-            <div className="bg-white border border-gray-200 rounded-xl p-5">
-              <p className="text-sm font-medium text-gray-700 mb-3">
-                People you referred ({referralData.total_referrals})
-              </p>
-              {referralData.referrals.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-4">
-                  No referrals yet. Share your link to get started!
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {referralData.referrals.map((ref: any) => (
-                    <div key={ref.referred_id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                      <div>
-                        <p className="text-sm font-medium text-gray-700">
-                          {ref.user?.full_name || "Anonymous User"}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          Joined {new Date(ref.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                        </p>
-                      </div>
-                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                        ref.reward_status === "approved"
-                          ? "bg-green-50 text-green-600 border border-green-200"
-                          : "bg-gray-50 text-gray-500 border border-gray-200"
-                      }`}>
-                        {ref.reward_status === "approved" ? "✓ Approved" : "Pending"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-          </div>
-        ) : (
-          // Loading skeleton
-          <div className="animate-pulse space-y-3">
-            <div className="h-24 bg-gray-100 rounded-xl"></div>
-            <div className="h-16 bg-gray-100 rounded-xl"></div>
-          </div>
-        )}
-      </SettingsCard>
-
-      {/* Plan & Credits */}
-      <SettingsCard
-        icon={<CreditCard className="w-4 h-4" />}
-        title="Subscription"
-        subtitle="Your current plan & daily usage"
+        title="AI Configuration (BYOK)"
+        subtitle="Bring Your Own Key for local generation"
       >
         <div className="space-y-5">
-          <div className="flex items-center justify-between p-5 bg-surface-2 rounded-[10px] ring-1 ring-[rgba(229,226,218,0.4)]">
-            <div>
-              <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-1">Active Plan</div>
-              <div className="text-xl font-serif text-on-background capitalize">{profile?.plan} Entity</div>
-            </div>
-            <span className={`px-3 py-1 rounded-[6px] text-[0.5625rem] font-bold uppercase tracking-widest font-mono ring-1 ${
-              isPro
-                ? "bg-secondary/10 text-secondary ring-secondary/20"
-                : "bg-primary/8 text-primary ring-primary/15"
-            }`}>
-              {isPro ? "Pro ⚡" : "Free Tier"}
-            </span>
+          <div className="bg-surface-2 p-4 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.3)] mb-4">
+            <p className="text-[0.8125rem] text-on-surface-variant leading-relaxed">
+              LUNVO is 100% free because you provide your own API keys. 
+              Keys are stored securely in your browser's local storage and are only sent directly to our backend during generation.
+            </p>
           </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            <QuotaChip
-              label="Analyze"
-              value={`${profile?.daily_analyze_count ?? 0}/${getDailyAnalyzeLimit(profile?.plan || "free")}`}
-              suffix="used today"
+          <div>
+            <label className="block text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-2">
+              Gemini API Key (Google AI Studio)
+            </label>
+            <input
+              type="password"
+              placeholder="AIzaSy..."
+              value={geminiKey}
+              onChange={(e) => setGeminiKey(e.target.value)}
+              className="w-full px-4 py-3.5 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.4)] focus:ring-[2px] focus:ring-primary focus:bg-white outline-none text-[0.9375rem] font-medium transition-all font-mono"
             />
-            <QuotaChip
-              label="Generate"
-              value={`${profile?.daily_generate_count ?? 0}/${getDailyGenerateLimit(profile?.plan || "free")}`}
-              suffix="used today"
-            />
-            <QuotaChip label="Streak" value={profile?.streak_count ?? 0} suffix="days" />
           </div>
-
-          {!isPro && (
-            <div className="flex items-center justify-between p-5 bg-gradient-to-br from-primary/5 to-primary-container/10 rounded-[10px] ring-1 ring-primary/10">
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <div>
-                  <div className="text-[0.8125rem] font-bold text-on-background">Upgrade to Pro</div>
-                  <div className="text-[0.75rem] text-on-surface-variant font-medium">Unlimited posts + priority AI</div>
-                </div>
-              </div>
-              <button 
-                onClick={() => router.push("/dashboard/pricing")}
-                className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-[6px] font-bold text-[0.75rem] uppercase tracking-wider font-mono shadow-md hover:shadow-premium transition-all"
-              >
-                Upgrade <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-          )}
+          <div>
+            <label className="block text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-2">
+              Groq API Key (Groq Console)
+            </label>
+            <input
+              type="password"
+              placeholder="gsk_..."
+              value={groqKey}
+              onChange={(e) => setGroqKey(e.target.value)}
+              className="w-full px-4 py-3.5 bg-surface-2 rounded-[8px] ring-1 ring-[rgba(229,226,218,0.4)] focus:ring-[2px] focus:ring-primary focus:bg-white outline-none text-[0.9375rem] font-medium transition-all font-mono"
+            />
+          </div>
+          <button
+            onClick={handleSaveKeys}
+            className={`flex items-center gap-2 px-6 py-3 rounded-[8px] font-bold text-[0.8125rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98] ${
+              keysSaved
+                ? "bg-secondary/10 text-secondary ring-1 ring-secondary/20"
+                : "bg-gradient-to-br from-primary to-primary-container text-on-primary shadow-md hover:shadow-premium"
+            }`}
+          >
+            {keysSaved ? <><Check className="w-4 h-4" /> Keys Saved locally</> : "Save API Keys"}
+          </button>
         </div>
       </SettingsCard>
 

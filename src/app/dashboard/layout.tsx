@@ -24,7 +24,6 @@ const NAV_ITEMS = [
   { label: "Analyze Post", href: "/dashboard/analyze", icon: BarChart2 },
   { label: "Saved Drafts", href: "/dashboard/drafts", icon: Bookmark },
   { label: "Daily Learn", href: "/dashboard/learn", icon: BookOpen },
-  { label: "Pricing", href: "/dashboard/pricing", icon: CreditCard },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
@@ -34,7 +33,6 @@ const MOBILE_NAV_ITEMS = [
   { label: "Analyze Post", href: "/dashboard/analyze", icon: BarChart2 },
   { label: "Saved Drafts", href: "/dashboard/drafts", icon: Bookmark },
   { label: "Daily Learn", href: "/dashboard/learn", icon: BookOpen },
-  { label: "Pricing", href: "/dashboard/pricing", icon: CreditCard },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 

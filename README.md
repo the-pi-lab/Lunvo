@@ -1,68 +1,103 @@
-# LUNVO
+# LUNVO 🚀
 
-Analyze, improve, and generate LinkedIn posts with AI. Get a score for your hook, readability, and engagement instantly.
+> **The Ultimate Open Source AI LinkedIn Growth Engine**
 
-Built by THE Π LAB
-- Website: https://www.thepilab.in
-- LinkedIn: https://www.linkedin.com/company/the-%CF%80-lab/
-- Support: hello@thepilab.in
+LUNVO is a powerful, locally-hosted, BYOK (Bring Your Own Key) Content Factory designed to help creators, founders, and marketers dominate LinkedIn—without risking account bans. 
 
-## Tech Stack
+Instead of relying on rigid, expensive SaaS platforms, LUNVO puts the power of a **3-Agent AI Pipeline** directly into your hands, completely open-source.
 
-- **Frontend:** Next.js 14 (App Router)
-- **Database & Auth:** Supabase
-- **AI Routing:** NVIDIA NIM (primary, round-robin) with Gemini and Groq fallbacks
-- **Styling:** Tailwind CSS
+---
 
-## Getting Started
+## 🌟 Key Features
 
-### 1. Prerequisites
+### 1. Universal AI Router (BYOK)
+No vendor lock-in. Plug in your own API keys for:
+- OpenAI (GPT-4o, GPT-3.5)
+- Anthropic (Claude 3.5 Sonnet)
+- Google AI (Gemini 1.5 Pro)
+- Groq / Local LLMs (via LM Studio / Ollama)
 
-Ensure you have Node.js 18+ installed.
+### 2. Multi-Agent Content Pipeline
+Why use one AI when you can have a team? LUNVO uses a native, strict orchestrator:
+- **🕵️‍♂️ Scout Agent**: Analyzes your topic, finds trends, and creates 3 distinct viral hooks (Data, Story, Controversial).
+- **✍️ Writer Agent**: Drafts the post by strictly following your unique formatting and tone.
+- **🧐 Critic Agent**: Audits the draft against the LinkedIn algorithm, removes fluff, fixes whitespace, and assigns a Virality Score (1-100).
 
-### 2. Environment Variables
+### 3. Voice DNA 🧬
+Tired of AI sounding like a robot? Configure your **Voice DNA** with interactive sliders (Formality, Emoji Usage, Technical Depth, Snark Level). LUNVO saves this schema locally and dynamically injects it into every prompt.
 
-Copy `.env.example` to `.env.local` and fill in your keys:
+### 4. Zero-Ban Safety Architecture
+LUNVO does **not** use unofficial LinkedIn APIs, web scrapers, or browser extensions that get accounts banned. We provide:
+- OS-level safe `navigator.clipboard` functionality.
+- Webhook dispatchers (Make.com, Zapier) for safe scheduling.
 
-```bash
-cp .env.example .env.local
-```
+### 5. Instant Content Repurposer
+Turn a single LinkedIn post into a multi-channel empire with one click:
+- **Twitter Thread**: Automatically numbered and hook-optimized.
+- **Newsletter / Blog**: Expanded long-form deep dive.
+- **Video Script**: 60-second visual/audio script for TikTok & Reels.
 
-You will need:
-- [Supabase](https://supabase.com/) project URL and Anon key.
-- [NVIDIA NIM](https://build.nvidia.com/) API key(s) for primary generation.
-- [Google AI Studio](https://aistudio.google.com/) Gemini Key (fallback).
-- [Groq Console](https://console.groq.com/) API Key (fallback).
+---
 
-### Cashfree Payment Testing (Sandbox)
+## 🛠️ Tech Stack
 
-1. Log in to Cashfree Merchant Dashboard.
-2. Switch to `Test` mode.
-3. Generate API keys from Developers > API Keys.
-4. Copy keys into `.env.local`:
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: Tailwind CSS & Lucide React Icons
+- **State & Storage**: Supabase (Cloud config) + LocalStorage (Sensitive Keys)
+- **AI Integration**: Custom Universal AI Adapter (No heavy frameworks like LangChain, maximum speed and reliability).
 
-```bash
-CASHFREE_ENV="sandbox"
-CASHFREE_APP_ID="TEST_..."
-CASHFREE_SECRET_KEY="TEST_..."
-NEXT_PUBLIC_CASHFREE_MODE="sandbox"
-```
+---
 
-Notes:
-- Sandbox keys always start with `TEST_`.
-- Do not share production keys (`PROD_`) for testing.
-- Share only sandbox credentials for QA/demo testing.
+## 🚀 Getting Started
 
-### 3. Install Dependencies
+### Prerequisites
+- Node.js (v18+)
+- A Supabase Project (for optional cloud config syncing)
+- At least one API Key (OpenAI, Anthropic, Gemini, or Groq)
 
-```bash
-npm install
-```
+### Installation
 
-### 4. Run Development Server
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/lunvo.git
+   cd lunvo
+   ```
 
-```bash
-npm run dev
-```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Environment Setup:**
+   Create a `.env.local` file in the root directory:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Run the Development Server:**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open LUNVO:**
+   Navigate to `http://localhost:3000` in your browser.
+
+---
+
+## 💡 How to Use
+
+1. **Setup Your Keys**: Go to the **Settings** page and securely enter your API keys. LUNVO stores these locally in your browser.
+2. **Tune Your Voice**: Go to **Voice DNA** and adjust the sliders to match your personal brand.
+3. **Generate Content**: Head to the **Content Factory**. Type in a topic, and watch the 3-Agent pipeline build your post live.
+4. **Repurpose**: Take your winning post to the **Repurposer Studio** and generate Twitter threads or newsletters.
+
+---
+
+## 🛡️ License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+Built with ❤️ for the Open Source Community.

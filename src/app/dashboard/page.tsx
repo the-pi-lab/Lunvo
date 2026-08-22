@@ -16,7 +16,6 @@ import {
 import Link from "next/link";
 import { format } from "date-fns";
 import CreditBadge from "@/components/shared/CreditBadge";
-import Paywall from "@/components/shared/Paywall";
 
 // --- Types ---
 interface UserData {
@@ -50,7 +49,6 @@ export default function DashboardPage() {
   const supabase = useMemo(() => createClient(), []);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const [ratingsFeed, setRatingsFeed] = useState<RatingItem[]>([]);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [ratingName, setRatingName] = useState("");
@@ -235,18 +233,10 @@ export default function DashboardPage() {
             <span className="px-3 py-1 bg-primary/8 text-primary rounded-[6px] text-[0.625rem] font-bold uppercase tracking-[0.1em] ring-1 ring-primary/15 font-mono">
               {userData?.plan} Entity
             </span>
-            <button
-              onClick={() => setIsPaywallOpen(true)}
-              className="text-[0.625rem] font-bold uppercase tracking-[0.08em] text-on-surface-variant/50 hover:text-primary transition-colors font-mono"
-            >
-              Upgrade ↗
-            </button>
           </div>
           <CreditBadge />
         </div>
       </div>
-
-      <Paywall isOpen={isPaywallOpen} onClose={() => setIsPaywallOpen(false)} />
 
       {/* Ratings Ticker */}
       {ratingsFeed.length > 0 && (
