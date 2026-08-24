@@ -40,7 +40,7 @@ export default function PlaygroundHero({ value, onChange, onSubmit, busy }: Play
   return (
     <div className="grid lg:grid-cols-[1fr_360px] gap-4 sm:gap-5 items-stretch text-left">
       {/* Left: editor */}
-      <div className="bg-surface-container-lowest rounded-[16px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium focus-within:ring-primary/30 transition-all overflow-hidden">
+      <div className="glass rounded-[16px] !border-transparent focus-within:ring-primary/30 transition-all overflow-hidden">
         <textarea
           placeholder={
             "Start writing or paste your post here...\n\nLive score updates as you type."
@@ -74,7 +74,7 @@ export default function PlaygroundHero({ value, onChange, onSubmit, busy }: Play
 
       {/* Right: live score preview */}
       <div className="flex flex-col gap-3">
-        <div className="bg-surface-container-lowest rounded-[16px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium p-5 flex items-center justify-between">
+        <div className="glass rounded-[16px] !border-transparent p-5 flex items-center justify-between">
           <div>
             <p className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-1">
               Live Score
@@ -89,7 +89,7 @@ export default function PlaygroundHero({ value, onChange, onSubmit, busy }: Play
           />
         </div>
 
-        <div className="bg-surface-container-lowest rounded-[16px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium p-5 space-y-4 flex-1">
+        <div className="glass rounded-[16px] !border-transparent p-5 space-y-4 flex-1">
           <p className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono">
             Instant Signals — updates as you type
           </p>

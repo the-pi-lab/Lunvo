@@ -23,7 +23,7 @@ export default function Topbar({
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-40 h-12 shrink-0 border-b border-[rgba(229,226,218,0.35)] bg-background/80 backdrop-blur-xl">
+    <header className="glass-strong sticky top-0 z-40 h-12 shrink-0 !border-0 border-b border-white/70">
       <div className="flex h-full items-center gap-2 px-3 sm:px-4">
         {/* Mobile menu */}
         <button

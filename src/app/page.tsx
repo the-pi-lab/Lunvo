@@ -236,9 +236,7 @@ export default function LandingPage() {
                 <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif text-on-background leading-[1.05] mb-6">
                   Is your post
                   <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-container">
-                    scroll-worthy?
-                  </span>
+                  <span className="aurora-text">scroll-worthy?</span>
                 </h1>
               </Reveal>
               <p className="text-base sm:text-lg md:text-xl font-medium text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
@@ -374,7 +372,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {FEATURES.map(({ icon: Icon, label, desc }, i) => (
                 <Reveal key={label} delay={i * 0.06}>
-                  <div className="p-4 sm:p-6 h-full bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium hover:ring-primary/15 transition-all">
+                  <div className="p-4 sm:p-6 h-full glass glow-hover rounded-[12px] !border-transparent">
                     <div className="w-9 h-9 bg-primary/5 rounded-[8px] flex items-center justify-center mb-4">
                       <Icon className="w-4.5 h-4.5 text-primary" />
                     </div>
@@ -399,7 +397,7 @@ export default function LandingPage() {
                   Same workflow as paid tools - open source, self-hosted, yours.
                 </p>
               </div>
-              <div className="overflow-x-auto bg-surface-container-lowest rounded-[16px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium">
+              <div className="overflow-x-auto glass rounded-[16px] !border-transparent">
                 <table className="w-full text-sm min-w-[560px]">
                   <thead>
                     <tr className="border-b border-[rgba(229,226,218,0.4)]">
@@ -470,7 +468,7 @@ export default function LandingPage() {
               </button>
               <h2 className="text-4xl font-serif text-on-background">Editorial Report</h2>
             </div>
-            <div className="bg-surface-container-lowest rounded-[12px] p-5 ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium flex items-center gap-5">
+            <div className="glass rounded-[12px] p-5 !border-transparent flex items-center gap-5">
               <div>
                 <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-1">
                   Overall Quality
@@ -494,10 +492,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
             {result &&
               Object.entries(result.scores).map(([key, value]) => (
-                <div
-                  key={key}
-                  className="bg-surface-container-lowest rounded-[12px] p-6 ring-1 ring-[rgba(229,226,218,0.4)] hover:shadow-premium transition-all"
-                >
+                <div key={key} className="glass glow-hover rounded-[12px] p-6 !border-transparent">
                   <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-3">
                     {key}
                   </div>
@@ -521,7 +516,7 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-6 mb-10">
-            <div className="bg-surface-container-lowest rounded-[12px] p-7 ring-1 ring-[rgba(229,226,218,0.4)] shadow-premium border-l-2 border-error">
+            <div className="glass rounded-[12px] p-7 !border-transparent border-l-2 border-error">
               <div className="flex items-center gap-2 text-error font-bold mb-5 text-[0.875rem] uppercase tracking-wider font-mono">
                 <AlertCircle className="w-4 h-4" /> Identify &amp; Eliminate
               </div>
@@ -537,7 +532,7 @@ export default function LandingPage() {
               </ul>
             </div>
 
-            <div className="bg-surface-container-lowest rounded-[12px] p-7 ring-1 ring-[rgba(229,226,218,0.4)] shadow-premium border-l-2 border-primary">
+            <div className="glass rounded-[12px] p-7 !border-transparent border-l-2 border-primary">
               <div className="flex items-center gap-2 text-primary font-bold mb-5 text-[0.875rem] uppercase tracking-wider font-mono">
                 <CheckCircle2 className="w-4 h-4" /> Executive Rewrite
               </div>

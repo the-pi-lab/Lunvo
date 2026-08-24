@@ -3,9 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogOut, Moon, Search, Settings, Sun } from "lucide-react";
+import { LogOut, Search, Settings } from "lucide-react";
 import { NAV_ITEMS } from "./nav-config";
-import { getActiveTheme, setTheme } from "@/lib/design/theme";
 
 interface CommandKProps {
   open: boolean;
@@ -46,13 +45,6 @@ export default function CommandK({ open, onClose, onLogout }: CommandKProps) {
     };
 
     const actions: CmdItem[] = [
-      {
-        id: "action-theme",
-        label: getActiveTheme() === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode",
-        hint: "Action",
-        icon: getActiveTheme() === "dark" ? Sun : Moon,
-        run: () => setTheme(getActiveTheme() === "dark" ? "light" : "dark"),
-      },
       {
         id: "action-logout",
         label: "Sign Out",

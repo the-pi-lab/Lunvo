@@ -122,11 +122,11 @@ export default function DashboardPage() {
         {/* 1. Content Factory */}
         <Link
           href="/dashboard/create"
-          className="group block bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(37,99,235,0.08)] hover:border-blue-200 transition-all duration-300 relative overflow-hidden"
+          className="group block glass glow-hover rounded-3xl p-8 !border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(37,99,235,0.08)] hover:border-blue-200 transition-all duration-300 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110" />
           <div className="relative z-10">
-            <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+            <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-6 shadow-sm">
               <PenTool className="w-7 h-7" />
             </div>
             <h2 className="text-2xl font-bold text-on-background mb-3">Content Factory</h2>
@@ -143,11 +143,11 @@ export default function DashboardPage() {
         {/* 2. Voice DNA */}
         <Link
           href="/dashboard/settings"
-          className="group block bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(16,185,129,0.08)] hover:border-emerald-200 transition-all duration-300 relative overflow-hidden"
+          className="group block glass glow-hover rounded-3xl p-8 !border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(16,185,129,0.08)] hover:border-emerald-200 transition-all duration-300 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110" />
           <div className="relative z-10">
-            <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+            <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-6 shadow-sm">
               <Settings2 className="w-7 h-7" />
             </div>
             <h2 className="text-2xl font-bold text-on-background mb-3">Voice DNA Tuner</h2>
@@ -164,11 +164,11 @@ export default function DashboardPage() {
         {/* 3. Engagement Analyzer */}
         <Link
           href="/dashboard/analyze"
-          className="group block bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(139,92,246,0.08)] hover:border-indigo-200 transition-all duration-300 relative overflow-hidden"
+          className="group block glass glow-hover rounded-3xl p-8 !border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(139,92,246,0.08)] hover:border-indigo-200 transition-all duration-300 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110" />
           <div className="relative z-10">
-            <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+            <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-6 shadow-sm">
               <BarChart2 className="w-7 h-7" />
             </div>
             <h2 className="text-2xl font-bold text-on-background mb-3">Engagement Predictor</h2>

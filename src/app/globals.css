@@ -3,73 +3,48 @@
 @tailwind utilities;
 
 /* ============================================================
-   LUNVO Design Tokens 2.0 — Single Source of Truth (Phase 11)
-   Format: RGB triplets ("R G B") so Tailwind <alpha-value> works.
-   Usage: rgb(var(--primary) / <alpha-value>) in tailwind.config.ts
-   Theme switching: html[data-theme="dark"] (see src/lib/design/theme.ts)
+   LUNVO Design Tokens 3.0 "Light Aurora" (Phase 18)
+   Light-only. Mild, charming, airy. Dark is banned by design.
+   Format: RGB triplets for Tailwind <alpha-value> support.
    ============================================================ */
 
 :root {
-  /* Surfaces — warm cream (Light) */
-  --background: 255 248 240; /* #fff8f0 */
-  --on-background: 30 27 22; /* #1e1b16 */
-  --surface: 255 248 240;
-  --surface-2: 241 239 233; /* #f1efe9 */
+  /* Surfaces — warm airy cream */
+  --background: 251 250 249; /* #FBFAF9 */
+  --on-background: 30 27 22; /* #1E1B16 */
+  --surface: 255 255 255;
+  --surface-2: 245 243 238;
   --on-surface: 30 27 22;
-  --on-surface-variant: 67 70 85; /* #434655 */
+  --on-surface-variant: 100 96 110; /* #64606E — soft plum-grey */
 
   --surface-container-lowest: 255 255 255;
-  --surface-container-low: 249 243 234; /* #f9f3ea */
-  --surface-container: 244 237 228; /* #f4ede4 */
-  --surface-container-high: 238 231 222; /* #eee7de */
-  --surface-container-highest: 232 226 217; /* #e8e2d9 */
-  --surface-bright: 255 248 240;
-  --surface-dim: 223 217 208; /* #dfd9d0 */
+  --surface-container-low: 248 246 251; /* faint lavender-white */
+  --surface-container: 243 241 247; /* #F3F1F7 */
+  --surface-container-high: 238 235 244;
+  --surface-container-highest: 232 229 239;
+  --surface-bright: 255 255 255;
+  --surface-dim: 233 231 226;
 
-  /* Brand */
-  --primary: 0 74 198; /* #004ac6 */
+  /* Brand — confident blue, softened container */
+  --primary: 0 74 198; /* #004AC6 */
   --on-primary: 255 255 255;
-  --primary-container: 37 99 235; /* #2563eb */
-  --secondary: 0 110 45; /* #006e2d */
-  --secondary-container: 124 249 148; /* #7cf994 */
-  --tertiary: 130 69 0; /* #824500 */
-  --tertiary-container: 166 89 0; /* #a65900 */
-  --on-tertiary-container: 255 237 225; /* #ffede1 */
+  --primary-container: 224 235 255; /* pastel blue fill */
+  --secondary: 0 134 82; /* #008652 */
+  --secondary-container: 209 245 224;
+  --tertiary: 158 80 20; /* warm amber-brown */
+  --tertiary-container: 255 232 207;
+  --on-tertiary-container: 90 45 10;
 
   /* System */
-  --outline-variant: 195 198 215; /* #c3c6d7 */
-  --error: 186 26 26; /* #ba1a1a */
-}
+  --outline-variant: 205 200 220; /* soft lavender-grey */
+  --error: 186 26 26; /* #BA1A1A */
 
-html[data-theme="dark"] {
-  /* Surfaces — warm charcoal (Dark) */
-  --background: 21 19 14; /* #15130e */
-  --on-background: 234 225 213; /* #eae1d5 */
-  --surface: 21 19 14;
-  --surface-2: 30 27 21; /* #1e1b15 */
-  --on-surface: 234 225 213;
-  --on-surface-variant: 205 196 182; /* #cdc4b6 */
-
-  --surface-container-lowest: 15 13 10; /* #0f0d0a */
-  --surface-container-low: 26 23 18; /* #1a1712 */
-  --surface-container: 32 28 22; /* #201c16 */
-  --surface-container-high: 43 38 31; /* #2b261f */
-  --surface-container-highest: 54 48 40; /* #363028 */
-  --surface-bright: 60 55 47; /* #3c372f */
-  --surface-dim: 21 19 14;
-
-  /* Brand — lifted tones for dark contrast */
-  --primary: 171 199 255; /* #abc7ff */
-  --on-primary: 0 47 102; /* #002f66 */
-  --primary-container: 30 79 174; /* #1e4fae */
-  --secondary: 127 217 154; /* #7fd99a */
-  --secondary-container: 0 83 31; /* #00531f */
-  --tertiary: 255 184 120; /* #ffb878 */
-  --tertiary-container: 101 50 0; /* #653200 */
-  --on-tertiary-container: 255 220 196; /* #ffdcc4 */
-
-  --outline-variant: 73 69 57; /* #494539 */
-  --error: 255 180 171; /* #ffb4ab */
+  /* Aurora accents (decorative pastels) */
+  --aurora-lavender: 165 180 252; /* #A5B4FC */
+  --aurora-sky: 125 211 252; /* #7DD3FC */
+  --aurora-peach: 253 186 116; /* #FDBA74 */
+  --aurora-mint: 110 231 183; /* #6EE7B7 */
+  --aurora-rose: 249 168 212; /* #F9A8D4 */
 }
 
 @layer base {
@@ -85,10 +60,16 @@ html[data-theme="dark"] {
   }
 
   body {
-    @apply bg-background text-on-background font-sans antialiased selection:bg-primary/10 selection:text-primary;
-    transition:
-      background-color 200ms ease-out,
-      color 200ms ease-out;
+    @apply bg-background text-on-background font-sans antialiased selection:bg-primary/15 selection:text-primary;
+    background-image:
+      radial-gradient(
+        1200px 600px at 85% -10%,
+        rgb(var(--aurora-lavender) / 0.16),
+        transparent 60%
+      ),
+      radial-gradient(900px 500px at -10% 20%, rgb(var(--aurora-sky) / 0.14), transparent 55%),
+      radial-gradient(800px 500px at 50% 110%, rgb(var(--aurora-peach) / 0.1), transparent 60%);
+    background-attachment: fixed;
   }
 
   img,
@@ -98,6 +79,22 @@ html[data-theme="dark"] {
     max-width: 100%;
     height: auto;
   }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--outline-variant) / 0.7);
+    border-radius: 8px;
+    border: 2px solid rgb(var(--background));
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--outline-variant));
+  }
 }
 
 @layer utilities {
@@ -105,8 +102,96 @@ html[data-theme="dark"] {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Glass surfaces — airy frosted panels */
+  .glass {
+    background: rgb(255 255 255 / 0.62);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid rgb(255 255 255 / 0.85);
+    box-shadow:
+      0 1px 2px rgb(30 27 22 / 0.04),
+      0 12px 40px rgb(0 74 198 / 0.06);
+  }
+
+  .glass-strong {
+    background: rgb(255 255 255 / 0.82);
+    backdrop-filter: blur(28px) saturate(1.6);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    border: 1px solid rgb(255 255 255 / 0.95);
+    box-shadow:
+      0 1px 2px rgb(30 27 22 / 0.05),
+      0 20px 60px rgb(0 74 198 / 0.08);
+  }
+
+  /* Gradient display text */
+  .aurora-text {
+    background: linear-gradient(
+      120deg,
+      rgb(var(--primary)) 0%,
+      #7c3aed 45%,
+      #db2777 80%,
+      rgb(var(--aurora-peach)) 110%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Soft glow ring on hover */
+  .glow-hover {
+    transition:
+      box-shadow 220ms ease-out,
+      transform 220ms ease-out,
+      border-color 220ms ease-out;
+  }
+  .glow-hover:hover {
+    transform: translateY(-2px);
+    border-color: rgb(var(--primary) / 0.35);
+    box-shadow:
+      0 4px 12px rgb(0 74 198 / 0.08),
+      0 16px 48px rgb(124 58 237 / 0.1);
+  }
+
+  /* Animated aurora blobs (decorative, position via inline style) */
+  .aurora-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(90px);
+    opacity: 0.5;
+    animation: aurora-drift 22s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+
+  @keyframes aurora-drift {
+    0% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(30px, -24px) scale(1.12);
+    }
+    100% {
+      transform: translate(-24px, 20px) scale(0.95);
+    }
+  }
+
+  /* Shimmer for loading states */
+  .shimmer {
+    background: linear-gradient(
+      100deg,
+      rgb(var(--surface-container)) 40%,
+      rgb(255 255 255 / 0.9) 50%,
+      rgb(var(--surface-container)) 60%
+    );
+    background-size: 200% 100%;
+    animation: shimmer-slide 1.6s linear infinite;
+  }
+  @keyframes shimmer-slide {
+    to {
+      background-position: -200% 0;
+    }
   }
 }

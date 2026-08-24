@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut, PanelLeftClose, PanelLeftOpen, Settings } from "lucide-react";
 import { NAV_ITEMS, isNavActive } from "./nav-config";
-import ThemeToggle from "./ThemeToggle";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -26,7 +25,7 @@ function SidebarInner({
 
   return (
     <aside
-      className={`flex h-full flex-col border-r border-[rgba(229,226,218,0.35)] bg-surface-container-low transition-[width] duration-200 ease-out ${
+      className={`glass flex h-full flex-col !border-0 border-r border-white/70 transition-[width] duration-200 ease-out ${
         isCollapsed ? "w-[72px]" : "w-[280px]"
       }`}
     >
@@ -87,7 +86,6 @@ function SidebarInner({
 
       {/* Bottom utilities */}
       <div className={`border-t border-[rgba(229,226,218,0.35)] py-3 px-2 space-y-0.5`}>
-        <ThemeToggle collapsed={isCollapsed} />
         <Link
           href="/dashboard/settings"
           onClick={onCloseMobile}

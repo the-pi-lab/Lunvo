@@ -91,10 +91,24 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
       />
 
       <div className="relative flex min-w-0 flex-1 flex-col">
-        {/* Ambient blobs */}
-        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute -top-24 right-0 h-96 w-96 rounded-full bg-primary/5 blur-[100px]" />
-          <div className="absolute bottom-0 left-0 h-96 w-96 rounded-full bg-secondary/5 blur-[100px]" />
+        {/* Aurora field */}
+        <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+          <div
+            className="aurora-blob w-[420px] h-[420px] -top-32 right-[8%]"
+            style={{ backgroundColor: "rgb(var(--aurora-lavender) / 0.55)" }}
+          />
+          <div
+            className="aurora-blob w-[380px] h-[380px] top-[30%] -left-28"
+            style={{ backgroundColor: "rgb(var(--aurora-sky) / 0.5)", animationDelay: "-6s" }}
+          />
+          <div
+            className="aurora-blob w-[340px] h-[340px] bottom-[-80px] right-[30%]"
+            style={{ backgroundColor: "rgb(var(--aurora-peach) / 0.45)", animationDelay: "-12s" }}
+          />
+          <div
+            className="aurora-blob w-[300px] h-[300px] top-[60%] left-[35%]"
+            style={{ backgroundColor: "rgb(var(--aurora-mint) / 0.35)", animationDelay: "-16s" }}
+          />
         </div>
 
         <Topbar
