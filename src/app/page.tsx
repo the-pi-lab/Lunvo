@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Sparkles, Zap, ShieldCheck, Layers, BrainCircuit } from "lucide-react";
 import { PROVIDER_REGISTRY } from "@/lib/ai/providers/registry";
 import { analyzeLocally } from "@/lib/analysis/localHeuristics";
+import dynamic from "next/dynamic";
+
+const AuroraScene = dynamic(() => import("@/components/landing/AuroraScene"), { ssr: false });
 
 const DEMO_POST =
   "84 cold DMs. 3 replies. Here is what I changed.\n\nI stopped pitching in message one.\n\nInstead I asked about their biggest blocker — and actually listened.\n\nReplies tripled in two weeks.\n\nWhat is the one thing you wish you knew before your first outreach?";
@@ -135,6 +138,11 @@ export default function EntryPage() {
 
   return (
     <main className="relative min-h-screen overflow-hidden">
+      {/* 3D Aurora scene */}
+      <div className="absolute inset-0 z-0">
+        <AuroraScene />
+      </div>
+
       {/* Extra aurora blobs for the entry moment */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
