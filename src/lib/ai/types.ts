@@ -1,15 +1,26 @@
-export type AIProvider = 
-  | 'openai'
-  | 'anthropic'
-  | 'gemini'
-  | 'groq'
-  | 'nvidia'
-  | 'ollama'
-  | 'lmstudio'
-  | 'openrouter'
-  | 'custom';
+/**
+ * Known providers get autocomplete; registry ids (see providers/registry.ts)
+ * are all valid too. The `(string & {})` trick keeps IntelliSense while
+ * allowing any registry id.
+ */
+export type KnownAIProvider =
+  | "openai"
+  | "anthropic"
+  | "gemini"
+  | "groq"
+  | "nvidia"
+  | "ollama"
+  | "lmstudio"
+  | "openrouter"
+  | "custom";
+
+export type AIProvider = KnownAIProvider | (string & {});
 
 export interface AIProfile {
+  /** Stable id for vault management (set by profileVault on save). */
+  id?: string;
+  /** Display label for vault list (defaults to provider name). */
+  label?: string;
   provider: AIProvider;
   apiKey: string;
   baseURL?: string; // Optional for standard providers, required for custom/local
@@ -17,7 +28,7 @@ export interface AIProfile {
   customHeaders?: Record<string, string>;
 }
 
-export type Role = 'system' | 'user' | 'assistant';
+export type Role = "system" | "user" | "assistant";
 
 export interface Message {
   role: Role;
@@ -35,12 +46,12 @@ export interface AIRequestPayload {
 export interface AIResponseChunk {
   text: string;
   isDone: boolean;
-  finishReason?: 'stop' | 'length' | 'content_filter' | null;
+  finishReason?: "stop" | "length" | "content_filter" | null;
 }
 
 export interface AIFullResponse {
   text: string;
-  finishReason: 'stop' | 'length' | 'content_filter' | 'unknown' | null;
+  finishReason: "stop" | "length" | "content_filter" | "unknown" | null;
   usage?: {
     promptTokens: number;
     completionTokens: number;
@@ -56,7 +67,7 @@ export class AIError extends Error {
 
   constructor(message: string, provider: AIProvider, statusCode?: number, code?: string) {
     super(message);
-    this.name = 'AIError';
+    this.name = "AIError";
     this.provider = provider;
     this.statusCode = statusCode;
     this.code = code;

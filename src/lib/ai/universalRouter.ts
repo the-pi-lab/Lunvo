@@ -2,11 +2,14 @@
  * @deprecated Since Phase 17 - use `@/lib/ai/router.unified` (unifiedAI / unifiedText).
  * This module remains as the BYOK adapter-chain implementation consumed by the unified router.
  * Do NOT add new call sites here.
+ *
+ * Phase 17b: registry-driven — any provider in providers/registry.ts works automatically.
  */
 import { AIProfile, AIRequestPayload, AIFullResponse, AIError } from "./types";
 import { callOpenAICompatible } from "./protocols/openaiCompatible";
 import { callGemini } from "./protocols/geminiAdapter";
 import { callAnthropic } from "./protocols/anthropicAdapter";
+import { getProviderDef } from "./providers/registry";
 
 export async function callUniversalAI(
   profile: AIProfile,
@@ -16,40 +19,47 @@ export async function callUniversalAI(
     throw new AIError("Invalid AI Profile provided.", "custom", 400);
   }
 
+  const def = getProviderDef(profile.provider);
+
   try {
-    switch (profile.provider) {
-      case "anthropic":
-        return await callAnthropic(profile, payload);
+    // Registry-driven: adapter comes from the provider definition.
+    const adapter = def?.adapter ?? "openai-compatible";
 
-      case "gemini":
-        // If the user supplied a custom base URL that implies OpenAI compatibility (v1beta/openai)
-        // we might want to route to callOpenAICompatible. For now, use Gemini adapter.
-        if (profile.baseURL && profile.baseURL.includes("/openai")) {
-          return await callOpenAICompatible(profile, payload);
-        }
-        return await callGemini(profile, payload);
-
-      case "openai":
-      case "groq":
-      case "nvidia":
-      case "openrouter":
-      case "custom":
-        return await callOpenAICompatible(profile, payload);
-
-      case "ollama":
-        // Default Ollama endpoint if not provided
-        if (!profile.baseURL) profile.baseURL = "http://localhost:11434/v1";
-        return await callOpenAICompatible(profile, payload);
-
-      case "lmstudio":
-        // Default LM Studio endpoint if not provided
-        if (!profile.baseURL) profile.baseURL = "http://localhost:1234/v1";
-        return await callOpenAICompatible(profile, payload);
-
-      default:
-        throw new AIError(`Unsupported provider: ${profile.provider}`, profile.provider, 400);
+    // Auto-fill baseURL from registry when the profile omits it.
+    if (!profile.baseURL && def?.baseURL) {
+      profile.baseURL = def.baseURL;
     }
-  } catch (error: any) {
+
+    if (def?.coming) {
+      throw new AIError(
+        `${def.name} needs enterprise auth (dedicated adapter) — coming soon.`,
+        profile.provider,
+        501
+      );
+    }
+
+    if (adapter === "anthropic") {
+      return await callAnthropic(profile, payload);
+    }
+
+    if (adapter === "gemini") {
+      // OpenAI-compatible override if the user pointed Gemini at a /openai endpoint.
+      if (profile.baseURL && profile.baseURL.includes("/openai")) {
+        return await callOpenAICompatible(profile, payload);
+      }
+      return await callGemini(profile, payload);
+    }
+
+    // openai-compatible (default) — covers ~90% of the registry.
+    if (!profile.baseURL) {
+      throw new AIError(
+        `${def?.name ?? profile.provider} needs a Base URL (OpenAI-compatible endpoint). Set it in Settings.`,
+        profile.provider,
+        400
+      );
+    }
+    return await callOpenAICompatible(profile, payload);
+  } catch (error: unknown) {
     if (error instanceof AIError) {
       // Enhance specific errors with actionable tips
       if (profile.provider === "ollama" && error.message.includes("fetch")) {
@@ -62,7 +72,7 @@ export async function callUniversalAI(
     }
 
     throw new AIError(
-      `Universal Router Error: ${error.message || String(error)}`,
+      `Universal Router Error: ${error instanceof Error ? error.message : String(error)}`,
       profile.provider,
       500
     );
