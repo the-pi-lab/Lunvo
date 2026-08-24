@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Zap } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { runBootMaintenance } from "@/lib/cacheBust";
 import PWARegister from "@/components/PWARegister";
 import Sidebar from "./Sidebar";
@@ -26,7 +25,6 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cmdkOpen, setCmdkOpen] = useState(false);
-  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
     runBootMaintenance();
@@ -65,18 +63,8 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
   }, []);
 
   const handleLogout = useCallback(async () => {
-    if (isSigningOut) return;
-    setIsSigningOut(true);
-    try {
-      await fetch("/api/auth/signout", { method: "POST" });
-      const supabase = createClient();
-      await supabase.auth.signOut({ scope: "local" });
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
-      window.location.href = "/login";
-    }
-  }, [isSigningOut]);
+    window.location.href = "/";
+  }, []);
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
@@ -87,7 +75,6 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
         mobileOpen={mobileOpen}
         onCloseMobile={closeMobile}
         onLogout={handleLogout}
-        isSigningOut={isSigningOut}
       />
 
       <div className="relative flex min-w-0 flex-1 flex-col">

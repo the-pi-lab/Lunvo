@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import {
   PenTool,
   BarChart2,
@@ -13,7 +12,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import CreditBadge from "@/components/shared/CreditBadge";
+import { getUsage } from "@/lib/localStore";
 
 interface UserData {
   full_name: string;
@@ -22,59 +21,18 @@ interface UserData {
 }
 
 export default function DashboardPage() {
-  const supabase = useMemo(() => createClient(), []);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [isLocalMode, setIsLocalMode] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
-    const localMode =
-      !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.trim() === "";
-    setIsLocalMode(localMode);
-
-    const fetchData = async () => {
-      if (localMode) {
-        if (isMounted) {
-          setUserData({
-            full_name: "Local Commander",
-            plan: "offline",
-            streak_count: 99,
-          });
-          setLoading(false);
-        }
-        return;
-      }
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        if (isMounted) setLoading(false);
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from("users")
-        .select("full_name, plan, streak_count")
-        .eq("id", user.id)
-        .single();
-
-      if (isMounted) {
-        setUserData({
-          full_name: profile?.full_name || "User",
-          plan: profile?.plan || "free",
-          streak_count: profile?.streak_count || 0,
-        });
-        setLoading(false);
-      }
-    };
-
-    void fetchData();
-    return () => {
-      isMounted = false;
-    };
-  }, [supabase]);
+    const usage = getUsage();
+    setUserData({
+      full_name: "Local Commander",
+      plan: "studio",
+      streak_count: usage.generate + usage.analyze,
+    });
+    setLoading(false);
+  }, []);
 
   if (loading) {
     return (
@@ -107,7 +65,6 @@ export default function DashboardPage() {
           </h1>
         </div>
         <div className="flex flex-col items-start md:items-end gap-3">
-          <CreditBadge />
           <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-full border border-blue-100">
             <Activity className="w-4 h-4 text-blue-600" />
             <span className="text-xs font-bold uppercase tracking-widest text-blue-700 font-mono">

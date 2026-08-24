@@ -2,7 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import { Menu, Search, User } from "lucide-react";
-import CreditBadge from "@/components/shared/CreditBadge";
+import { useEffect, useState } from "react";
+import { getUsage } from "@/lib/localStore";
 import { getPageTitle } from "./nav-config";
 
 interface TopbarProps {
@@ -59,10 +60,8 @@ export default function Topbar({
           </kbd>
         </button>
 
-        {/* Credits */}
-        <div className="hidden lg:block">
-          <CreditBadge />
-        </div>
+        {/* Daily usage */}
+        <UsageChip />
 
         {/* User chip */}
         <div className="flex items-center gap-2 pl-1 sm:pl-2">
@@ -80,5 +79,22 @@ export default function Topbar({
         </div>
       </div>
     </header>
+  );
+}
+
+function UsageChip() {
+  const [usage, setUsage] = useState({ analyze: 0, generate: 0 });
+  useEffect(() => {
+    setUsage(getUsage());
+  }, []);
+  return (
+    <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-[10px] glass !border-transparent">
+      <span className="text-[0.625rem] font-bold text-on-surface-variant/60 uppercase tracking-widest font-mono">
+        Today
+      </span>
+      <span className="text-xs font-bold text-on-background">
+        {usage.analyze}A · {usage.generate}G
+      </span>
+    </div>
   );
 }

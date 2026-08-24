@@ -1,41 +1,25 @@
-import { AIProfile } from '@/lib/ai/types';
-import { createClient } from '@/utils/supabase/client';
-import { getActiveAIProfile, setActiveAIProfile } from '@/lib/apiHelper';
+import { AIProfile } from "../ai/types";
 
+const LUNVO_PROFILE_KEY = "lunvo_ai_profile";
+
+/**
+ * Legacy single-profile helpers (Phase 19-A: auth destroyed, storage local-only).
+ * New code should use profileVault. Kept for backward compatibility.
+ */
 export async function saveProfileToStorage(profile: AIProfile): Promise<void> {
-  // 1. Save strictly to local storage (API keys stay here!)
-  setActiveAIProfile(profile);
-
-  // 2. Save non-sensitive parts to Supabase if user is logged in
-  try {
-    const supabase = createClient();
-    const { data: userData } = await supabase.auth.getUser();
-    
-    if (userData?.user) {
-      // Create a safe version without the API key
-      const safeProfile = { ...profile };
-      safeProfile.apiKey = 'REDACTED_LOCAL_ONLY';
-      
-      await supabase.from('profiles').upsert({
-        id: userData.user.id,
-        ai_provider: safeProfile.provider,
-        ai_model: safeProfile.model,
-        ai_base_url: safeProfile.baseURL,
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'id' });
-    }
-  } catch (error) {
-    console.warn("Could not sync non-sensitive profile settings to Supabase:", error);
-    // Non-fatal, since local storage works
-  }
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(LUNVO_PROFILE_KEY, JSON.stringify(profile));
 }
 
 export async function loadProfileFromStorage(): Promise<AIProfile | null> {
-  // Always prefer local storage since it has the real API key
-  const localProfile = getActiveAIProfile();
-  if (localProfile && localProfile.apiKey !== 'REDACTED_LOCAL_ONLY') {
-    return localProfile;
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(LUNVO_PROFILE_KEY);
+    if (!raw) return null;
+    const profile = JSON.parse(raw) as AIProfile;
+    if (profile.apiKey === "REDACTED_LOCAL_ONLY") return null;
+    return profile;
+  } catch {
+    return null;
   }
-  
-  return null;
 }

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { AIProvider, AIProfile } from "@/lib/ai/types";
-import { ConnectionTestButton } from "./ConnectionTestButton";
 import { saveProfileToStorage } from "@/lib/settings/storage";
 import { discoverLocalModels, LocalModelInfo } from "@/lib/ai/protocols/localModelDiscovery";
 import ProviderGrid from "./ProviderGrid";
@@ -378,7 +377,6 @@ export function AIConfigCard() {
             >
               <Plus className="w-4 h-4" /> Add to Vault
             </button>
-            <ConnectionTestButton profile={draft} />
           </div>
         </div>
       )}

@@ -1,26 +1,22 @@
 /**
  * Cache-bust utilities (FIX-C)
- * Local mode me purane Supabase session keys browser ko login-loop me fasate the.
+ * Purane provider session keys stale state create kar sakte the — boot pe saaf.
  * Ye util unhe boot pe safely purge karta hai - sirf local mode me, real users safe.
  */
 
-import { isLocalMode } from "./localMode";
-
 export const APP_VERSION = "2.0.0";
 
-const AUTH_KEY_PATTERNS = ["sb-", "supabase.auth.token"];
+const AUTH_KEY_PATTERNS = ["sb-", "provider-session.auth.token"];
 
 function isStaleAuthKey(key: string): boolean {
-  // @supabase/ssr keys: sb-<project-ref>-auth-token, sb-...-auth-token.0/.1, code-verifier
+  // @provider-session/ssr keys: sb-<project-ref>-auth-token, sb-...-auth-token.0/.1, code-verifier
   if (key.startsWith("sb-") && key.includes("auth-token")) return true;
-  if (key === "supabase.auth.token") return true;
+  if (key === "provider-session.auth.token") return true;
   return false;
 }
 
 export function purgeStaleAuthKeys(): string[] {
   if (typeof window === "undefined") return [];
-  if (!isLocalMode()) return []; // logged-in Supabase users: hands off
-
   const removed: string[] = [];
   try {
     const toRemove: string[] = [];

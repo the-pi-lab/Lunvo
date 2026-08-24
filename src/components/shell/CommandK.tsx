@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogOut, Search, Settings } from "lucide-react";
+import { Search, Settings } from "lucide-react";
 import { NAV_ITEMS } from "./nav-config";
 
 interface CommandKProps {
@@ -44,15 +44,7 @@ export default function CommandK({ open, onClose, onLogout }: CommandKProps) {
       run: () => router.push("/dashboard/settings"),
     };
 
-    const actions: CmdItem[] = [
-      {
-        id: "action-logout",
-        label: "Sign Out",
-        hint: "Action",
-        icon: LogOut,
-        run: onLogout,
-      },
-    ];
+    const actions: CmdItem[] = [];
 
     return [...navItems, settingsItem, ...actions];
   }, [router, onLogout]);

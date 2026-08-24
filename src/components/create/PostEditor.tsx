@@ -7,6 +7,7 @@ import { LinkedInMobilePreview } from "./LinkedInMobilePreview";
 import { runEngagementPredictor, EngagementMetrics } from "@/lib/ai/engagementPredictor";
 import { runOptimizer } from "@/lib/ai/optimizer";
 import { getActiveAIProfile } from "@/lib/apiHelper";
+import { saveDraft } from "@/lib/localStore";
 
 interface PostEditorProps {
   content: string;

@@ -11,7 +11,6 @@ import {
   Sparkles,
   ChevronLeft,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { isLocalMode } from "@/lib/localMode";
 import { getApiHeaders } from "@/lib/apiHelper";
 
@@ -39,7 +38,6 @@ export default function AnalyzePostPage() {
   const [view, setView] = useState<"input" | "loading" | "results">("input");
   const [postContent, setPostContent] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const supabase = createClient();
   const searchParams =
     typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
 

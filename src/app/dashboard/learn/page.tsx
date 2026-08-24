@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { isLocalMode } from "@/lib/localMode";
 
 // 30 LinkedIn lessons — fully static, zero API cost
 const LESSONS = [
@@ -1698,7 +1696,7 @@ interface LearnNewsItem {
 }
 
 export default function LearnPage() {
-  const [userDayNumber, setUserDayNumber] = useState(1);
+  const [userDayNumber, setUserDayNumber] = useState(30);
   const [selectedLessonDay, setSelectedLessonDay] = useState(1);
   const [topicNews, setTopicNews] = useState<LearnNewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -1708,34 +1706,7 @@ export default function LearnPage() {
 
   useEffect(() => {
     async function loadLearnData() {
-      if (isLocalMode()) {
-        setIsLoading(false);
-        return;
-      }
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        setIsLoading(false);
-      } else {
-        const { data } = await supabase
-          .from("users")
-          .select("created_at")
-          .eq("id", user.id)
-          .single();
-
-        if (data) {
-          const created = new Date(data.created_at);
-          const now = new Date();
-          const diffDays = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
-          const dayNumber = Math.min(diffDays + 1, 30);
-          setUserDayNumber(dayNumber);
-          setSelectedLessonDay(dayNumber);
-        }
-
-        setIsLoading(false);
-      }
+      setIsLoading(false);
 
       try {
         const response = await fetch("/api/learn-news", { cache: "no-store" });

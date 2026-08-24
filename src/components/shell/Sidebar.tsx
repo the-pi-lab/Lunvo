@@ -10,16 +10,9 @@ interface SidebarProps {
   mobileOpen: boolean;
   onCloseMobile: () => void;
   onLogout: () => void;
-  isSigningOut: boolean;
 }
 
-function SidebarInner({
-  collapsed,
-  mobileOpen,
-  onCloseMobile,
-  onLogout,
-  isSigningOut,
-}: SidebarProps) {
+function SidebarInner({ collapsed, mobileOpen, onCloseMobile, onLogout }: SidebarProps) {
   const pathname = usePathname();
   const isCollapsed = collapsed;
 
@@ -99,14 +92,14 @@ function SidebarInner({
         </Link>
         <button
           onClick={onLogout}
-          disabled={isSigningOut}
+
           title={isCollapsed ? "Sign out" : undefined}
           className={`w-full flex items-center gap-3 rounded-[8px] text-sm font-semibold text-red-600 hover:bg-red-500/10 transition-colors disabled:opacity-50 ${
             isCollapsed ? "h-9 justify-center px-0" : "px-3 py-2"
           }`}
         >
           <LogOut className="w-4 h-4 shrink-0" />
-          {!isCollapsed && <span>{isSigningOut ? "Signing out..." : "Sign Out"}</span>}
+          {!isCollapsed && <span>Exit Studio</span>}
         </button>
 
         {/* Expand button when collapsed (desktop) */}

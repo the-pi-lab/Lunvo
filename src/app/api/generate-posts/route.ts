@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { refreshRssSystem, getRssSystemSnapshot, startRssScheduler } from "@/lib/rss/scheduler";
-import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 export const revalidate = 0;
@@ -39,7 +38,9 @@ export async function POST(req: NextRequest) {
           source: post.source,
           title: post.title,
           description: post.description || post.title,
-          suggested_hashtags: extractHashtags(`${post.title} ${post.description || ""} ${post.post}`),
+          suggested_hashtags: extractHashtags(
+            `${post.title} ${post.description || ""} ${post.post}`
+          ),
         })),
       });
     }
@@ -81,7 +82,9 @@ export async function GET(req: NextRequest) {
           source: post.source,
           title: post.title,
           description: post.description || post.title,
-          suggested_hashtags: extractHashtags(`${post.title} ${post.description || ""} ${post.post}`),
+          suggested_hashtags: extractHashtags(
+            `${post.title} ${post.description || ""} ${post.post}`
+          ),
         })),
       });
     }
@@ -127,7 +130,9 @@ function extractHashtags(text: string): string[] {
     "www",
   ]);
 
-  const explicitHashtags = (text.match(/#[a-z0-9_]+/gi) || []).map((tag) => tag.replace(/^#/, "").toLowerCase());
+  const explicitHashtags = (text.match(/#[a-z0-9_]+/gi) || []).map((tag) =>
+    tag.replace(/^#/, "").toLowerCase()
+  );
   const keywords = text
     .toLowerCase()
     .replace(/<[^>]+>/g, " ")

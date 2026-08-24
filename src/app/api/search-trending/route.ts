@@ -1,17 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchTrendingArticles } from "@/lib/rss/searchService";
-import { createClient } from "@/lib/supabase/server";
 
 // Mark this route as dynamic (uses query parameters)
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   // Auth check — require authenticated user
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
   try {
     const searchParams = req.nextUrl.searchParams;
     const query = searchParams.get("q") || "";
@@ -41,10 +35,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error("Search trending error:", error);
-    return NextResponse.json(
-      { error: "Failed to search trending posts" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to search trending posts" }, { status: 500 });
   }
 }
 
@@ -63,7 +54,11 @@ function cleanDescription(text?: string): string {
   }
 
   const snippet = cleaned.slice(0, 700);
-  const lastBoundary = Math.max(snippet.lastIndexOf("."), snippet.lastIndexOf("!"), snippet.lastIndexOf("?"));
+  const lastBoundary = Math.max(
+    snippet.lastIndexOf("."),
+    snippet.lastIndexOf("!"),
+    snippet.lastIndexOf("?")
+  );
   if (lastBoundary > 300) {
     return snippet.slice(0, lastBoundary + 1).trim();
   }
@@ -88,7 +83,12 @@ function pickVariant(items: string[], seed: number): string {
   return items[Math.abs(seed) % items.length]!;
 }
 
-function composeTrendingPost(title: string, description: string | undefined, source: string, query: string): string {
+function composeTrendingPost(
+  title: string,
+  description: string | undefined,
+  source: string,
+  query: string
+): string {
   const summary = cleanDescription(description);
   const sourceName = (source.split("(")[0] ?? "").trim();
   const topic = query.trim().toLowerCase() || "this space";
@@ -158,7 +158,9 @@ function extractHashtags(text: string): string[] {
     "www",
   ]);
 
-  const explicitHashtags = (text.match(/#[a-z0-9_]+/gi) || []).map((tag) => tag.replace(/^#/, "").toLowerCase());
+  const explicitHashtags = (text.match(/#[a-z0-9_]+/gi) || []).map((tag) =>
+    tag.replace(/^#/, "").toLowerCase()
+  );
   const keywords = text
     .toLowerCase()
     .replace(/<[^>]+>/g, " ")
