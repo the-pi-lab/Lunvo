@@ -1,3 +1,8 @@
+/**
+ * @deprecated Since Phase 17 - use `@/lib/ai/router.unified` (unifiedAI / unifiedText).
+ * This module remains as the server plan-mode implementation consumed by the unified router.
+ * Do NOT add new call sites here.
+ */
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { logger } from "@/lib/logger";
 import Groq from "groq-sdk";

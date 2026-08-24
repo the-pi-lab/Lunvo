@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callAI, parseAIJson } from "@/lib/ai/router";
+import { unifiedText, parseAIJson } from "@/lib/ai/router.unified";
 import { LINKEDIN_SYSTEM_PROMPT, buildAnalyzePrompt, AI_CONFIG } from "@/lib/ai/prompts";
 
 export const dynamic = "force-dynamic";
@@ -27,30 +27,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const userPrompt = buildAnalyzePrompt(
-      post,
-      "Professional",
-      "Grow audience",
-      "Professional"
-    );
+    const userPrompt = buildAnalyzePrompt(post, "Professional", "Grow audience", "Professional");
 
-    const rawResponse = await callAI(
-      LINKEDIN_SYSTEM_PROMPT,
+    const rawResponse = await unifiedText({
+      systemPrompt: LINKEDIN_SYSTEM_PROMPT,
       userPrompt,
-      "free",
-      AI_CONFIG.temperature.analyze,
-      AI_CONFIG.max_tokens.analyze,
-      customKeys
-    );
+      plan: "free",
+      temperature: AI_CONFIG.temperature.analyze,
+      maxTokens: AI_CONFIG.max_tokens.analyze,
+      customKeys,
+    });
 
     const result = parseAIJson(rawResponse);
     return NextResponse.json(result);
-
   } catch (error: any) {
     console.error("Public analyze error:", error);
-    return NextResponse.json(
-      { error: "Something went wrong. Try again." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Something went wrong. Try again." }, { status: 500 });
   }
 }

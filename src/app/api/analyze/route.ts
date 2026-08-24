@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callAI, parseAIJson } from "../../../lib/ai/router";
+import { unifiedText, parseAIJson } from "@/lib/ai/router.unified";
 import { LINKEDIN_SYSTEM_PROMPT, buildAnalyzePrompt, AI_CONFIG } from "@/lib/ai/prompts";
 import { createClient } from "@/lib/supabase/server";
 
@@ -34,7 +34,10 @@ export async function POST(req: NextRequest) {
 
     // 1. Get user session (REQUIRED)
     const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -46,7 +49,7 @@ export async function POST(req: NextRequest) {
       .select("plan")
       .eq("id", user.id)
       .single();
-    
+
     if (userError || !userData) {
       return NextResponse.json({ error: "User data not found" }, { status: 404 });
     }
@@ -54,11 +57,13 @@ export async function POST(req: NextRequest) {
     const userPlan = (userData.plan as any) || "free";
 
     // Daily limit check via Supabase RPC
-    const { data: limitCheck, error: limitError } = await supabase
-      .rpc("check_and_increment_analyze", {
+    const { data: limitCheck, error: limitError } = await supabase.rpc(
+      "check_and_increment_analyze",
+      {
         p_user_id: user.id,
         p_plan: userPlan,
-      });
+      }
+    );
 
     if (limitError) {
       console.error("Limit check error:", limitError);
@@ -86,19 +91,23 @@ export async function POST(req: NextRequest) {
       .select("role, goal, tone")
       .eq("user_id", user.id)
       .single();
-    
-    const persona = personaData || { role: "Professional", goal: "Grow audience", tone: "Professional" };
+
+    const persona = personaData || {
+      role: "Professional",
+      goal: "Grow audience",
+      tone: "Professional",
+    };
 
     // 4. Build Prompt and call AI
     const userPrompt = buildAnalyzePrompt(post, persona.role, persona.goal, persona.tone);
-    const rawResponse = await callAI(
-      LINKEDIN_SYSTEM_PROMPT,
+    const rawResponse = await unifiedText({
+      systemPrompt: LINKEDIN_SYSTEM_PROMPT,
       userPrompt,
-      userPlan,
-      AI_CONFIG.temperature.analyze,
-      AI_CONFIG.max_tokens.analyze,
-      customKeys
-    );
+      plan: userPlan,
+      temperature: AI_CONFIG.temperature.analyze,
+      maxTokens: AI_CONFIG.max_tokens.analyze,
+      customKeys,
+    });
 
     // 5. Parse JSON response
     const result = parseAIJson(rawResponse);
@@ -118,12 +127,28 @@ export async function POST(req: NextRequest) {
     const responseData = {
       ...resultData,
       scores: {
-        hook: { score: hookS, label: scores.hook?.label || "", explanation: scores.hook?.explanation || "" },
-        readability: { score: readS, label: scores.readability?.label || "", explanation: scores.readability?.explanation || "" },
-        engagement: { score: engS, label: scores.engagement?.label || "", explanation: scores.engagement?.explanation || "" },
-        structure: { score: structS, label: scores.structure?.label || "", explanation: scores.structure?.explanation || "" }
+        hook: {
+          score: hookS,
+          label: scores.hook?.label || "",
+          explanation: scores.hook?.explanation || "",
+        },
+        readability: {
+          score: readS,
+          label: scores.readability?.label || "",
+          explanation: scores.readability?.explanation || "",
+        },
+        engagement: {
+          score: engS,
+          label: scores.engagement?.label || "",
+          explanation: scores.engagement?.explanation || "",
+        },
+        structure: {
+          score: structS,
+          label: scores.structure?.label || "",
+          explanation: scores.structure?.explanation || "",
+        },
       },
-      overall_score: overallScore
+      overall_score: overallScore,
     };
 
     // 8. Save to history in background (don't block response)
@@ -131,7 +156,7 @@ export async function POST(req: NextRequest) {
       try {
         const { error: saveError } = await supabase.from("posts").insert({
           user_id: user.id,
-          type: 'analyzed',
+          type: "analyzed",
           original_content: post,
           improved_content: resultData.improved_post || null,
           top_problems: resultData.top_problems || [],
@@ -140,7 +165,7 @@ export async function POST(req: NextRequest) {
           readability_score: readS,
           engagement_score: engS,
           structure_score: structS,
-          overall_score: overallScore
+          overall_score: overallScore,
         });
         if (saveError) console.error("Background save error:", saveError);
       } catch (error) {
@@ -157,12 +182,8 @@ export async function POST(req: NextRequest) {
     })();
 
     return NextResponse.json(responseData);
-
   } catch (error: any) {
     console.error("Analysis Error:", error);
-    return NextResponse.json(
-      { error: "Something went wrong. Try again." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Something went wrong. Try again." }, { status: 500 });
   }
 }

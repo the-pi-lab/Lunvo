@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callAI, parseAIJson } from "../../../lib/ai/router";
+import { unifiedText, parseAIJson } from "@/lib/ai/router.unified";
 import { LINKEDIN_SYSTEM_PROMPT, buildGeneratePrompt, AI_CONFIG } from "@/lib/ai/prompts";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
@@ -235,14 +235,14 @@ export async function POST(req: NextRequest) {
 
     const userPrompt = appendNewsContextToPrompt(basePrompt, resolvedNewsContext);
 
-    const rawResponse = await callAI(
-      LINKEDIN_SYSTEM_PROMPT,
+    const rawResponse = await unifiedText({
+      systemPrompt: LINKEDIN_SYSTEM_PROMPT,
       userPrompt,
-      userPlan,
-      AI_CONFIG.temperature.generate,
-      AI_CONFIG.max_tokens.generate,
-      customKeys
-    );
+      plan: userPlan,
+      temperature: AI_CONFIG.temperature.generate,
+      maxTokens: AI_CONFIG.max_tokens.generate,
+      customKeys,
+    });
 
     // 3. Parse JSON response
     const result = parseAIJson(rawResponse);

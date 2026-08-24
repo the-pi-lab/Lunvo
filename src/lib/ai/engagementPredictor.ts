@@ -1,4 +1,4 @@
-import { callUniversalAI } from "./universalRouter";
+import { unifiedAI } from "./router.unified";
 import { AIProfile, Message } from "./types";
 
 export interface EngagementMetrics {
@@ -37,14 +37,15 @@ export async function runEngagementPredictor(
   postContent: string
 ): Promise<EngagementMetrics> {
   const messages: Message[] = [
-    { role: 'system', content: PREDICTOR_SYSTEM_PROMPT },
-    { role: 'user', content: `Please evaluate this LinkedIn post:\n\n${postContent}` }
+    { role: "system", content: PREDICTOR_SYSTEM_PROMPT },
+    { role: "user", content: `Please evaluate this LinkedIn post:\n\n${postContent}` },
   ];
 
-  const response = await callUniversalAI(profile, {
+  const response = await unifiedAI({
+    profile,
     messages,
     temperature: 0.2, // Low temp for more objective judging
-    maxTokens: 500
+    maxTokens: 500,
   });
 
   try {

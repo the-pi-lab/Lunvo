@@ -1,4 +1,4 @@
-import { callUniversalAI } from "../universalRouter";
+import { unifiedAI } from "../router.unified";
 import { AIProfile, Message } from "../types";
 
 const TWITTER_SYSTEM_PROMPT = `
@@ -17,21 +17,25 @@ export async function repurposeToTwitter(
   linkedInPost: string
 ): Promise<string[]> {
   const messages: Message[] = [
-    { role: 'system', content: TWITTER_SYSTEM_PROMPT },
-    { role: 'user', content: `Repurpose this LinkedIn post into a Twitter Thread:\n\n${linkedInPost}` }
+    { role: "system", content: TWITTER_SYSTEM_PROMPT },
+    {
+      role: "user",
+      content: `Repurpose this LinkedIn post into a Twitter Thread:\n\n${linkedInPost}`,
+    },
   ];
 
-  const response = await callUniversalAI(profile, {
+  const response = await unifiedAI({
+    profile,
     messages,
     temperature: 0.7,
-    maxTokens: 1500
+    maxTokens: 1500,
   });
 
   // Split by the "---" separator to return an array of tweets
   const tweets = response.text
-    .split('---')
-    .map(t => t.trim())
-    .filter(t => t.length > 0);
+    .split("---")
+    .map((t) => t.trim())
+    .filter((t) => t.length > 0);
 
   return tweets;
 }

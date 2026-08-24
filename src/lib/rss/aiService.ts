@@ -1,4 +1,4 @@
-import { callAI, type AICustomKeys } from "../ai/router";
+import { unifiedText, type AICustomKeys } from "../ai/router.unified";
 import type { GeneratedLinkedInPost, RssArticle } from "./types";
 
 const LINKEDIN_RSS_PROMPT = `Convert this tech news update into a high-performing LinkedIn post.
@@ -34,7 +34,11 @@ function cleanDescription(description?: string): string {
   }
 
   const snippet = cleaned.slice(0, 700);
-  const boundary = Math.max(snippet.lastIndexOf("."), snippet.lastIndexOf("!"), snippet.lastIndexOf("?"));
+  const boundary = Math.max(
+    snippet.lastIndexOf("."),
+    snippet.lastIndexOf("!"),
+    snippet.lastIndexOf("?")
+  );
   if (boundary > 300) {
     return snippet.slice(0, boundary + 1).trim();
   }
@@ -48,8 +52,7 @@ function cleanDescription(description?: string): string {
 }
 
 function buildPrompt(article: RssArticle): string {
-  return LINKEDIN_RSS_PROMPT
-    .replace("{{title}}", article.title)
+  return LINKEDIN_RSS_PROMPT.replace("{{title}}", article.title)
     .replace("{{description}}", cleanDescription(article.description))
     .replace("{{source}}", article.source);
 }
@@ -61,7 +64,9 @@ function buildFallbackPost(article: RssArticle): string {
   return [
     article.title,
     "",
-    description !== "No description available." ? description : `This trend is getting attention across ${sourceName}.`,
+    description !== "No description available."
+      ? description
+      : `This trend is getting attention across ${sourceName}.`,
     "",
     "My take: the advantage is not just consuming this news, but acting on it faster than the market.",
     "",
@@ -69,9 +74,19 @@ function buildFallbackPost(article: RssArticle): string {
   ].join("\n");
 }
 
-export async function generateLinkedInPostFromArticle(article: RssArticle, customKeys?: AICustomKeys): Promise<GeneratedLinkedInPost> {
+export async function generateLinkedInPostFromArticle(
+  article: RssArticle,
+  customKeys?: AICustomKeys
+): Promise<GeneratedLinkedInPost> {
   try {
-    const post = await callAI(LINKEDIN_SYSTEM_PROMPT, buildPrompt(article), "free", 0.7, 280, customKeys);
+    const post = await unifiedText({
+      systemPrompt: LINKEDIN_SYSTEM_PROMPT,
+      userPrompt: buildPrompt(article),
+      plan: "free",
+      temperature: 0.7,
+      maxTokens: 280,
+      customKeys,
+    });
 
     return {
       post: post.trim(),
@@ -93,12 +108,17 @@ export async function generateLinkedInPostFromArticle(article: RssArticle, custo
   }
 }
 
-export async function generateLinkedInPostsFromArticles(articles: RssArticle[], customKeys?: AICustomKeys): Promise<GeneratedLinkedInPost[]> {
+export async function generateLinkedInPostsFromArticles(
+  articles: RssArticle[],
+  customKeys?: AICustomKeys
+): Promise<GeneratedLinkedInPost[]> {
   if (!articles.length) {
     return [];
   }
 
   const limit = Math.min(10, articles.length);
   const selectedArticles = articles.slice(0, limit);
-  return Promise.all(selectedArticles.map((article) => generateLinkedInPostFromArticle(article, customKeys)));
+  return Promise.all(
+    selectedArticles.map((article) => generateLinkedInPostFromArticle(article, customKeys))
+  );
 }

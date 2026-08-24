@@ -83,14 +83,15 @@ export default function DnaTrainer() {
 
     setTraining(true);
     try {
-      const { callUniversalAI } = await import("@/lib/ai/universalRouter");
+      const { unifiedAI } = await import("@/lib/ai/router.unified");
       const allPosts = getPosts()
         .map((p) => p.content)
         .join("\n\n===\n\n");
       const { buildExtractionPrompt, VOICE_EXTRACTION_SYSTEM_PROMPT } =
         await import("@/lib/ai/voiceDna/extractorPrompt");
 
-      const response = await callUniversalAI(profile, {
+      const response = await unifiedAI({
+        profile,
         messages: [
           { role: "system", content: VOICE_EXTRACTION_SYSTEM_PROMPT },
           { role: "user", content: buildExtractionPrompt(getPosts().map((p) => p.content)) },

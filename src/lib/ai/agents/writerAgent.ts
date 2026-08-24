@@ -1,4 +1,4 @@
-import { callUniversalAI } from "../universalRouter";
+import { unifiedAI } from "../router.unified";
 import { AIProfile, Message } from "../types";
 import { VoiceDNA } from "../voiceDna/types";
 import { injectVoiceDNA } from "../voiceDna/injector";
@@ -35,15 +35,13 @@ Strategic Framework from Scout Agent:
 Write the final LinkedIn post now. Output ONLY the post content.
   `;
 
-  const messages: Message[] = [
-    systemMessage,
-    { role: 'user', content: promptContent }
-  ];
+  const messages: Message[] = [systemMessage, { role: "user", content: promptContent }];
 
-  const response = await callUniversalAI(profile, {
+  const response = await unifiedAI({
+    profile,
     messages,
     temperature: 0.7,
-    maxTokens: 1500
+    maxTokens: 1500,
   });
 
   return response.text.trim();

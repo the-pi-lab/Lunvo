@@ -1,4 +1,4 @@
-import { callUniversalAI } from "../universalRouter";
+import { unifiedAI } from "../router.unified";
 import { AIProfile, Message } from "../types";
 
 export interface ScoutResult {
@@ -22,19 +22,17 @@ Analyze the user's topic and generate a JSON response strictly adhering to this 
 Do not include markdown or text outside the JSON.
 `;
 
-export async function runScoutAgent(
-  profile: AIProfile,
-  rawTopic: string
-): Promise<ScoutResult> {
+export async function runScoutAgent(profile: AIProfile, rawTopic: string): Promise<ScoutResult> {
   const messages: Message[] = [
-    { role: 'system', content: SCOUT_SYSTEM_PROMPT },
-    { role: 'user', content: `Raw Topic / Idea:\n\n${rawTopic}` }
+    { role: "system", content: SCOUT_SYSTEM_PROMPT },
+    { role: "user", content: `Raw Topic / Idea:\n\n${rawTopic}` },
   ];
 
-  const response = await callUniversalAI(profile, {
+  const response = await unifiedAI({
+    profile,
     messages,
     temperature: 0.8, // Slightly higher for creativity in angles
-    maxTokens: 1000
+    maxTokens: 1000,
   });
 
   try {

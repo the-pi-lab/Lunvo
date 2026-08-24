@@ -1,4 +1,4 @@
-import { callUniversalAI } from "./universalRouter";
+import { unifiedAI } from "./router.unified";
 import { AIProfile, Message } from "./types";
 
 const OPTIMIZER_SYSTEM_PROMPT = `
@@ -13,14 +13,18 @@ export async function runOptimizer(
   instruction: string
 ): Promise<string> {
   const messages: Message[] = [
-    { role: 'system', content: OPTIMIZER_SYSTEM_PROMPT },
-    { role: 'user', content: `Original Post:\n${originalPost}\n\nRevision Instruction:\n${instruction}` }
+    { role: "system", content: OPTIMIZER_SYSTEM_PROMPT },
+    {
+      role: "user",
+      content: `Original Post:\n${originalPost}\n\nRevision Instruction:\n${instruction}`,
+    },
   ];
 
-  const response = await callUniversalAI(profile, {
+  const response = await unifiedAI({
+    profile,
     messages,
     temperature: 0.6,
-    maxTokens: 1500
+    maxTokens: 1500,
   });
 
   return response.text.trim();

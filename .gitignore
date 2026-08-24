@@ -57,3 +57,4 @@ dev-server.log
 
 *storybook.log
 storybook-static
+prod-build.log

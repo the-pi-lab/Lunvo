@@ -1,4 +1,4 @@
-import { callUniversalAI } from "../universalRouter";
+import { unifiedAI } from "../router.unified";
 import { AIProfile, Message } from "../types";
 
 export interface CriticResult {
@@ -26,19 +26,17 @@ Output your analysis as a strict JSON object matching this schema:
 Do not include markdown or text outside the JSON.
 `;
 
-export async function runCriticAgent(
-  profile: AIProfile,
-  draftPost: string
-): Promise<CriticResult> {
+export async function runCriticAgent(profile: AIProfile, draftPost: string): Promise<CriticResult> {
   const messages: Message[] = [
-    { role: 'system', content: CRITIC_SYSTEM_PROMPT },
-    { role: 'user', content: `Please review and optimize this draft:\n\n${draftPost}` }
+    { role: "system", content: CRITIC_SYSTEM_PROMPT },
+    { role: "user", content: `Please review and optimize this draft:\n\n${draftPost}` },
   ];
 
-  const response = await callUniversalAI(profile, {
+  const response = await unifiedAI({
+    profile,
     messages,
     temperature: 0.5, // Lower temp for more analytical edits
-    maxTokens: 1500
+    maxTokens: 1500,
   });
 
   try {

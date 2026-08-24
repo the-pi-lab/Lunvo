@@ -1,4 +1,4 @@
-import { callUniversalAI } from "../universalRouter";
+import { unifiedAI } from "../router.unified";
 import { AIProfile, Message } from "../types";
 
 const VIDEO_SCRIPT_SYSTEM_PROMPT = `
@@ -17,14 +17,18 @@ export async function repurposeToVideoScript(
   linkedInPost: string
 ): Promise<string> {
   const messages: Message[] = [
-    { role: 'system', content: VIDEO_SCRIPT_SYSTEM_PROMPT },
-    { role: 'user', content: `Convert this LinkedIn post into a short-form video script:\n\n${linkedInPost}` }
+    { role: "system", content: VIDEO_SCRIPT_SYSTEM_PROMPT },
+    {
+      role: "user",
+      content: `Convert this LinkedIn post into a short-form video script:\n\n${linkedInPost}`,
+    },
   ];
 
-  const response = await callUniversalAI(profile, {
+  const response = await unifiedAI({
+    profile,
     messages,
     temperature: 0.7,
-    maxTokens: 1000
+    maxTokens: 1000,
   });
 
   return response.text.trim();
