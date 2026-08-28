@@ -58,3 +58,6 @@ dev-server.log
 *storybook.log
 storybook-static
 prod-build.log
+
+# graphify — local knowledge graph (do not publish)
+graphify-out/
