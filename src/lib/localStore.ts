@@ -88,6 +88,14 @@ export function deleteDraft(id: string): void {
   );
 }
 
+export function deleteDraftsBulk(ids: string[]): void {
+  const idSet = new Set(ids);
+  write(
+    DRAFTS_KEY,
+    read<LocalDraft[]>(DRAFTS_KEY, []).filter((d) => !idSet.has(d.id))
+  );
+}
+
 /* ---------------- Creator Persona ---------------- */
 
 export interface CreatorPersona {
@@ -145,6 +153,24 @@ export function incrementUsage(kind: "analyze" | "generate"): DailyUsage {
   usage[kind] += 1;
   write(USAGE_KEY, usage);
   return usage;
+}
+
+/* ---------------- Live Engagement (Phase 21) ---------------- */
+
+const LAST_ER_KEY = "lunvo_last_er";
+const LAST_HOOK_KEY = "lunvo_last_hook";
+
+export function getLastER(): number | null {
+  return read<number | null>(LAST_ER_KEY, null);
+}
+export function setLastER(er: number): void {
+  write(LAST_ER_KEY, er);
+}
+export function getLastHook(): number | null {
+  return read<number | null>(LAST_HOOK_KEY, null);
+}
+export function setLastHook(hook: number): void {
+  write(LAST_HOOK_KEY, hook);
 }
 
 /* ---------------- Active provider chip ---------------- */

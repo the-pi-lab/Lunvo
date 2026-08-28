@@ -194,4 +194,181 @@
       background-position: -200% 0;
     }
   }
+
+  .kicker {
+    @apply text-[0.625rem] font-mono font-bold uppercase tracking-[0.22em] text-on-surface-variant/60;
+  }
+
+  .conic-ring {
+    background: conic-gradient(
+      from var(--ring-angle, 0deg),
+      rgb(var(--primary)) 0%,
+      #7c3aed 18%,
+      transparent 38%,
+      transparent 62%,
+      #db2777 82%,
+      rgb(var(--primary)) 100%
+    );
+    animation: ring-spin 3.2s linear infinite;
+  }
+  @property --ring-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes ring-spin {
+    to {
+      --ring-angle: 360deg;
+    }
+  }
+
+  .text-outline {
+    -webkit-text-stroke: 1px rgb(155 155 165 / 0.35);
+    color: transparent;
+  }
+  @keyframes marquee-x {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .animate-marquee {
+    animation: marquee-x 30s linear infinite;
+  }
+
+  @keyframes eq-bar {
+    0%,
+    100% {
+      transform: scaleY(0.25);
+    }
+    50% {
+      transform: scaleY(1);
+    }
+  }
+  .eq-bar {
+    transform-origin: bottom;
+    animation: eq-bar 1.15s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-marquee,
+    .eq-bar,
+    .conic-ring {
+      animation: none;
+    }
+  }
+
+  /* ===== Editorial marquee ribbon (slightly tilted straight strip) ===== */
+  .marquee-ribbon {
+    width: 120vw;
+    margin-left: -10vw;
+    transform: rotate(-2.5deg);
+    transform-origin: center;
+  }
+  .editorial-marquee {
+    animation: marquee-x 32s linear infinite;
+    will-change: transform;
+  }
+  @keyframes marquee-x {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+/* ===== Subtle atmospheric background (mostly white, pale pastel drift) ===== */
+.atmos-field {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.55;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+.atmos-1 {
+  top: -10%;
+  left: -8%;
+  width: 62vw;
+  height: 62vw;
+  background: radial-gradient(circle at 50% 50%, rgba(186, 220, 250, 0.55), transparent 68%);
+  animation: atmos-drift-1 54s ease-in-out infinite alternate;
+}
+.atmos-2 {
+  top: 18%;
+  right: -12%;
+  width: 58vw;
+  height: 58vw;
+  background: radial-gradient(circle at 50% 50%, rgba(214, 205, 245, 0.5), transparent 66%);
+  animation: atmos-drift-2 47s ease-in-out infinite alternate;
+}
+.atmos-3 {
+  bottom: -14%;
+  left: 12%;
+  width: 66vw;
+  height: 66vw;
+  background: radial-gradient(circle at 50% 50%, rgba(200, 235, 240, 0.42), transparent 70%);
+  animation: atmos-drift-3 60s ease-in-out infinite alternate;
+}
+.atmos-4 {
+  top: 30%;
+  left: 28%;
+  width: 48vw;
+  height: 48vw;
+  background: radial-gradient(circle at 50% 50%, rgba(224, 210, 245, 0.4), transparent 70%);
+  animation: atmos-drift-4 52s ease-in-out infinite alternate;
+}
+.atmos-5 {
+  bottom: 6%;
+  right: 6%;
+  width: 44vw;
+  height: 44vw;
+  background: radial-gradient(circle at 50% 50%, rgba(250, 225, 235, 0.36), transparent 72%);
+  animation: atmos-drift-5 58s ease-in-out infinite alternate;
+}
+
+@keyframes atmos-drift-1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(8vw, 4vh) scale(1.12);
+  }
+}
+@keyframes atmos-drift-2 {
+  0% {
+    transform: translate(0, 0) scale(1.05);
+  }
+  100% {
+    transform: translate(-10vw, 6vh) scale(1);
+  }
+}
+@keyframes atmos-drift-3 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(6vw, -7vh) scale(1.15);
+  }
+}
+@keyframes atmos-drift-4 {
+  0% {
+    transform: translate(0, 0) scale(1.1);
+  }
+  100% {
+    transform: translate(-7vw, -5vh) scale(1);
+  }
+}
+@keyframes atmos-drift-5 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(5vw, 5vh) scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atmos-field,
+  .editorial-marquee {
+    animation: none;
+  }
 }

@@ -1,6 +1,8 @@
 // ============================================================
-// LUNVO — Prompt Engine v2
+// LUNVO — Prompt Engine v3 (Phase 20)
 // Owner: Vinayak | THE Π LAB
+// Changes v2→v3: strict JSON contract, Zod-aligned schemas, no brittle
+//  post-processing needed — parseAIJson handles fence stripping.
 // ============================================================
 
 // ─── SYSTEM PROMPT ───────────────────────────────────────────
@@ -60,10 +62,30 @@ Good CTA: "What's the one thing you wish you knew before your first client call?
 Good CTA: "Has this happened to you — or am I the only one?"
 Good CTA: "Reply with your number: how many pitches before your first yes?"
 
-RESPOND ONLY IN VALID JSON.
-NO markdown formatting.
-NO backticks around the JSON.
-NO text before or after the JSON object.
+RULE 6 — HUMAN BURSTINESS (anti-AI, Moat #2):
+- Vary sentence length: mix 3-word punches with 20-word flows. Never make all sentences 12-18 words.
+- Use contractions: you're, I'm, it's, don't, can't. Never "you are" when "you're" fits.
+- Banned AI phrases (never use, see src/lib/ai/humanizer.ts BANNED_AI_PHRASES): "delve", "tapestry", "unlock", "in conclusion", "as an AI", "it is important to note", "game-changer", "synergy" etc.
+- One idea per line still, but allow one 1-line punch paragraph for burst.
+
+OUTPUT CONTRACT — STRICT JSON ONLY (Zod-validated):
+- Return ONLY a single valid JSON object. No markdown, no code fences, no commentary.
+- All keys MUST be double-quoted. No trailing commas. No comments. No extra keys.
+- If you cannot comply perfectly, still return valid JSON with your best guess — never return plain text.
+- Schema must be exactly:
+{
+  "scores": {
+    "hook": {"score": number, "label": "Weak"|"Good"|"Elite", "explanation": string},
+    "readability": {"score": number, "label": "Weak"|"Good"|"Elite", "explanation": string},
+    "engagement": {"score": number, "label": "Weak"|"Good"|"Elite", "explanation": string},
+    "structure": {"score": number, "label": "Weak"|"Good"|"Elite", "explanation": string}
+  },
+  "overall_score": number,
+  "top_problems": string[],
+  "improved_post": string,
+  "improvement_summary": string
+}
+- overall_score = exact average of 4 scores, 0-10, one decimal allowed.
 `;
 
 // ─── ANALYZE PROMPT ───────────────────────────────────────────
@@ -211,17 +233,17 @@ Before writing your JSON, ask yourself:
 
 Be an editor, not a cheerleader.
 
-Return ONLY this JSON:
+Return ONLY raw JSON matching this exact schema (no markdown, no fences):
 {
   "scores": {
-    "hook": { "score": 0, "label": "Weak|Good|Elite", "explanation": "One specific sentence." },
-    "readability": { "score": 0, "label": "Weak|Good|Elite", "explanation": "Is it skimmable on mobile?" },
-    "engagement": { "score": 0, "label": "Weak|Good|Elite", "explanation": "Does it create a conversation?" },
-    "structure": { "score": 0, "label": "Weak|Good|Elite", "explanation": "Walk through the structure." }
+    "hook": {"score": 0, "label": "Weak|Good|Elite", "explanation": "One specific sentence."},
+    "readability": {"score": 0, "label": "Weak|Good|Elite", "explanation": "Is it skimmable on mobile?"},
+    "engagement": {"score": 0, "label": "Weak|Good|Elite", "explanation": "Does it create a conversation?"},
+    "structure": {"score": 0, "label": "Weak|Good|Elite", "explanation": "Walk through the structure."}
   },
   "overall_score": 0.0,
   "top_problems": ["Problem 1", "Problem 2", "Problem 3"],
-  "improved_post": "The full rewritten post.",
+  "improved_post": "The full rewritten post with \\n breaks.",
   "improvement_summary": "One sentence: Biggest leverage point."
 }
 `;
@@ -236,16 +258,17 @@ export function buildGeneratePrompt(
   tone: string,
   audience: string
 ): string {
-
   const toneVoiceMap: Record<string, string> = {
-    "Bold & direct": "Deliver verdicts. Controversial if you believe it. Short sharp sentences. No apologies.",
-    "Storytelling": "Start IN the story moment. Dialogue. Tension first. Lesson last.",
-    "Educational": "Clear framework: PROBLEM → 3 SOLUTIONS → LESSON. Real examples, not theory.",
-    "Casual": "Text a friend. Typos okay. Self-deprecating humor. Conversational tone.",
+    "Bold & direct":
+      "Deliver verdicts. Controversial if you believe it. Short sharp sentences. No apologies.",
+    Storytelling: "Start IN the story moment. Dialogue. Tension first. Lesson last.",
+    Educational: "Clear framework: PROBLEM → 3 SOLUTIONS → LESSON. Real examples, not theory.",
+    Casual: "Text a friend. Typos okay. Self-deprecating humor. Conversational tone.",
   };
 
   const goalContextMap: Record<string, string> = {
-    "Get followers": "Make people SHARE. Hit pain points your audience has. Be relatable but specific.",
+    "Get followers":
+      "Make people SHARE. Hit pain points your audience has. Be relatable but specific.",
     "Generate leads": "Finish with: specific question showing expertise. Attract the RIGHT person.",
     "Find a job": "Prove you're thinking + shipping. Show growth. Make people want to hire you.",
     "Build my brand": "Take a stand. Say what you believe. Controversial = memorable.",
@@ -328,19 +351,13 @@ FINAL CHECKLIST:
   ✓ Uses \\n for line breaks ONLY
   ✓ Feels like it came from human experience, not a template
 
-Return ONLY valid JSON, NO markdown, NO backticks:
-
+Return ONLY raw JSON (no markdown, no fences) matching this schema:
 {
   "post": "Full post with \\n for line breaks",
   "hook_type": "bold_claim|vulnerability|curiosity_gap|contrarian|number_backed|question|scene",
-  "estimated_scores": {
-    "hook": 8,
-    "readability": 9,
-    "engagement": 8,
-    "structure": 9
-  },
+  "estimated_scores": {"hook": 8, "readability": 9, "engagement": 8, "structure": 9},
   "best_time_to_post": "Tuesday 9am",
-  "suggested_hashtags": ["tag1", "tag2", "tag3", "tag4"]
+  "suggested_hashtags": ["tag1","tag2","tag3","tag4"]
 }
 `;
 }
@@ -358,16 +375,10 @@ export function buildSuggestionPrompt(
 Generate 3 LinkedIn post ideas for a ${role} on ${dayOfWeek}. 
 Topics: ${topics.join(", ")}. Goal: ${goal}. Tone: ${tone}. Audience: ${audience}.
 
-Return ONLY this JSON:
+Return ONLY raw JSON (no markdown, no fences) matching:
 {
   "suggestions": [
-    {
-      "title": "Title",
-      "prompt": "Description",
-      "hook_starter": "Hook",
-      "estimated_engagement": "low|medium|high",
-      "reason": "Why it works"
-    }
+    {"title": "Title", "prompt": "Description", "hook_starter": "Hook", "estimated_engagement": "low|medium|high", "reason": "Why it works"}
   ]
 }
 `;

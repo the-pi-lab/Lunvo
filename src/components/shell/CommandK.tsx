@@ -47,7 +47,7 @@ export default function CommandK({ open, onClose, onLogout }: CommandKProps) {
     const actions: CmdItem[] = [];
 
     return [...navItems, settingsItem, ...actions];
-  }, [router, onLogout]);
+  }, [router]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

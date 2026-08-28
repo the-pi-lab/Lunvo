@@ -1,4 +1,15 @@
-import { BarChart2, Bookmark, BookOpen, Home, PenTool, Repeat } from "lucide-react";
+import {
+  BarChart2,
+  Bookmark,
+  BookOpen,
+  Home,
+  PenTool,
+  Repeat,
+  BrainCircuit,
+  Newspaper,
+  Share2,
+  Cloud,
+} from "lucide-react";
 
 export interface NavItem {
   label: string;
@@ -10,6 +21,10 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Overview", href: "/dashboard", icon: Home },
   { label: "Create", href: "/dashboard/create", icon: PenTool },
   { label: "Analyze", href: "/dashboard/analyze", icon: BarChart2 },
+  { label: "Studio", href: "/dashboard/studio", icon: BrainCircuit },
+  { label: "News", href: "/dashboard/news", icon: Newspaper },
+  { label: "Distribute", href: "/dashboard/distribution", icon: Share2 },
+  { label: "Cloud", href: "/dashboard/cloud", icon: Cloud },
   { label: "Drafts", href: "/dashboard/drafts", icon: Bookmark },
   { label: "Repurpose", href: "/dashboard/repurpose", icon: Repeat },
   { label: "Learn", href: "/dashboard/learn", icon: BookOpen },

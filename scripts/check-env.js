@@ -4,9 +4,11 @@
  */
 
 const requiredEnvs = [
-  "NEXT_PUBLIC_SUPABASE_URL",
-  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-  "SUPABASE_SERVICE_ROLE_KEY",
+  // Supabase is now OPTIONAL (Phase 18 local-first). Rate limiter uses memory/Upstash/connector.
+  // Uncomment if you require hosted auth:
+  // "NEXT_PUBLIC_SUPABASE_URL",
+  // "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  // "SUPABASE_SERVICE_ROLE_KEY",
 ];
 
 const aiProviderEnvs = [
@@ -33,7 +35,9 @@ const configuredAiProviders = aiProviderEnvs.filter((env) => Boolean(process.env
 
 if (configuredAiProviders.length === 0) {
   console.log("❌ No AI provider key is configured.");
-  console.log("   Set NVIDIA_API_KEY_DEEPSEEK and NVIDIA_API_KEY_MOONSHOT (recommended), or fallback keys.");
+  console.log(
+    "   Set NVIDIA_API_KEY_DEEPSEEK and NVIDIA_API_KEY_MOONSHOT (recommended), or fallback keys."
+  );
   missing = true;
 } else {
   console.log(`✅ AI providers configured: ${configuredAiProviders.join(", ")}`);
@@ -64,7 +68,9 @@ if (!hasDeepseekNvidia && !hasMoonshotNvidia) {
 }
 
 if (!process.env.CURRENTS_API_KEY) {
-  console.log("⚠️  CURRENTS_API_KEY is not set. Trending/search will run without Currents API augmentation.");
+  console.log(
+    "⚠️  CURRENTS_API_KEY is not set. Trending/search will run without Currents API augmentation."
+  );
 } else {
   console.log("✅ CURRENTS_API_KEY is set.");
 }

@@ -6,7 +6,7 @@ import { useState } from "react";
 function LogoChip({ name, slug, color }: { name: string; slug?: string; color: string }) {
   const [failed, setFailed] = useState(false);
   return (
-    <span className="glass inline-flex items-center gap-2.5 rounded-full px-5 py-2.5 !border-transparent shrink-0">
+    <span className="inline-flex items-center gap-2.5 rounded-full bg-white border border-black/10 px-4 py-2 shadow-sm shrink-0">
       {slug && !failed ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -19,56 +19,43 @@ function LogoChip({ name, slug, color }: { name: string; slug?: string; color: s
         />
       ) : (
         <span
-          className="flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[0.625rem] font-bold text-white"
+          className="flex h-[18px] w-[18px] items-center justify-center rounded-[5px] text-[0.625rem] font-bold text-white shrink-0"
           style={{ backgroundColor: color }}
         >
           {name.charAt(0)}
         </span>
       )}
-      <span className="text-sm font-semibold text-on-background/80 whitespace-nowrap">{name}</span>
+      <span className="text-sm font-semibold text-zinc-700 whitespace-nowrap">{name}</span>
     </span>
   );
 }
 
 export default function LogoMarquee() {
-  const providers = PROVIDER_REGISTRY.filter((p) => !p.coming);
-  const track = [...providers, ...providers];
+  const providers = PROVIDER_REGISTRY.filter((p) => !p.coming).slice(0, 28);
+  const track = [...providers, ...providers, ...providers];
 
   return (
-    <div className="group relative overflow-hidden py-10">
-      <p className="mb-6 text-center text-[0.625rem] font-bold uppercase tracking-[0.3em] font-mono text-on-surface-variant/50">
+    <div className="relative overflow-hidden py-8">
+      <p className="text-center text-[0.625rem] font-bold uppercase tracking-[0.3em] font-mono text-zinc-400 mb-6">
         Bring a key from any of these — one vault, automatic failover
       </p>
 
-      {/* edge fade masks */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-28 bg-gradient-to-r from-background to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-28 bg-gradient-to-l from-background to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-[#FBFAF9] to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-[#FBFAF9] to-transparent" />
 
-      <div
-        className="flex w-max items-center gap-4 px-4"
-        style={{ animation: "logo-marquee 55s linear infinite" }}
-        onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.animationPlayState = "paused")}
-        onMouseLeave={(e) =>
-          ((e.currentTarget as HTMLElement).style.animationPlayState = "running")
-        }
-      >
+      <div className="flex w-max items-center gap-3 animate-[marquee_60s_linear_infinite] hover:[animation-play-state:paused]">
         {track.map((p, i) => (
           <LogoChip key={`${p.id}-${i}`} name={p.name} slug={p.iconSlug} color={p.color} />
         ))}
       </div>
 
       <style jsx>{`
-        @keyframes logo-marquee {
+        @keyframes marquee {
           from {
             transform: translateX(0);
           }
           to {
-            transform: translateX(-50%);
-          }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          & div {
-            animation: none !important;
+            transform: translateX(-33.333%);
           }
         }
       `}</style>

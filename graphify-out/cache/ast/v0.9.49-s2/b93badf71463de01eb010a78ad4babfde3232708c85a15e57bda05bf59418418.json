@@ -1,0 +1,111 @@
+{
+  "nodes": [
+    {
+      "id": "$graphify-root$_eslintrc_json",
+      "label": ".eslintrc.json",
+      "file_type": "code",
+      "source_file": ".eslintrc.json",
+      "source_location": "L1"
+    },
+    {
+      "id": "$graphify-root$_eslintrc_extends",
+      "label": "extends",
+      "file_type": "code",
+      "source_file": ".eslintrc.json",
+      "source_location": "L2"
+    },
+    {
+      "id": "ref_next_core_web_vitals",
+      "label": "next/core-web-vitals",
+      "file_type": "concept",
+      "source_file": ".eslintrc.json",
+      "source_location": "L2"
+    },
+    {
+      "id": "ref_plugin_storybook_recommended",
+      "label": "plugin:storybook/recommended",
+      "file_type": "concept",
+      "source_file": ".eslintrc.json",
+      "source_location": "L2"
+    },
+    {
+      "id": "$graphify-root$_eslintrc_rules",
+      "label": "rules",
+      "file_type": "code",
+      "source_file": ".eslintrc.json",
+      "source_location": "L3"
+    },
+    {
+      "id": "$graphify-root$_eslintrc_rules_react_no_unescaped_entities",
+      "label": "react/no-unescaped-entities",
+      "file_type": "code",
+      "source_file": ".eslintrc.json",
+      "source_location": "L4"
+    },
+    {
+      "id": "$graphify-root$_eslintrc_rules_next_next_no_img_element",
+      "label": "@next/next/no-img-element",
+      "file_type": "code",
+      "source_file": ".eslintrc.json",
+      "source_location": "L5"
+    }
+  ],
+  "edges": [
+    {
+      "source": "$graphify-root$_eslintrc_json",
+      "target": "$graphify-root$_eslintrc_extends",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".eslintrc.json",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_eslintrc_extends",
+      "target": "ref_next_core_web_vitals",
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": ".eslintrc.json",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_eslintrc_extends",
+      "target": "ref_plugin_storybook_recommended",
+      "relation": "extends",
+      "confidence": "EXTRACTED",
+      "source_file": ".eslintrc.json",
+      "source_location": "L2",
+      "weight": 1.0,
+      "context": "import"
+    },
+    {
+      "source": "$graphify-root$_eslintrc_json",
+      "target": "$graphify-root$_eslintrc_rules",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".eslintrc.json",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_eslintrc_rules",
+      "target": "$graphify-root$_eslintrc_rules_react_no_unescaped_entities",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".eslintrc.json",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "$graphify-root$_eslintrc_rules",
+      "target": "$graphify-root$_eslintrc_rules_next_next_no_img_element",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".eslintrc.json",
+      "source_location": "L5",
+      "weight": 1.0
+    }
+  ]
+}

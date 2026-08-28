@@ -6,6 +6,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { logger } from "@/lib/logger";
 import Groq from "groq-sdk";
+import { checkRateLimit, MINUTE_MS } from "./serverLimiter";
 
 let _gemini: GoogleGenerativeAI | null = null;
 let _groq: Groq | null = null;
@@ -30,15 +31,7 @@ type QualityProfile = {
   thinking: boolean;
 };
 
-type UsageEntry = {
-  count: number;
-  lastReset: number;
-};
-
-const RATE_LIMIT_WINDOW_MS = 60_000;
 const MAX_REQUESTS_PER_MINUTE = 40;
-
-const usage: Record<string, UsageEntry> = {};
 
 const DEFAULT_NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1";
 const DEFAULT_DEEPSEEK_MODEL = "deepseek-ai/deepseek-v3.1-terminus";
@@ -145,34 +138,6 @@ function resolvePlanTier(userPlan: UserPlan): ResolvedPlan {
     return "starter";
   }
   return "free";
-}
-
-function getUsageEntry(clientName: string): UsageEntry {
-  const now = Date.now();
-  const existing = usage[clientName];
-
-  if (!existing) {
-    const next: UsageEntry = { count: 0, lastReset: now };
-    usage[clientName] = next;
-    return next;
-  }
-
-  if (now - existing.lastReset >= RATE_LIMIT_WINDOW_MS) {
-    existing.count = 0;
-    existing.lastReset = now;
-  }
-
-  return existing;
-}
-
-function canUseClient(clientName: string): boolean {
-  const entry = getUsageEntry(clientName);
-  return entry.count < MAX_REQUESTS_PER_MINUTE;
-}
-
-function markClientUsed(clientName: string): void {
-  const entry = getUsageEntry(clientName);
-  entry.count += 1;
 }
 
 function pickModelByWeight(plan: ResolvedPlan): NvidiaModelKey {
@@ -318,12 +283,15 @@ export async function callAI(
       continue;
     }
 
-    if (!canUseClient(client.name)) {
-      providerErrors.push(`${client.name}: rate limit reached (${MAX_REQUESTS_PER_MINUTE}/min)`);
+    // Phase 18: serverless limiter (pluggable — memory default, Upstash/custom if env set)
+    // BYOK path is exempt (handled in router.unified.ts); this is server plan-mode only.
+    const rl = await checkRateLimit(`provider:${client.name}`, MAX_REQUESTS_PER_MINUTE, MINUTE_MS);
+    if (!rl.allowed) {
+      providerErrors.push(
+        `${client.name}: rate limit reached (${MAX_REQUESTS_PER_MINUTE}/min) retry after ${Math.ceil(rl.retryAfterMs / 1000)}s`
+      );
       continue;
     }
-
-    markClientUsed(client.name);
 
     try {
       const profile = getQualityProfile(plan, client.modelKey);

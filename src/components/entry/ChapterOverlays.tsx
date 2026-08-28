@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 
-/* ---------------- Kinetic chapter text ---------------- */
-
 export function SplitWords({ text, className }: { text: string; className?: string }) {
   const words = text.split(" ");
   return (
@@ -24,11 +22,6 @@ export function SplitWords({ text, className }: { text: string; className?: stri
   );
 }
 
-export interface ChapterTextHandle {
-  root: HTMLDivElement | null;
-  words: NodeListOf<HTMLElement> | null;
-}
-
 export function ChapterBlock({
   chapter,
   kicker,
@@ -41,12 +34,10 @@ export function ChapterBlock({
   registerRef: (chapter: number, el: HTMLDivElement | null) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     registerRef(chapter, ref.current);
     return () => registerRef(chapter, null);
   }, [chapter, registerRef]);
-
   return (
     <div
       ref={ref}
@@ -55,14 +46,12 @@ export function ChapterBlock({
       style={{ top: "50%", transform: "translateY(-50%)" }}
     >
       <div
-        className={`max-w-3xl px-6 ${
-          chapter === 2 || chapter === 4 ? "ml-auto mr-[6vw] text-right" : "mx-auto text-center"
-        }`}
+        className={`max-w-3xl px-6 ${chapter === 2 || chapter === 4 ? "ml-auto mr-[6vw] text-right" : "mx-auto text-center"}`}
       >
         <p className="text-[0.6875rem] font-bold uppercase tracking-[0.3em] font-mono text-primary mb-4">
           {kicker}
         </p>
-        <div className="text-4xl sm:text-5xl md:text-6xl font-serif font-medium text-on-background leading-[1.08] tracking-tight">
+        <div className="text-4xl sm:text-5xl md:text-6xl font-serif font-medium text-zinc-900 leading-[1.08] tracking-tight">
           {children}
         </div>
       </div>
@@ -70,28 +59,22 @@ export function ChapterBlock({
   );
 }
 
-/* ---------------- Score Ring (Critic) ---------------- */
-
 export function ScoreRing({ register }: { register: (el: SVGSVGElement | null) => void }) {
   const [score, setScore] = useState(0);
   const size = 240;
   const r = 104;
   const C = 2 * Math.PI * r;
-
   useEffect(() => {
     (window as unknown as { __lunvoScoreSetter?: (v: number) => void }).__lunvoScoreSetter = (
       v: number
-    ) => {
-      setScore(Math.round(v));
-    };
+    ) => setScore(Math.round(v));
     return () => {
       delete (window as unknown as { __lunvoScoreSetter?: (v: number) => void }).__lunvoScoreSetter;
     };
   }, []);
-
   return (
     <div
-      ref={(el) => {
+      ref={(el: HTMLDivElement | null) => {
         register(el?.querySelector("svg") ?? null);
       }}
       data-ring
@@ -131,11 +114,11 @@ export function ScoreRing({ register }: { register: (el: SVGSVGElement | null) =
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span
             data-ring-score
-            className="text-6xl font-serif font-medium text-on-background tabular-nums"
+            className="text-6xl font-serif font-medium text-zinc-900 tabular-nums"
           >
             {score}
           </span>
-          <span className="text-[0.625rem] font-bold uppercase tracking-[0.3em] font-mono text-on-surface-variant/60 mt-1">
+          <span className="text-[0.625rem] font-bold uppercase tracking-[0.3em] font-mono text-zinc-400 mt-1">
             Virality
           </span>
         </div>
@@ -144,26 +127,22 @@ export function ScoreRing({ register }: { register: (el: SVGSVGElement | null) =
   );
 }
 
-/* ---------------- Progress rail ---------------- */
-
 export function ProgressRail({
   fillRef,
 }: {
   fillRef: React.MutableRefObject<HTMLDivElement | null>;
 }) {
   return (
-    <div className="fixed right-5 top-1/2 -translate-y-1/2 z-30 h-40 w-[3px] rounded-full bg-outline-variant/40 overflow-hidden">
+    <div className="fixed right-5 top-1/2 -translate-y-1/2 z-30 h-40 w-[3px] rounded-full bg-black/10 overflow-hidden hidden sm:block">
       <div
         ref={(el) => {
-          if (fillRef && "current" in fillRef) fillRef.current = el;
+          fillRef.current = el;
         }}
-        className="w-full h-full bg-gradient-to-b from-primary via-primary-container to-tertiary origin-top scale-y-0 rounded-full"
+        className="w-full h-full bg-gradient-to-b from-primary via-violet-500 to-emerald-500 origin-top scale-y-0 rounded-full"
       />
     </div>
   );
 }
-
-/* ---------------- Final CTA + flash ---------------- */
 
 export function FinalCTA({
   register,
@@ -182,16 +161,14 @@ export function FinalCTA({
       <div className="pointer-events-auto inline-flex flex-col items-center gap-5">
         <button
           onClick={onEnter}
-          className="magnetic group relative inline-flex items-center gap-3 rounded-[16px] p-[1.5px] overflow-hidden"
-          data-conic-cta
+          className="magnetic group relative inline-flex items-center gap-3 rounded-[16px] p-[1.5px] overflow-hidden bg-gradient-to-r from-violet-600 via-blue-600 to-emerald-500"
         >
-          <span className="conic-ring absolute inset-[-60%]" aria-hidden />
-          <span className="relative inline-flex items-center gap-3 rounded-[15px] bg-white px-9 py-4 text-base font-bold text-on-background">
+          <span className="relative inline-flex items-center gap-3 rounded-[15px] bg-white px-9 py-4 text-base font-bold text-zinc-900">
             Enter the Studio
             <ArrowRight className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" />
           </span>
         </button>
-        <p className="text-[0.625rem] font-mono uppercase tracking-[0.3em] text-on-surface-variant/50">
+        <p className="text-[0.625rem] font-mono uppercase tracking-[0.3em] text-zinc-400">
           No sign-up · No card · Your machine
         </p>
       </div>

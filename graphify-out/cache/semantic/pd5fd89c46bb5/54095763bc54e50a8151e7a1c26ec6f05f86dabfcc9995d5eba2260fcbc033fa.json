@@ -1,0 +1,191 @@
+{
+  "nodes": [
+    {
+      "id": "contributing_universal_router",
+      "label": "Universal Router",
+      "file_type": "concept",
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "contributing_agentic_pipeline",
+      "label": "Agentic Pipeline",
+      "file_type": "concept",
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "contributing_scout_agent",
+      "label": "Scout Agent",
+      "file_type": "concept",
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "contributing_writer_agent",
+      "label": "Writer Agent",
+      "file_type": "concept",
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "contributing_critic_agent",
+      "label": "Critic Agent",
+      "file_type": "concept",
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "contributing_voice_dna_ingestion",
+      "label": "Voice DNA Ingestion",
+      "file_type": "concept",
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "contributing_orchestrator",
+      "label": "Orchestrator",
+      "file_type": "concept",
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "contributing_strict_json_protocol",
+      "label": "Strict JSON Communication Protocol",
+      "file_type": "rationale",
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "contributing_universal_router",
+      "target": "readme_universal_ai_router",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "contributing_agentic_pipeline",
+      "target": "readme_three_agent_pipeline",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "contributing_scout_agent",
+      "target": "readme_scout_agent",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "contributing_writer_agent",
+      "target": "readme_writer_agent",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "contributing_critic_agent",
+      "target": "readme_critic_agent",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "contributing_voice_dna_ingestion",
+      "target": "readme_voice_dna",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "contributing_orchestrator",
+      "target": "contributing_agentic_pipeline",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "contributing_strict_json_protocol",
+      "target": "contributing_agentic_pipeline",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CONTRIBUTING.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "voice_dna_personalization_stack",
+      "label": "Voice DNA Personalization Stack",
+      "nodes": [
+        "readme_voice_dna",
+        "contributing_voice_dna_ingestion",
+        "rebuild_plan_voice_dna_fix",
+        "readme_writer_agent",
+        "contributing_writer_agent"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "CONTRIBUTING.md"
+    }
+  ]
+}

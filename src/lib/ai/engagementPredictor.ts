@@ -1,14 +1,10 @@
 import { unifiedAI } from "./router.unified";
 import { AIProfile, Message } from "./types";
+import { parseAIJson } from "./router";
+import { EngagementMetricsSchema, type EngagementMetrics } from "./schemas";
+import { logger } from "@/lib/logger";
 
-export interface EngagementMetrics {
-  hookStrength: number;
-  readability: number;
-  valueDensity: number;
-  authenticity: number;
-  overallScore: number;
-  criticalFeedback: string;
-}
+export type { EngagementMetrics };
 
 const PREDICTOR_SYSTEM_PROMPT = `
 You are the "Engagement Predictor Engine" for LinkedIn.
@@ -20,7 +16,10 @@ Score the post on 4 metrics from 1 to 100:
 3. Value Density: Is the post fluff-free? Does it deliver real value or insights?
 4. Authenticity: Does it sound like a real human or is it full of ChatGPT corporate jargon?
 
-Output your analysis strictly as a JSON object:
+OUTPUT CONTRACT — STRICT JSON ONLY (Zod-validated):
+- Return ONLY a single valid JSON object. No markdown, no code fences, no commentary.
+- All keys double-quoted. No trailing commas. No extra keys.
+- Must match this exact schema:
 {
   "hookStrength": 80,
   "readability": 90,
@@ -29,7 +28,7 @@ Output your analysis strictly as a JSON object:
   "overallScore": 82,
   "criticalFeedback": "One sentence explaining the biggest weakness of the post."
 }
-Do not include any text outside the JSON block.
+- Scores are integers 1-100. Never return plain text.
 `;
 
 export async function runEngagementPredictor(
@@ -48,11 +47,22 @@ export async function runEngagementPredictor(
     maxTokens: 500,
   });
 
+  // Phase 20: reuse parseAIJson + Zod (no brittle replace)
+  let parsed: unknown;
   try {
-    const rawJson = response.text.replace(/```json|```/g, "").trim();
-    return JSON.parse(rawJson) as EngagementMetrics;
+    parsed = parseAIJson<EngagementMetrics>(response.text);
   } catch (error) {
-    console.error("Engagement Predictor JSON Parse Error:", response.text);
-    throw new Error("Predictor returned invalid formatting.");
+    logger.error("Engagement Predictor parseAIJson failed", response.text, error);
+    throw new Error("Predictor returned invalid JSON — retry.");
   }
+
+  const result = EngagementMetricsSchema.safeParse(parsed);
+  if (!result.success) {
+    logger.error(
+      "Engagement Predictor Zod validation failed",
+      JSON.stringify(result.error.format())
+    );
+    throw new Error(`Predictor JSON did not match schema: ${result.error.message}`);
+  }
+  return result.data;
 }

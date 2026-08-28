@@ -1,11 +1,10 @@
 import { unifiedAI } from "../router.unified";
 import { AIProfile, Message } from "../types";
+import { parseAIJson } from "../router";
+import { CriticResultSchema, type CriticResult } from "../schemas";
+import { logger } from "@/lib/logger";
 
-export interface CriticResult {
-  improvedPost: string;
-  critiqueNotes: string[];
-  finalScore: number;
-}
+export type { CriticResult };
 
 const CRITIC_SYSTEM_PROMPT = `
 You are the "Critic Agent" in a 3-part AI content pipeline for LinkedIn.
@@ -17,13 +16,16 @@ Look for:
 - Fluff (Cut unnecessary words)
 - Call to Action clarity
 
-Output your analysis as a strict JSON object matching this schema:
+OUTPUT CONTRACT — STRICT JSON ONLY (Zod-validated):
+- Return ONLY a single valid JSON object. No markdown, no code fences, no commentary.
+- All keys double-quoted. No trailing commas. No extra keys.
+- Must match this exact schema:
 {
   "improvedPost": "The final edited and optimized version of the post",
   "critiqueNotes": ["Fixed X to be punchier", "Added white space at Y for readability"],
-  "finalScore": 85 // A number from 1 to 100 on how viral/engaging it is
+  "finalScore": 85
 }
-Do not include markdown or text outside the JSON.
+- finalScore is integer 1-100. improvedPost must be >=20 chars. Never return plain text.
 `;
 
 export async function runCriticAgent(profile: AIProfile, draftPost: string): Promise<CriticResult> {
@@ -39,11 +41,19 @@ export async function runCriticAgent(profile: AIProfile, draftPost: string): Pro
     maxTokens: 1500,
   });
 
+  // Phase 20: reuse parseAIJson + Zod (no brittle replace)
+  let parsed: unknown;
   try {
-    const rawJson = response.text.replace(/```json|```/g, "").trim();
-    return JSON.parse(rawJson) as CriticResult;
+    parsed = parseAIJson<CriticResult>(response.text);
   } catch (error) {
-    console.error("Critic Agent JSON Parse Error:", response.text);
-    throw new Error("Critic agent returned invalid formatting.");
+    logger.error("Critic Agent parseAIJson failed", response.text, error);
+    throw new Error("Critic agent returned invalid JSON — retry.");
   }
+
+  const result = CriticResultSchema.safeParse(parsed);
+  if (!result.success) {
+    logger.error("Critic Agent Zod validation failed", JSON.stringify(result.error.format()));
+    throw new Error(`Critic agent JSON did not match schema: ${result.error.message}`);
+  }
+  return result.data;
 }

@@ -24,19 +24,19 @@ export default function Topbar({
   const pathname = usePathname();
 
   return (
-    <header className="glass-strong sticky top-0 z-40 h-12 shrink-0 !border-0 border-b border-white/70">
-      <div className="flex h-full items-center gap-2 px-3 sm:px-4">
+    <header className="glass-strong sticky top-0 z-40 h-14 shrink-0 !border-0 border-b border-outline-variant/30">
+      <div className="flex h-full items-center gap-2 px-3 sm:px-6">
         {/* Mobile menu */}
         <button
           onClick={onOpenMobile}
-          className="lg:hidden p-2 -ml-1 rounded-[8px] text-on-surface-variant hover:bg-surface-container hover:text-on-background transition-colors"
+          className="lg:hidden p-2 -ml-1 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-background transition-colors"
           aria-label="Open menu"
         >
           <Menu className="w-5 h-5" />
         </button>
 
         {/* Page title */}
-        <h1 className="text-sm font-bold text-on-background truncate hidden sm:block">
+        <h1 className="hidden sm:block font-serif italic text-[1.05rem] text-on-background truncate">
           {getPageTitle(pathname)}
         </h1>
         {localMode && (
@@ -50,13 +50,13 @@ export default function Topbar({
         {/* Cmd+K trigger */}
         <button
           onClick={onOpenCmdK}
-          className="flex items-center gap-2 h-8 px-2.5 rounded-[8px] text-on-surface-variant/70 hover:text-on-background hover:bg-surface-container transition-colors"
+          className="flex items-center gap-2 h-9 px-3 rounded-lg ring-1 ring-transparent text-on-surface-variant/70 hover:text-on-background hover:bg-surface-container hover:ring-outline-variant/40 transition-colors"
           aria-label="Open command palette"
         >
           <Search className="w-4 h-4" />
           <span className="hidden md:inline text-xs font-semibold">Search</span>
-          <kbd className="hidden md:inline-flex items-center gap-0.5 rounded-md bg-surface-container px-1.5 py-0.5 font-mono text-[0.625rem] font-bold text-on-surface-variant">
-            Ctrl K
+          <kbd className="hidden md:inline-flex items-center rounded-md bg-surface-container-lowest ring-1 ring-outline-variant/50 px-1.5 py-0.5 font-mono text-[0.625rem] font-bold text-on-surface-variant/80">
+            ⌘K
           </kbd>
         </button>
 

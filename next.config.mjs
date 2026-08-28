@@ -17,6 +17,27 @@ const nextConfig = {
       { protocol: "https", hostname: "api.dicebear.com" },
     ],
   },
+  webpack: (config, { isServer }) => {
+    // Phase 28: pptxgenjs is client-only (uses node:fs/https). Exclude from server bundle only.
+    if (isServer) {
+      config.externals = [...(config.externals || []), "pptxgenjs"];
+    }
+    config.resolve = config.resolve || {};
+    config.resolve.fallback = {
+      ...(config.resolve.fallback || {}),
+      fs: false,
+      https: false,
+      "node:fs": false,
+      "node:https": false,
+      "node:buffer": false,
+      "node:stream": false,
+      "node:util": false,
+      buffer: false,
+      stream: false,
+      util: false,
+    };
+    return config;
+  },
   async headers() {
     return [
       {

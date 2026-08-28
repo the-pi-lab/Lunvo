@@ -41,6 +41,7 @@ export interface AIRequestPayload {
   maxTokens?: number;
   systemPrompt?: string;
   stream?: boolean;
+  onChunk?: (chunk: AIResponseChunk) => void;
 }
 
 export interface AIResponseChunk {

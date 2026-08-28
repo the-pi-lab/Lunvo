@@ -11,8 +11,14 @@ import {
   Sparkles,
   ChevronLeft,
 } from "lucide-react";
-import { isLocalMode } from "@/lib/localMode";
-import { getApiHeaders } from "@/lib/apiHelper";
+import { getApiHeaders, getActiveAIProfile } from "@/lib/apiHelper";
+import { buildAnalyzePrompt } from "@/lib/ai/prompts";
+import { unifiedAI } from "@/lib/ai/router.unified";
+import { parseAIJson } from "@/lib/ai/router";
+import { AnalyzeResultSchema } from "@/lib/ai/schemas";
+import { predictEngagementRate } from "@/lib/ai/scoringEngine";
+import { setLastER, setLastHook, incrementUsage } from "@/lib/localStore";
+import PageHeader from "@/components/premium/PageHeader";
 
 // --- Types ---
 interface Score {
@@ -32,48 +38,132 @@ interface AnalysisResult {
   top_problems: string[];
   improved_post: string;
   improvement_summary: string;
+  predictedEngagementRate?: number;
+  hookScore?: number;
 }
 
 export default function AnalyzePostPage() {
   const [view, setView] = useState<"input" | "loading" | "results">("input");
   const [postContent, setPostContent] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const searchParams =
-    typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-
   useEffect(() => {
     // Check for content in URL
-    const content = searchParams?.get("content");
+    if (typeof window === "undefined") return;
+    const content = new URLSearchParams(window.location.search).get("content");
     if (content) {
       setPostContent(decodeURIComponent(content));
     }
-  }, [searchParams]);
+  }, []);
+
+  const computeLiveER = (post: string, data: AnalysisResult): number => {
+    const hashtagCount = (post.match(/#\w+/g) || []).length;
+    const metrics = {
+      contentLength: post.length,
+      hasHashtags: hashtagCount > 0,
+      hashtagCount,
+      postType: "text" as const,
+      dayOfWeek: new Date().toLocaleDateString("en-US", { weekday: "long" }),
+      postHour: new Date().getHours(),
+      hasMedia: false,
+      hookQuality: data.scores.hook.score,
+      ctaSpecificity: data.scores.engagement.score,
+    };
+    const live = predictEngagementRate(metrics);
+    return live.predictedEngagementRate;
+  };
 
   const handleAnalyze = async () => {
     if (postContent.trim().length < 20) return;
     setView("loading");
 
     try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: getApiHeaders(),
-        body: JSON.stringify({ post: postContent }),
-      });
+      const profile = getActiveAIProfile();
 
-      if (response.status === 429) {
-        alert("Rate limit exceeded. Please check your API settings.");
-        setView("input");
-        return;
+      let data: AnalysisResult;
+
+      // Local-first: if BYOK profile exists, analyze directly client-side (no /api/analyze needed)
+      if (profile && profile.apiKey && profile.apiKey !== "REDACTED_LOCAL_ONLY") {
+        const systemPrompt = buildAnalyzePrompt(
+          postContent,
+          "Professional",
+          "Growth",
+          "Professional"
+        );
+        // buildAnalyzePrompt already includes post, but unifiedAI expects system+user split
+        // Use empty system and full prompt as user for simplicity — prompt already self-contained
+        const res = await unifiedAI({
+          profile,
+          messages: [{ role: "user", content: systemPrompt }],
+          temperature: 0.3,
+          maxTokens: 1400,
+        });
+        const parsed = parseAIJson<AnalysisResult>(res.text);
+        const validated = AnalyzeResultSchema.safeParse(parsed);
+        if (!validated.success) throw new Error("AI returned invalid analysis JSON");
+        data = validated.data as AnalysisResult;
+      } else {
+        // Fallback: try server API (if exists), else use local heuristic mock
+        try {
+          const response = await fetch("/api/analyze", {
+            method: "POST",
+            headers: getApiHeaders(),
+            body: JSON.stringify({ post: postContent }),
+          });
+          if (response.status === 429) {
+            alert("Rate limit exceeded. Please check your API settings.");
+            setView("input");
+            return;
+          }
+          const json = await response.json();
+          if (!response.ok) throw new Error(json.error || "Failed to analyze post");
+          data = json as AnalysisResult;
+        } catch {
+          // Local heuristic fallback — no API and no BYOK: synthesize scores from heuristics
+          const hook =
+            (postContent.split("\n")[0]?.length ?? 0) > 20 && !postContent.startsWith("I ") ? 7 : 4;
+          data = {
+            scores: {
+              hook: {
+                score: hook,
+                label: hook > 6 ? "Good" : "Weak",
+                explanation: "Hook estimated locally (no AI key)",
+              },
+              readability: {
+                score: 6,
+                label: "Good",
+                explanation: "Readability estimated locally",
+              },
+              engagement: {
+                score: postContent.includes("?") ? 7 : 4,
+                label: postContent.includes("?") ? "Good" : "Weak",
+                explanation: "CTA check locally",
+              },
+              structure: { score: 6, label: "Good", explanation: "Structure estimated locally" },
+            },
+            overall_score: 6,
+            top_problems: ["Add specific CTA question", "Shorten first line for hook"],
+            improved_post: postContent,
+            improvement_summary: "Local heuristic analysis — add BYOK key for full AI audit",
+          };
+        }
       }
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Failed to analyze post");
+      // Phase 21: attach live ER + Hook (scoringEngine) — replaces hard 94%
+      const er = computeLiveER(postContent, data);
+      data.predictedEngagementRate = er;
+      data.hookScore = data.scores.hook.score;
+
+      // persist for dashboard
+      setLastER(er);
+      setLastHook(data.scores.hook.score);
+      incrementUsage("analyze");
 
       setResult(data);
       setView("results");
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
       console.error("Analysis failed:", error);
-      alert("An error occurred during analysis.");
+      alert(msg || "An error occurred during analysis.");
       setView("input");
     }
   };
@@ -91,13 +181,16 @@ export default function AnalyzePostPage() {
             className="space-y-8"
           >
             <div className="pt-2">
-              <p className="text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono mb-2">
-                Analysis Engine
-              </p>
-              <h1 className="text-4xl font-serif text-on-background mb-2">Audit your post.</h1>
-              <p className="text-[0.95rem] font-medium text-on-surface-variant">
-                Paste any LinkedIn post. Get a full editorial breakdown in seconds.
-              </p>
+              <PageHeader
+                kicker="Analysis Engine"
+                divider={false}
+                title={
+                  <>
+                    Audit your <em className="italic">post.</em>
+                  </>
+                }
+                description="Paste any LinkedIn post. Get a full editorial breakdown in seconds."
+              />
             </div>
 
             <div className="bg-surface-container-lowest rounded-[12px] ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium focus-within:ring-primary/30 transition-all">
@@ -114,10 +207,10 @@ export default function AnalyzePostPage() {
                 <button
                   onClick={handleAnalyze}
                   disabled={postContent.trim().length < 20}
-                  className="inline-flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container hover:shadow-premium disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 disabled:opacity-40 disabled:pointer-events-none text-on-primary px-7 py-3 rounded-lg font-bold text-[0.875rem] shadow-premium transition-all active:scale-[0.98]"
                 >
                   <Sparkles className="w-4 h-4" />
-                  Run Analysis <ArrowRight className="w-4 h-4" />
+                  Run analysis <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -154,7 +247,7 @@ export default function AnalyzePostPage() {
             className="space-y-8"
           >
             {/* Back nav + Overall Score */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-2">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pt-2 pb-8 border-b border-outline-variant/40">
               <div>
                 <button
                   onClick={() => setView("input")}
@@ -162,27 +255,55 @@ export default function AnalyzePostPage() {
                 >
                   <ChevronLeft className="w-3.5 h-3.5" /> New Analysis
                 </button>
-                <h2 className="text-4xl font-serif text-on-background">Editorial Report</h2>
+                <h2 className="text-4xl sm:text-5xl font-serif text-on-background tracking-tight leading-[1.05]">
+                  Editorial <em className="italic">report.</em>
+                </h2>
               </div>
 
-              <div className="bg-surface-container-lowest rounded-[12px] p-5 ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium flex items-center gap-5">
-                <div>
-                  <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-1">
-                    Overall Quality
-                  </div>
-                  <div
-                    className={`text-4xl font-serif leading-none ${
-                      (result?.overall_score ?? 0) <= 4
-                        ? "text-error"
-                        : (result?.overall_score ?? 0) <= 6
-                          ? "text-tertiary"
-                          : "text-secondary"
-                    }`}
-                  >
-                    {result?.overall_score}
-                    <span className="text-xl text-on-surface-variant/30">/10</span>
+              <div className="flex items-center gap-4">
+                <div className="bg-surface-container-lowest rounded-[12px] p-5 ring-1 ring-[rgba(229,226,218,0.5)] shadow-premium flex items-center gap-5">
+                  <div>
+                    <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-1">
+                      Overall Quality
+                    </div>
+                    <div
+                      className={`text-4xl font-serif leading-none ${
+                        (result?.overall_score ?? 0) <= 4
+                          ? "text-error"
+                          : (result?.overall_score ?? 0) <= 6
+                            ? "text-tertiary"
+                            : "text-secondary"
+                      }`}
+                    >
+                      {result?.overall_score}
+                      <span className="text-xl text-on-surface-variant/30">/10</span>
+                    </div>
                   </div>
                 </div>
+                {/* Phase 21: Live ER + Hook */}
+                {result?.predictedEngagementRate !== undefined && (
+                  <div className="bg-zinc-950 rounded-[12px] p-5 shadow-premium flex items-center gap-6 text-white">
+                    <div>
+                      <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-white/50 font-mono mb-1">
+                        Hook
+                      </div>
+                      <div className="text-2xl font-serif leading-none">
+                        {result.hookScore ?? result.scores.hook.score}
+                        <span className="text-base text-white/30">/10</span>
+                      </div>
+                    </div>
+                    <div className="w-px h-10 bg-white/10" />
+                    <div>
+                      <div className="text-[0.5625rem] font-bold uppercase tracking-widest text-white/50 font-mono mb-1">
+                        Predicted ER
+                      </div>
+                      <div className="text-2xl font-serif leading-none">
+                        {result.predictedEngagementRate.toFixed(1)}
+                        <span className="text-base text-white/30">%</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -247,19 +368,25 @@ export default function AnalyzePostPage() {
             </div>
 
             {/* CTA Banner */}
-            <div className="bg-gradient-to-br from-primary to-primary-container rounded-[12px] p-10 text-center text-on-primary relative overflow-hidden shadow-premium">
-              <div className="absolute -top-4 -right-4 opacity-[0.06] pointer-events-none">
-                <BarChart3 className="w-48 h-48 text-white" />
-              </div>
+            <div className="bg-zinc-950 rounded-2xl p-10 text-center text-white relative overflow-hidden shadow-premium">
+              <div
+                className="absolute inset-0 opacity-30 pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(500px 220px at 80% 0%, rgba(0,74,198,0.5), transparent 65%)",
+                }}
+              />
+              <BarChart3 className="absolute -top-6 -right-6 w-48 h-48 text-white/[0.04] pointer-events-none" />
               <div className="relative z-10 max-w-xl mx-auto">
+                <p className="kicker !text-white/40 mb-3">Keep going</p>
                 <h3 className="text-2xl font-serif mb-3">Scale your editorial precision.</h3>
-                <p className="text-on-primary/80 font-medium text-[0.95rem] mb-8 leading-relaxed">
+                <p className="text-white/60 font-medium text-[0.95rem] mb-8 leading-relaxed">
                   Every post you write will be automatically optimized to perfectly match your brand
                   voice, career goals, and target audience.
                 </p>
                 <a
                   href="/dashboard/create"
-                  className="bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/20 text-on-primary px-7 py-3 rounded-[8px] font-bold text-[0.875rem] uppercase tracking-[0.05em] transition-all inline-flex items-center gap-2"
+                  className="bg-white/[0.08] hover:bg-white/[0.16] ring-1 ring-white/20 text-white px-7 py-3 rounded-lg font-bold text-[0.875rem] uppercase tracking-wider transition-all inline-flex items-center gap-2"
                 >
                   Create optimized post <ArrowRight className="w-4 h-4" />
                 </a>

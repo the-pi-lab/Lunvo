@@ -16,7 +16,8 @@
 import { callAI, parseAIJson, type AICustomKeys, type UserPlan } from "./router";
 import { callUniversalAI } from "./universalRouter";
 import { getVault, getActiveProfileId, isFailoverEligible } from "./profileVault";
-import type { AIProfile, Message, AIFullResponse } from "./types";
+import { isFailoverEnabled } from "./../failoverPref";
+import type { AIProfile, Message, AIFullResponse, AIResponseChunk } from "./types";
 
 export { parseAIJson };
 export type { AICustomKeys, UserPlan, AIProfile, Message };
@@ -37,6 +38,10 @@ export interface UnifiedAIOptions {
   /** Server plan mode — uses platform keys with weighted fallback. */
   plan?: UserPlan;
   customKeys?: AICustomKeys;
+
+  /** Streaming: when true, onChunk is called per token */
+  stream?: boolean;
+  onChunk?: (chunk: AIResponseChunk) => void;
 }
 
 function buildMessages(opts: UnifiedAIOptions): Message[] {
@@ -56,6 +61,8 @@ async function callProfile(
     messages,
     temperature: opts.temperature,
     maxTokens: opts.maxTokens,
+    stream: opts.stream,
+    onChunk: opts.onChunk,
   });
 }
 
@@ -103,7 +110,7 @@ export async function unifiedAI(opts: UnifiedAIOptions): Promise<AIFullResponse>
   // BYOK profile mode (client or server) — user's own key, user's own provider.
   if (opts.profile || opts.useVault) {
     const startProfile = opts.profile ?? null;
-    if (opts.useVault) {
+    if (opts.useVault && isFailoverEnabled()) {
       const active = startProfile ?? getVault().find((p) => p.id === getActiveProfileId()) ?? null;
       if (!active) throw new Error("Vault is empty — add a provider in Settings first.");
       return callWithVaultFailover(active, messages, opts);

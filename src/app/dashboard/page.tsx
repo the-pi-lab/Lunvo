@@ -12,7 +12,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import { getUsage } from "@/lib/localStore";
+import { getUsage, getLastER, getLastHook } from "@/lib/localStore";
 
 interface UserData {
   full_name: string;
@@ -23,6 +23,8 @@ interface UserData {
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [liveER, setLiveER] = useState<number | null>(null);
+  const [liveHook, setLiveHook] = useState<number | null>(null);
 
   useEffect(() => {
     const usage = getUsage();
@@ -31,6 +33,8 @@ export default function DashboardPage() {
       plan: "studio",
       streak_count: usage.generate + usage.analyze,
     });
+    setLiveER(getLastER());
+    setLiveHook(getLastHook());
     setLoading(false);
   }, []);
 
@@ -179,9 +183,16 @@ export default function DashboardPage() {
           </div>
           <div>
             <p className="text-xs font-bold text-on-surface-variant/70 uppercase tracking-widest">
-              Algorithmic Match
+              Predicted ER
             </p>
-            <p className="text-xl font-bold text-on-background">94%</p>
+            <p className="text-xl font-bold text-on-background">
+              {liveER !== null ? `${liveER.toFixed(1)}%` : "—"}
+              {liveHook !== null && (
+                <span className="ml-2 text-xs font-medium text-on-surface-variant/60">
+                  Hook {liveHook}/10
+                </span>
+              )}
+            </p>
           </div>
         </div>
       </div>

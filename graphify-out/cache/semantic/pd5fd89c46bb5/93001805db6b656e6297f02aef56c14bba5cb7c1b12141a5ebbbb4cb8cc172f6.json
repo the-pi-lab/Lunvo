@@ -1,0 +1,290 @@
+{
+  "nodes": [
+    {
+      "id": "readme_lunvo",
+      "label": "LUNVO",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_three_agent_pipeline",
+      "label": "3-Agent Neural Pipeline",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_scout_agent",
+      "label": "Scout Agent",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_writer_agent",
+      "label": "Writer Agent",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_critic_agent",
+      "label": "Critic Agent",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_voice_dna",
+      "label": "Voice DNA",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_universal_ai_router",
+      "label": "Universal AI Router",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_byok",
+      "label": "BYOK (Bring Your Own Key)",
+      "file_type": "rationale",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_zero_ban",
+      "label": "Zero-Ban Philosophy",
+      "file_type": "rationale",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_engagement_predictor",
+      "label": "Engagement Predictor",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_humanizer",
+      "label": "Humanizer \u2014 Anti-AI-Slop",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_carousel_generator",
+      "label": "Carousel Generator",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_repurposer_studio",
+      "label": "Multi-Channel Repurposer Studio",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_mcp_server",
+      "label": "MCP Server",
+      "file_type": "concept",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_local_first",
+      "label": "Local-First Architecture",
+      "file_type": "rationale",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "readme_scout_agent",
+      "target": "readme_writer_agent",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_writer_agent",
+      "target": "readme_critic_agent",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_voice_dna",
+      "target": "readme_writer_agent",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_universal_ai_router",
+      "target": "readme_three_agent_pipeline",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_byok",
+      "target": "readme_universal_ai_router",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_zero_ban",
+      "target": "readme_lunvo",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_engagement_predictor",
+      "target": "readme_critic_agent",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_humanizer",
+      "target": "readme_writer_agent",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_repurposer_studio",
+      "target": "readme_three_agent_pipeline",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_mcp_server",
+      "target": "readme_universal_ai_router",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "three_agent_pipeline_flow",
+      "label": "Scout-Writer-Critic Serial Pipeline",
+      "nodes": [
+        "readme_scout_agent",
+        "readme_writer_agent",
+        "readme_critic_agent",
+        "contributing_orchestrator",
+        "contributing_scout_agent",
+        "contributing_writer_agent",
+        "contributing_critic_agent"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "README.md"
+    }
+  ]
+}

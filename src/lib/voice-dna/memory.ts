@@ -154,3 +154,55 @@ export function hasTrainedDna(): boolean {
   if (typeof window === "undefined") return false;
   return Boolean(window.localStorage.getItem(DNA_KEY));
 }
+
+/* ---------------- VoiceDNA bridge (Phase 19) ---------------- */
+
+import type { VoiceDNA } from "@/lib/ai/voiceDna/types";
+
+function coerceVoiceDNA(raw: Record<string, unknown>): VoiceDNA | null {
+  try {
+    const r = raw as Partial<VoiceDNA> & {
+      tone?: unknown;
+      formatting_preferences?: unknown;
+      vocabulary?: unknown;
+      sentence_structure?: unknown;
+    };
+    if (!r.tone || !r.formatting_preferences || !r.vocabulary || !r.sentence_structure) return null;
+    return {
+      id: (r.id as string) ?? "local-voice-dna",
+      tone: Array.isArray(r.tone) ? (r.tone as string[]) : [],
+      formatting_preferences: r.formatting_preferences as VoiceDNA["formatting_preferences"],
+      vocabulary: r.vocabulary as VoiceDNA["vocabulary"],
+      sentence_structure: r.sentence_structure as VoiceDNA["sentence_structure"],
+      last_updated: (r.last_updated as string) ?? new Date().toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Phase 19 — getVoiceDNA() local-first.
+ * Returns null if no trained DNA. If connector URL is set, caller can delegate
+ * there instead (future). For now localStorage is source of truth.
+ */
+export function getVoiceDNA(): VoiceDNA | null {
+  const record = getTrainedDna();
+  if (!record) return null;
+  const coerced = coerceVoiceDNA(record.dna as Record<string, unknown>);
+  if (coerced) {
+    // attach last_updated from record if missing
+    if (!coerced.last_updated) coerced.last_updated = record.trainedAt;
+    return coerced;
+  }
+  // Fallback: try raw shape
+  return null;
+}
+
+/** Save VoiceDNA via tuner (Phase 19 slider → next gen). */
+export function saveVoiceDNA(dna: VoiceDNA): void {
+  saveTrainedDna({
+    ...dna,
+    last_updated: new Date().toISOString(),
+  });
+}

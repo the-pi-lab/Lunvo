@@ -1,4 +1,4 @@
-import { AIProfile, AIRequestPayload, AIFullResponse, AIError } from '../types';
+import { AIProfile, AIRequestPayload, AIFullResponse, AIError, AIResponseChunk } from "../types";
 
 export async function callAnthropic(
   profile: AIProfile,
@@ -6,22 +6,24 @@ export async function callAnthropic(
 ): Promise<AIFullResponse> {
   // Uses Anthropic Messages API format
   // See: https://docs.anthropic.com/en/api/messages
-  
+
   if (!profile.apiKey) {
-    throw new AIError('API Key is required for Anthropic.', 'anthropic', 401);
+    throw new AIError("API Key is required for Anthropic.", "anthropic", 401);
   }
 
-  const endpoint = 'https://api.anthropic.com/v1/messages';
+  const endpoint = "https://api.anthropic.com/v1/messages";
 
   // Anthropic requires alternating roles starting with user.
   // System prompt is passed separately at the top level.
-  const messages = payload.messages.filter(msg => msg.role !== 'system').map(msg => ({
-    role: msg.role === 'assistant' ? 'assistant' : 'user',
-    content: msg.content
-  }));
+  const messages = payload.messages
+    .filter((msg) => msg.role !== "system")
+    .map((msg) => ({
+      role: msg.role === "assistant" ? "assistant" : "user",
+      content: msg.content,
+    }));
 
   const requestBody: Record<string, unknown> = {
-    model: profile.model || 'claude-3-5-sonnet-20241022',
+    model: profile.model || "claude-3-5-sonnet-20241022",
     messages,
     max_tokens: payload.maxTokens || 4096, // required field for anthropic
     temperature: payload.temperature ?? 0.7,
@@ -32,16 +34,16 @@ export async function callAnthropic(
   }
 
   const startTime = Date.now();
+  const shouldStream = Boolean(payload.stream && payload.onChunk);
 
   try {
     const response = await fetch(endpoint, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': profile.apiKey,
-        'anthropic-version': '2023-06-01',
-        // 'anthropic-dangerous-direct-browser-access': 'true', // if calling from browser, requires this header
-        ...profile.customHeaders
+        "Content-Type": "application/json",
+        "x-api-key": profile.apiKey,
+        "anthropic-version": "2023-06-01",
+        ...profile.customHeaders,
       },
       body: JSON.stringify(requestBody),
     });
@@ -53,35 +55,52 @@ export async function callAnthropic(
         const errorJson = JSON.parse(errorText);
         errorMessage = errorJson.error?.message || errorText;
       } catch (e) {}
-      throw new AIError(`Anthropic API Error: ${errorMessage}`, 'anthropic', response.status);
+      throw new AIError(`Anthropic API Error: ${errorMessage}`, "anthropic", response.status);
     }
 
     const data = await response.json();
     const latencyMs = Date.now() - startTime;
 
     if (!data.content || data.content.length === 0) {
-      throw new AIError('Invalid response format: Missing content', 'anthropic', 500);
+      throw new AIError("Invalid response format: Missing content", "anthropic", 500);
     }
 
-    const text = data.content[0]?.text || '';
-    
+    const text = data.content[0]?.text || "";
+
     // map finish reason
-    let finishReason: AIFullResponse['finishReason'] = 'unknown';
-    if (data.stop_reason === 'end_turn' || data.stop_reason === 'stop_sequence') finishReason = 'stop';
-    if (data.stop_reason === 'max_tokens') finishReason = 'length';
+    let finishReason: AIResponseChunk["finishReason"] = "stop";
+    if (data.stop_reason === "end_turn" || data.stop_reason === "stop_sequence")
+      finishReason = "stop";
+    else if (data.stop_reason === "max_tokens") finishReason = "length";
+    else finishReason = "stop";
+
+    if (shouldStream && payload.onChunk) {
+      const words = text.split(/(\s+)/);
+      for (const w of words) {
+        payload.onChunk({ text: w, isDone: false });
+        await new Promise((r) => setTimeout(r, 12));
+      }
+      payload.onChunk({ text: "", isDone: true, finishReason });
+    }
 
     return {
       text,
       finishReason,
-      usage: data.usage ? {
-        promptTokens: data.usage.input_tokens || 0,
-        completionTokens: data.usage.output_tokens || 0,
-        totalTokens: (data.usage.input_tokens || 0) + (data.usage.output_tokens || 0)
-      } : undefined,
-      latencyMs
+      usage: data.usage
+        ? {
+            promptTokens: data.usage.input_tokens || 0,
+            completionTokens: data.usage.output_tokens || 0,
+            totalTokens: (data.usage.input_tokens || 0) + (data.usage.output_tokens || 0),
+          }
+        : undefined,
+      latencyMs,
     };
   } catch (error: any) {
     if (error instanceof AIError) throw error;
-    throw new AIError(`Network or unexpected error: ${error.message || String(error)}`, 'anthropic', 0);
+    throw new AIError(
+      `Network or unexpected error: ${error.message || String(error)}`,
+      "anthropic",
+      0
+    );
   }
 }

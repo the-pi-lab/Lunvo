@@ -1,0 +1,59 @@
+{
+  "nodes": [
+    {
+      "id": "public_icons_icon_192_pwa_icon_192",
+      "label": "PWA Icon 192x192",
+      "file_type": "image",
+      "source_file": "public/icons/icon-192.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_icons_icon_192_blue_frame",
+      "label": "Blue Frame PWA Container",
+      "file_type": "concept",
+      "source_file": "public/icons/icon-192.png",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "public_icons_icon_192_pwa_icon_192",
+      "target": "public_brand_lunvo_logo_lunvo_brand_mark",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/icons/icon-192.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_icons_icon_192_pwa_icon_192",
+      "target": "public_icons_icon_512_pwa_icon_512",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/icons/icon-192.png",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "public_icons_icon_192_blue_frame",
+      "target": "public_icons_icon_192_pwa_icon_192",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "public/icons/icon-192.png",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": []
+}

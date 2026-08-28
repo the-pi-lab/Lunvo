@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Zap } from "lucide-react";
 import { runBootMaintenance } from "@/lib/cacheBust";
 import PWARegister from "@/components/PWARegister";
+import SilkCanvas from "@/components/fx/SilkCanvas";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import CommandK from "./CommandK";
@@ -78,24 +79,8 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
       />
 
       <div className="relative flex min-w-0 flex-1 flex-col">
-        {/* Aurora field */}
-        <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-          <div
-            className="aurora-blob w-[420px] h-[420px] -top-32 right-[8%]"
-            style={{ backgroundColor: "rgb(var(--aurora-lavender) / 0.55)" }}
-          />
-          <div
-            className="aurora-blob w-[380px] h-[380px] top-[30%] -left-28"
-            style={{ backgroundColor: "rgb(var(--aurora-sky) / 0.5)", animationDelay: "-6s" }}
-          />
-          <div
-            className="aurora-blob w-[340px] h-[340px] bottom-[-80px] right-[30%]"
-            style={{ backgroundColor: "rgb(var(--aurora-peach) / 0.45)", animationDelay: "-12s" }}
-          />
-          <div
-            className="aurora-blob w-[300px] h-[300px] top-[60%] left-[35%]"
-            style={{ backgroundColor: "rgb(var(--aurora-mint) / 0.35)", animationDelay: "-16s" }}
-          />
+        <div className="fixed inset-0 -z-10 pointer-events-none">
+          <SilkCanvas intensity={0.4} speed={0.45} />
         </div>
 
         <Topbar
