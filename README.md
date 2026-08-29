@@ -24,6 +24,10 @@
   <a href="https://github.com/the-pi-lab/Lunvo/issues/new?labels=good+first+issue"><img src="https://img.shields.io/badge/Good_First_Issue-Claim_it-824500?style=for-the-badge" alt="gfi"/></a>
 </p>
 
+<p align="center">
+  <a href="./README.md"><b>English</b></a> | <a href="./README_hi.md">हिंदी</a> — <code>/hi/dashboard</code> live via <code>next-intl</code>
+</p>
+
 <img src="https://socialify.git.ci/the-pi-lab/Lunvo/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Circuit%20Board&theme=Dark" alt="LUNVO Banner" width="100%"/>
 
 <br/>
@@ -45,18 +49,18 @@
 
 > Most LinkedIn AI tools are **$39-$199/mo SaaS wrappers** around the same GPT call — plus they use **unauthorized browser extensions** that can get your LinkedIn **permanently banned**.
 
-| | Taplio | Supergrow | AuthoredUp | **LUNVO v2** |
-|---| :--- | :--- | :--- | :--- |
-| **Price** | $39-$199/mo | $19-$69/mo | $19/mo | **$0 — MIT Open Source** |
-| **AI Router** | Locked to GPT | Locked | None | **BYOK: 8 providers + Ollama** |
-| **Voice Clone** | Generic prompt | Template | Manual | **Voice DNA (4 sliders + auto-extract)** |
-| **Pipeline** | Single prompt | Single | None | **3-Agent: Scout → Writer → Critic** |
-| **Viral Score** | Basic | No | No | **Real 10k posts dataset predictor** |
-| **Carousel PDF** | Pro only | No | No | **Built-in, 5 templates FREE** |
-| **Humanizer** | No | No | No | **Anti-AI-Slop 90%+ human** |
-| **Ban Risk** | Medium (unofficial API) | Medium | Low | **Zero — Clipboard only** |
-| **Self-Host** | No | No | No | **Docker in 30s** |
-| **MCP Server** | No | No | No | **Yes, Claude-ready** |
+|                  | Taplio                  | Supergrow  | AuthoredUp | **LUNVO v2**                             |
+| ---------------- | :---------------------- | :--------- | :--------- | :--------------------------------------- |
+| **Price**        | $39-$199/mo             | $19-$69/mo | $19/mo     | **$0 — MIT Open Source**                 |
+| **AI Router**    | Locked to GPT           | Locked     | None       | **BYOK: 8 providers + Ollama**           |
+| **Voice Clone**  | Generic prompt          | Template   | Manual     | **Voice DNA (4 sliders + auto-extract)** |
+| **Pipeline**     | Single prompt           | Single     | None       | **3-Agent: Scout → Writer → Critic**     |
+| **Viral Score**  | Basic                   | No         | No         | **Real 10k posts dataset predictor**     |
+| **Carousel PDF** | Pro only                | No         | No         | **Built-in, 5 templates FREE**           |
+| **Humanizer**    | No                      | No         | No         | **Anti-AI-Slop 90%+ human**              |
+| **Ban Risk**     | Medium (unofficial API) | Medium     | Low        | **Zero — Clipboard only**                |
+| **Self-Host**    | No                      | No         | No         | **Docker in 30s**                        |
+| **MCP Server**   | No                      | No         | No         | **Yes, Claude-ready**                    |
 
 **LUNVO is the first open source project that gives you Taplio + Supergrow + ViralBrain + AuthoredUp — without paying a rupee and without risking your account.**
 
@@ -70,7 +74,7 @@
 
 <img src="https://via.placeholder.com/1200x675.png?text=LUNVO+Demo+GIF+%E2%80%94+Replace+with+real+screen+recording+%28Scout+Writer+Critic+live%29" alt="Demo" width="90%"/>
 
-*Scout finds 3 hooks → Writer injects your Voice DNA → Critic scores 94/100 — all in 8s.*
+_Scout finds 3 hooks → Writer injects your Voice DNA → Critic scores 94/100 — all in 8s._
 
 <details>
 <summary><b>📸 Click to see more screenshots</b></summary>
@@ -96,11 +100,11 @@ graph LR
   D --> E[📋 Clipboard<br/>Zero-Ban Publish]
 ```
 
-| Agent | What it does | Prompt file |
-|-------|--------------|-------------|
-| **Scout** | Trend scan + 3 hook ideas + structure `Problem→Tension→Lesson→CTA` | `src/lib/ai/agents/scoutAgent.ts:12` |
-| **Writer** | Draft with Voice DNA (formality/emoji/tech/snark) | `src/lib/ai/agents/writerAgent.ts:7` + `voiceDna/injector.ts:9` |
-| **Critic** | Whitespace, fluff, hook punch, CTA clarity + `finalScore 1-100` | `src/lib/ai/agents/criticAgent.ts:10` |
+| Agent      | What it does                                                       | Prompt file                                                     |
+| ---------- | ------------------------------------------------------------------ | --------------------------------------------------------------- |
+| **Scout**  | Trend scan + 3 hook ideas + structure `Problem→Tension→Lesson→CTA` | `src/lib/ai/agents/scoutAgent.ts:12`                            |
+| **Writer** | Draft with Voice DNA (formality/emoji/tech/snark)                  | `src/lib/ai/agents/writerAgent.ts:7` + `voiceDna/injector.ts:9` |
+| **Critic** | Whitespace, fluff, hook punch, CTA clarity + `finalScore 1-100`    | `src/lib/ai/agents/criticAgent.ts:10`                           |
 
 > All agents speak **strict JSON** validated by Zod — no ` ```json` brittle parsing like other repos.
 
@@ -110,12 +114,12 @@ graph LR
 
 Configure once. Every post after that sounds like you, not ChatGPT.
 
-| Slider | 0 → 100 | Example |
-|--------|---------|---------|
-| **Formality** | Casual → Boardroom | `yaar sun` vs `Dear stakeholders` |
-| **Emoji Usage** | None → High | `—` vs `🚀🔥✨` |
-| **Technical Depth** | Story → Deep Dive | `I built` vs `Implemented RAG with pgvector` |
-| **Snark Level** | Humble → Bold | `maybe I'm wrong` vs `Most advice is wrong.` |
+| Slider              | 0 → 100            | Example                                      |
+| ------------------- | ------------------ | -------------------------------------------- |
+| **Formality**       | Casual → Boardroom | `yaar sun` vs `Dear stakeholders`            |
+| **Emoji Usage**     | None → High        | `—` vs `🚀🔥✨`                              |
+| **Technical Depth** | Story → Deep Dive  | `I built` vs `Implemented RAG with pgvector` |
+| **Snark Level**     | Humble → Bold      | `maybe I'm wrong` vs `Most advice is wrong.` |
 
 Stored locally + Supabase. Auto-extract from your 3 best posts via `src/lib/ai/voiceDna/extractorPrompt.ts:1`. Manual override anytime in `src/components/voice-dna/DnaTuner.tsx:1`.
 
@@ -148,29 +152,39 @@ npm run dev
 # -> http://localhost:3000  — Start dominating LinkedIn
 ```
 
-### 3. Docker — Fully Self-Hosted
+### 3. Docker — Fully Self-Hosted (node:20-alpine)
 
 ```bash
-docker compose up -d
-# -> http://localhost:3000 (app) + Supabase local if configured
+# One-liner (recommended)
+chmod +x setup.sh && ./setup.sh
+# → http://localhost:3000 + health check
+
+# Manual
+cp .env.example .env.local   # add BYOK keys (GEMINI_API_KEY or GROQ_API_KEY)
+docker compose up -d --build
+# → http://localhost:3000 (app)
+# Logs: docker compose logs -f
+# Stop: docker compose down
 ```
+
+**What you get:** `Dockerfile` (`node:20-alpine` multi-stage: deps → builder `npm run build` → runner `npm start` as `nextjs` user), `docker-compose.yml` (app:3000 + `healthcheck` `wget /api/health`), `setup.sh` (creates `.env.local`, checks Docker, builds & ups). No Supabase required — local-first, add keys in Dashboard → Studio/News/Distribute if you want cloud.
 
 <details>
 <summary><b>⚙️ Env Variables — Click to expand</b></summary>
 
-| Var | Required | What |
-|-----|----------|------|
-| `NEXT_PUBLIC_APP_URL` | No | `http://localhost:3000` |
-| `NEXT_PUBLIC_SUPABASE_URL` | For cloud | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | For cloud | Anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | For admin | Service role |
-| `ADMIN_EMAIL` | For /admin | Your email |
-| `GEMINI_API_KEY` | BYOK | `aistudio.google.com` |
-| `GROQ_API_KEY` | BYOK | `console.groq.com` |
-| `NVIDIA_API_KEY_DEEPSEEK` | Optional | NVIDIA NIM |
-| `CURRENTS_API_KEY` | Optional | News context |
-| `OLLAMA_BASE_URL` | Local | `http://localhost:11434/v1` default |
-| `LMSTUDIO_BASE_URL` | Local | `http://localhost:1234/v1` default |
+| Var                             | Required   | What                                |
+| ------------------------------- | ---------- | ----------------------------------- |
+| `NEXT_PUBLIC_APP_URL`           | No         | `http://localhost:3000`             |
+| `NEXT_PUBLIC_SUPABASE_URL`      | For cloud  | Supabase project URL                |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | For cloud  | Anon key                            |
+| `SUPABASE_SERVICE_ROLE_KEY`     | For admin  | Service role                        |
+| `ADMIN_EMAIL`                   | For /admin | Your email                          |
+| `GEMINI_API_KEY`                | BYOK       | `aistudio.google.com`               |
+| `GROQ_API_KEY`                  | BYOK       | `console.groq.com`                  |
+| `NVIDIA_API_KEY_DEEPSEEK`       | Optional   | NVIDIA NIM                          |
+| `CURRENTS_API_KEY`              | Optional   | News context                        |
+| `OLLAMA_BASE_URL`               | Local      | `http://localhost:11434/v1` default |
+| `LMSTUDIO_BASE_URL`             | Local      | `http://localhost:1234/v1` default  |
 
 All AI keys can also be pasted in **Dashboard → Settings → AI Config** (stored locally, never sent to our server).
 
@@ -180,22 +194,32 @@ All AI keys can also be pasted in **Dashboard → Settings → AI Config** (stor
 
 ## 🎨 Features That No One Else Has Open Source
 
-### 🔄 Multi-Channel Repurposer Studio
-1 LinkedIn post → 1 Click → **Twitter Thread (numbered) + Newsletter/Blog (long-form) + 60s Video Script (TikTok/Reels)**. Code at `src/lib/ai/repurpose/*:1` — now LIVE, not Coming Soon.
+### 🖼️ Image Studio — 6 Pro Styles (NEW v2.1)
 
-### 🎠 Carousel Generator (NEW v2)
-5 templates (Bold / Minimal / Stats / Story / Framework) → **1080×1350 PDF** ready for LinkedIn Document post — the most viral format. Paid tools charge Pro for this.
+Minimal Editorial / Corporate Gradient / Data Chart / Quote Card / Photo-Office / Carousel Text → **1080×1350** `Relevancy (from post)` vs `Prompt` toggle, `src/lib/ai/image/presets.ts:1` + fallback canvas, integrated in `src/app/dashboard/create/page.tsx:1` (always visible).
 
-### 🛡️ Humanizer — Anti-AI-Slop
-Banned phrases `src/lib/ai/prompts.ts:25` (`thrilled to share`, `game-changer`, `dive in`) auto-removed. Burstiness tuned. Passes LinkedLens detector **90%+ human**.
+### 📰 News Connectors — 8 APIs (NEW)
 
-### 🔌 Universal AI Router — BYOK
-OpenAI, Anthropic, Gemini, Groq, Nvidia, OpenRouter, **Ollama (local)**, LM Studio — one `AIProfile` type `src/lib/ai/types.ts:1`. No vendor lock-in. Offline mode fully works.
+Currents, NewsAPI, GNews, Mediastack, NewsData, TheNewsAPI, WorldNews, Bing — `src/lib/news/providers.ts:1` + `src/app/dashboard/news/page.tsx:1` BYOC `localStorage lunvo_news_key_*`, daily hooks via `src/lib/rss/aiService.ts:1` + `src/lib/news/newsCache.ts:1` 6hr TTL.
+
+### 🎠 Carousel Generator (Moat #1)
+
+5 templates (Minimal / Bold / Data / Quote / Checklist) → **1080×1350 PDF** `src/lib/carousel/generator.ts:1` via `jspdf` — the most viral format. Paid tools charge Pro for this.
+
+### 🛡️ Humanizer — Anti-AI-Slop (Moat #2)
+
+Banned phrases `src/lib/ai/prompts.ts:25` + `src/lib/ai/humanizer.ts:7` `BANNED_AI_PHRASES` burstiness 90%+ human, toggle in `src/components/create/PostEditor.tsx:1` with meter.
+
+### 🔌 Universal AI Router — BYOK (48 providers)
+
+OpenAI, Anthropic, Gemini, Groq, Nvidia, OpenRouter, **Ollama (local)**, LM Studio — one `AIProfile` type `src/lib/ai/types.ts:1`. No vendor lock-in. Offline mode fully works. `src/lib/ai/serverLimiter.ts:1` memory/Upstash/custom.
 
 ### 📊 Engagement Predictor — Real Data, Not Vibes
+
 Trained on `LinkedIn_Post_Engagement_Analytics_Medium.csv` (10k posts). Predicts **hook/readability/engagement/structure 0-10 + overall/10** + `predictedEngagementRate %` — not fake scores. See `src/lib/ai/engagementPredictor.ts:1` + `src/lib/ai/scoringEngine.ts:1`.
 
 ### 🔌 MCP Server — Claude-Ready
+
 `src/mcp/server.ts` exposes `search_trending` + `analyze_draft` to Claude/Cursor. Read-only, no scraping, zero ban. Like `stickerdaniel/linkedin-mcp-server` but safe.
 
 ---
@@ -207,13 +231,13 @@ Trained on `LinkedIn_Post_Engagement_Analytics_Medium.csv` (10k posts). Predicts
 <br/><sub>New v2 Shell: Collapsible Sidebar (280px) + Topbar (48px) + Cmd+K Palette + Bento Grid — Linear.app meets Notion.</sub>
 </div>
 
-| Page | What |
-|------|------|
+| Page                                               | What                                                                                 |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | **Mission Control** `src/app/dashboard/page.tsx:1` | Bento: Content Factory, Voice DNA, Analyzer, Repurposer + Streak + Algorithmic Match |
-| **Create** `src/app/dashboard/create/page.tsx:1` | Tiptap editor + Live LinkedIn preview + Pipeline progress (Scout→Writer→Critic) |
-| **Analyze** `src/app/dashboard/analyze/page.tsx:1` | Paste any post → 4 scores + Top problems + Executive rewrite |
-| **Drafts** `src/app/dashboard/drafts/page.tsx:1` | Search + filter + inline meter |
-| **Learn** `src/app/dashboard/learn/page.tsx:1` | Template Marketplace (PR-based) + daily trending hooks |
+| **Create** `src/app/dashboard/create/page.tsx:1`   | Tiptap editor + Live LinkedIn preview + Pipeline progress (Scout→Writer→Critic)      |
+| **Analyze** `src/app/dashboard/analyze/page.tsx:1` | Paste any post → 4 scores + Top problems + Executive rewrite                         |
+| **Drafts** `src/app/dashboard/drafts/page.tsx:1`   | Search + filter + inline meter                                                       |
+| **Learn** `src/app/dashboard/learn/page.tsx:1`     | Template Marketplace (PR-based) + daily trending hooks                               |
 
 ---
 
@@ -232,6 +256,7 @@ graph TD
 ```
 
 **Key files to hack:**
+
 - Add provider → `src/lib/ai/router.unified.ts:16` switch case
 - Tweak prompts → `src/lib/ai/prompts.ts:13` (keep JSON-only rule)
 - New agent → `src/lib/ai/agents/` + `orchestrator.ts:19`
@@ -240,11 +265,19 @@ graph TD
 
 ## 📈 Roadmap — Where We Are Going
 
-> Full 44-phase plan → [`REBUILD_PLAN.md`](./REBUILD_PLAN.md)
+> Full 44-phase plan → [`REBUILD_PLAN.md`](./REBUILD_PLAN.md) — **Phases 18-39 just shipped**
 
 - [x] **v1.0** — 3-Agent pipeline, Voice DNA, Analyze, Supabase (DONE)
-- [ ] **v2.0** — Unified Router, Design System 2.0, Editor V2, Repurposer LIVE, Carousel, Humanizer, Docker (IN PROGRESS — see `REBUILD_PLAN.md:4`)
-- [ ] **v2.1** — MCP server, PWA, i18n (Hindi), Docs site
+- [x] **v2.0 — Phases 18-34 shipped (Aug 2024):**
+  - **18** Serverless Limiter (Upstash/Custom), **19** Voice DNA Fix (local-first), **20** Prompts V3 + Zod (100 gens 0 error)
+  - **21** Engagement Live (Hook 8 + ER 3.2%), **22** News Cache (6hr + 5s), **23** Streaming (word-by-word)
+  - **24** Cost Guard (IP 5/day), **25** Editor V2 (Tiptap /hook /cta), **26** Tuner V2 (4 sliders + auto-fill)
+  - **27** Repurposer LIVE (Thread/Newsletter/Video + YouTube), **28** Carousel Moat #1 (1080×1350 PDF 5 templates)
+  - **29** Humanizer Moat #2 (90% human), **30** Distribution (Copy→LinkedIn + share + webhook + .ics)
+  - **31** Drafts V2 (filter/search + inline meter, 100 drafts <200ms), **32** Learn Marketplace (PR templates + daily hooks)
+  - **34** Docker (node:20-alpine + compose + setup.sh)
+- [x] **v2.1 — Phases 35-39 shipped:**
+  - **35** CI (lint+tsc+build+vitest), **36** Issue Templates (bug/feature + 10 good-first-issue), **37** MCP Server (`npx lunvo-mcp` search_trending + analyze_draft), **38** Privacy (real) + CSP A + PostHog optional, **39** i18n (`next-intl` + `README_hi.md` + `/hi/dashboard`)
 - [ ] **v3.0** — Team workspaces, Scheduling via official API, Analytics (Shield alternative)
 
 Vote on features → [Discussions](https://github.com/the-pi-lab/Lunvo/discussions) — most upvoted ships next.
@@ -267,11 +300,11 @@ npm run build # must pass
 # 4. PR — keep it <300 lines if possible
 ```
 
-| Good First Issue | What |
-|------------------|------|
-| `good first issue` | Add Ollama model selector UI |
+| Good First Issue   | What                          |
+| ------------------ | ----------------------------- |
+| `good first issue` | Add Ollama model selector UI  |
 | `good first issue` | Hindi translation for landing |
-| `docs` | Record 15s demo GIF |
+| `docs`             | Record 15s demo GIF           |
 
 See [`CONTRIBUTING.md`](./CONTRIBUTING.md) + [`REBUILD_PLAN.md`](./REBUILD_PLAN.md) for architecture.
 

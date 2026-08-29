@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { ArrowUpRight, Sparkles, ArrowRight } from "lucide-react";
 import SilkCanvas from "@/components/fx/SilkCanvas";
 import Cursor from "@/components/fx/Cursor";
+import { LocaleToggle } from "@/components/i18n/LocaleToggle";
 import GrainOverlay from "@/components/fx/GrainOverlay";
 import KineticHeading, { type KineticToken } from "@/components/fx/KineticHeading";
 import MagneticCTA from "@/components/entry/MagneticCTA";
@@ -63,6 +64,7 @@ function FloatingNav({ onEnter }: { onEnter: () => void }) {
         >
           GitHub
         </a>
+        <LocaleToggle />
         <button
           onClick={onEnter}
           className="inline-flex items-center gap-1.5 rounded-full bg-zinc-900 px-4 py-1.5 text-xs font-bold text-white transition-transform hover:scale-105"

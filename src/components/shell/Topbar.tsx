@@ -5,6 +5,7 @@ import { Menu, Search, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getUsage } from "@/lib/localStore";
 import { getPageTitle } from "./nav-config";
+import { LocaleToggle } from "@/components/i18n/LocaleToggle";
 
 interface TopbarProps {
   userName: string;
@@ -62,6 +63,8 @@ export default function Topbar({
 
         {/* Daily usage */}
         <UsageChip />
+
+        <LocaleToggle />
 
         {/* User chip */}
         <div className="flex items-center gap-2 pl-1 sm:pl-2">

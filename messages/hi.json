@@ -1,0 +1,22 @@
+{
+  "common": {
+    "appName": "LUNVO",
+    "tagline": "ओपन-सोर्स LinkedIn OS",
+    "enterStudio": "स्टूडियो में जाएं"
+  },
+  "nav": {
+    "overview": "अवलोकन",
+    "create": "बनाएं",
+    "analyze": "विश्लेषण",
+    "studio": "स्टूडियो",
+    "news": "समाचार",
+    "distribute": "वितरण",
+    "cloud": "क्लाउड",
+    "drafts": "ड्राफ्ट",
+    "repurpose": "पुन: उपयोग",
+    "learn": "सीखें"
+  },
+  "dashboard": {
+    "welcome": "मिशन कंट्रोल में आपका स्वागत है।"
+  }
+}

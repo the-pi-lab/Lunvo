@@ -1,0 +1,22 @@
+{
+  "common": {
+    "appName": "LUNVO",
+    "tagline": "The Open-Source LinkedIn OS",
+    "enterStudio": "Enter Studio"
+  },
+  "nav": {
+    "overview": "Overview",
+    "create": "Create",
+    "analyze": "Analyze",
+    "studio": "Studio",
+    "news": "News",
+    "distribute": "Distribute",
+    "cloud": "Cloud",
+    "drafts": "Drafts",
+    "repurpose": "Repurpose",
+    "learn": "Learn"
+  },
+  "dashboard": {
+    "welcome": "welcome to Mission Control."
+  }
+}

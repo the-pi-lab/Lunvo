@@ -1,0 +1,64 @@
+name: Feature Request
+description: Suggest an idea for LUNVO
+title: "feat: "
+labels: ["enhancement"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Love that you're thinking of improving LUNVO! Describe your idea clearly.
+
+  - type: input
+    id: title
+    attributes:
+      label: Clear title
+      placeholder: e.g. Add Notion as a news source for daily hooks
+      description: A concise, searchable title.
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Motivation
+      description: What problem does this solve? Who benefits?
+      placeholder: As a creator I want… so that…
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: How would it work? API, UI, file paths (e.g. src/lib/ai/...).
+      placeholder: Add a new adapter in src/lib/ai/providers/registry.ts:21 and wire to router.unified.ts:16
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - AI Engine
+        - Editor / Tiptap
+        - Voice DNA
+        - Distribution / Webhook
+        - Carousel / Image Studio
+        - Dashboard / UI
+        - News / RSS
+        - Docs
+      default: 0
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I will follow UI tokens (slate/blue/emerald, rounded-xl, Light Aurora) and keep PR <300 lines
+          required: false
+        - label: I checked existing issues for duplicates
+          required: true

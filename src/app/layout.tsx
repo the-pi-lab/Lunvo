@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Newsreader, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
+import { PostHogProvider } from "@/components/analytics/PostHogProvider";
 
 const newsreader = Newsreader({
   subsets: ["latin"],
@@ -47,17 +50,24 @@ export const viewport: Viewport = {
   themeColor: "#004AC6",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="en"
+      lang={locale}
       className={`${newsreader.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="font-sans antialiased text-on-background bg-background">{children}</body>
+      <body className="font-sans antialiased text-on-background bg-background">
+        <NextIntlClientProvider messages={messages}>
+          <PostHogProvider>{children}</PostHogProvider>
+        </NextIntlClientProvider>
+      </body>
     </html>
   );
 }

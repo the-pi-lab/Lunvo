@@ -1,0 +1,64 @@
+name: Bug Report
+description: Report a bug to help us improve LUNVO
+title: "bug: "
+labels: ["bug"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! Please provide a clear description.
+
+  - type: input
+    id: title
+    attributes:
+      label: Clear title
+      placeholder: e.g. Tiptap paste normalizes incorrectly on Windows
+      description: A concise, searchable title.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to Dashboard → Create
+        2. Paste "..."
+        3. See error
+      description: Minimal steps that trigger the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: What you expected to happen.
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: OS / Browser
+      placeholder: e.g. Windows 11, Chrome 126
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console logs / Screenshots
+      description: Paste relevant console errors or drag screenshots.
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I ran `npm run build` locally and it passes
+          required: false
+        - label: I checked existing issues for duplicates
+          required: true

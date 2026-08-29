@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussions / Questions
+    url: https://github.com/the-pi-lab/Lunvo/discussions
+    about: Ask a question or pitch an idea (fastest response)
+  - name: Security Report
+    url: https://github.com/the-pi-lab/Lunvo/security/policy
+    about: Private vulnerability disclosure
