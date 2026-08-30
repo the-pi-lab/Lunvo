@@ -19,46 +19,47 @@ export async function callUniversalAI(
     throw new AIError("Invalid AI Profile provided.", "custom", 400);
   }
 
-  const def = getProviderDef(profile.provider);
+  const activeProfile: AIProfile = { ...profile };
+  const def = getProviderDef(activeProfile.provider);
 
   try {
     // Registry-driven: adapter comes from the provider definition.
     const adapter = def?.adapter ?? "openai-compatible";
 
     // Auto-fill baseURL from registry when the profile omits it.
-    if (!profile.baseURL && def?.baseURL) {
-      profile.baseURL = def.baseURL;
+    if (!activeProfile.baseURL && def?.baseURL) {
+      activeProfile.baseURL = def.baseURL;
     }
 
     if (def?.coming) {
       throw new AIError(
         `${def.name} needs enterprise auth (dedicated adapter) — coming soon.`,
-        profile.provider,
+        activeProfile.provider,
         501
       );
     }
 
     if (adapter === "anthropic") {
-      return await callAnthropic(profile, payload);
+      return await callAnthropic(activeProfile, payload);
     }
 
     if (adapter === "gemini") {
       // OpenAI-compatible override if the user pointed Gemini at a /openai endpoint.
-      if (profile.baseURL && profile.baseURL.includes("/openai")) {
-        return await callOpenAICompatible(profile, payload);
+      if (activeProfile.baseURL && activeProfile.baseURL.includes("/openai")) {
+        return await callOpenAICompatible(activeProfile, payload);
       }
-      return await callGemini(profile, payload);
+      return await callGemini(activeProfile, payload);
     }
 
     // openai-compatible (default) — covers ~90% of the registry.
-    if (!profile.baseURL) {
+    if (!activeProfile.baseURL) {
       throw new AIError(
-        `${def?.name ?? profile.provider} needs a Base URL (OpenAI-compatible endpoint). Set it in Settings.`,
-        profile.provider,
+        `${def?.name ?? activeProfile.provider} needs a Base URL (OpenAI-compatible endpoint). Set it in Settings.`,
+        activeProfile.provider,
         400
       );
     }
-    return await callOpenAICompatible(profile, payload);
+    return await callOpenAICompatible(activeProfile, payload);
   } catch (error: unknown) {
     if (error instanceof AIError) {
       // Enhance specific errors with actionable tips

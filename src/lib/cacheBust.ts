@@ -6,8 +6,6 @@
 
 export const APP_VERSION = "2.0.0";
 
-const AUTH_KEY_PATTERNS = ["sb-", "provider-session.auth.token"];
-
 function isStaleAuthKey(key: string): boolean {
   // @provider-session/ssr keys: sb-<project-ref>-auth-token, sb-...-auth-token.0/.1, code-verifier
   if (key.startsWith("sb-") && key.includes("auth-token")) return true;

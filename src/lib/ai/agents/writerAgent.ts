@@ -35,7 +35,7 @@ ${rawTopic}
 Strategic Framework from Scout Agent:
 - Target Audience: ${scoutResult.targetAudience}
 - Angle: ${scoutResult.topicAngle}
-- Chosen Hook: ${scoutResult.hookIdeas[0]} (Feel free to adapt it)
+- Chosen Hook: ${scoutResult.hookIdeas?.[0] || "Engage reader with a bold premise"} (Feel free to adapt it)
 - Suggested Structure: ${scoutResult.suggestedStructure}
 
 Write the final LinkedIn post now. Output ONLY the post content.

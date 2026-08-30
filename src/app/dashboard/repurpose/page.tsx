@@ -267,7 +267,7 @@ export default function RepurposePage() {
               <p className="text-xs text-on-surface-variant">{activeHint}</p>
               <button
                 onClick={handleGenerate}
-                disabled={isGenerating || !sourcePost.trim()}
+                disabled={isGenerating || (!sourcePost.trim() && !youtubeUrl.trim())}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-on-primary text-xs font-bold uppercase tracking-wider shadow-premium hover:bg-primary/90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none"
               >
                 {isGenerating ? (

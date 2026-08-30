@@ -12,8 +12,8 @@ export async function callGemini(
   }
 
   const model = profile.model || "gemini-1.5-flash";
-  // Use generateContent for non-streaming
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${profile.apiKey}`;
+  // Use generateContent for non-streaming with header-based auth
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
   // Convert our messages array to Gemini Content format
   let systemInstruction: unknown = undefined;
@@ -63,6 +63,7 @@ export async function callGemini(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-goog-api-key": profile.apiKey,
         ...profile.customHeaders,
       },
       body: JSON.stringify(requestBody),

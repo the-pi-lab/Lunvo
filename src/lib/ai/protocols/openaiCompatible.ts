@@ -14,8 +14,9 @@ export async function callOpenAICompatible(
   };
 
   const messages = [...payload.messages];
-  if (payload.systemPrompt) {
-    // Add system prompt to the beginning if supported, or inject it
+  const hasSystemRole = messages.some((m) => m.role === "system");
+  if (payload.systemPrompt && !hasSystemRole) {
+    // Add system prompt to the beginning if not already present in messages
     messages.unshift({ role: "system", content: payload.systemPrompt });
   }
 

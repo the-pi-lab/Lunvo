@@ -24,11 +24,15 @@ function safeParse<T>(raw: string | null, fallback: T): T {
   }
 }
 
+function isLocalOrCustomProvider(provider: string): boolean {
+  return provider === "ollama" || provider === "lmstudio" || provider === "custom";
+}
+
 /** Migrates the old single-profile storage into the vault (once). */
 function migrateLegacy(): AIProfile[] {
   if (typeof window === "undefined") return [];
   const legacy = safeParse<AIProfile | null>(window.localStorage.getItem(LEGACY_KEY), null);
-  if (legacy && legacy.provider && legacy.apiKey) {
+  if (legacy && legacy.provider && (legacy.apiKey || isLocalOrCustomProvider(legacy.provider))) {
     const first: AIProfile = { ...legacy, id: makeProfileId(legacy.provider) };
     const vault: AIProfile[] = [first];
     window.localStorage.setItem(VAULT_KEY, JSON.stringify(vault));
@@ -45,7 +49,7 @@ export function getVault(): AIProfile[] {
     const raw = window.localStorage.getItem(VAULT_KEY);
     if (raw === null) return migrateLegacy();
     const vault = safeParse<AIProfile[]>(raw, []);
-    return vault.filter((p) => p.provider && p.apiKey);
+    return vault.filter((p) => p.provider && (p.apiKey || isLocalOrCustomProvider(p.provider)));
   } catch {
     return [];
   }
@@ -77,7 +81,8 @@ export function getActiveProfileId(): string | null {
 }
 
 export function addToVault(profile: AIProfile): { ok: boolean; error?: string } {
-  if (!profile.provider || !profile.apiKey) {
+  const isLocal = isLocalOrCustomProvider(profile.provider);
+  if (!profile.provider || (!profile.apiKey && !isLocal)) {
     return { ok: false, error: "Provider and API key are required." };
   }
   const vault = getVault();

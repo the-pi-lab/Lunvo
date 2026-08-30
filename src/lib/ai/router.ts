@@ -8,9 +8,6 @@ import { logger } from "@/lib/logger";
 import Groq from "groq-sdk";
 import { checkRateLimit, MINUTE_MS } from "./serverLimiter";
 
-let _gemini: GoogleGenerativeAI | null = null;
-let _groq: Groq | null = null;
-
 type NvidiaModelKey = "deepseek" | "moonshot";
 type ResolvedPlan = "free" | "starter" | "pro";
 
@@ -202,20 +199,6 @@ function getQualityProfile(plan: ResolvedPlan, modelKey: NvidiaModelKey): Qualit
     maxTokensCap: 4096,
     thinking: false,
   };
-}
-
-function getGemini(): GoogleGenerativeAI {
-  if (!_gemini) {
-    _gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-  }
-  return _gemini;
-}
-
-function getGroq(): Groq {
-  if (!_groq) {
-    _groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
-  }
-  return _groq;
 }
 
 const MODELS = {
@@ -451,32 +434,43 @@ async function callGroq(
 export function parseAIJson<T>(rawText: string): T {
   let cleaned = rawText.trim();
 
-  cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
+  // Strip markdown code fences if wrapped
+  cleaned = cleaned
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
 
+  // 1. Direct parse attempt
   try {
     return JSON.parse(cleaned) as T;
   } catch {
-    const startIndex = cleaned.indexOf("{");
-    const endIndex = cleaned.lastIndexOf("}");
+    // 2. Extract outermost JSON object { ... } or array [ ... ]
+    const firstBrace = cleaned.indexOf("{");
+    const lastBrace = cleaned.lastIndexOf("}");
+    const firstBracket = cleaned.indexOf("[");
+    const lastBracket = cleaned.lastIndexOf("]");
 
-    if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
-      const jsonContent = cleaned.substring(startIndex, endIndex + 1);
-      try {
-        return JSON.parse(jsonContent) as T;
-      } catch {
-        logger.error("Failed to parse extracted JSON block", jsonContent);
-      }
+    let jsonTarget = cleaned;
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      jsonTarget = cleaned.substring(firstBrace, lastBrace + 1);
+    } else if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+      jsonTarget = cleaned.substring(firstBracket, lastBracket + 1);
     }
 
-    const repaired = cleaned
-      .replace(/,\s*([\]}])/g, "$1")
-      .replace(/([{,])\s*([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
-
     try {
-      return JSON.parse(repaired) as T;
+      return JSON.parse(jsonTarget) as T;
     } catch {
-      logger.error("All AI JSON parsing attempts failed for text", rawText);
-      throw new Error("Could not parse AI response as valid data structure.");
+      // 3. Repair common LLM syntax flaws on the extracted JSON target
+      const repaired = jsonTarget
+        .replace(/,\s*([\]}])/g, "$1")
+        .replace(/([{,])\s*([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
+
+      try {
+        return JSON.parse(repaired) as T;
+      } catch {
+        logger.error("All AI JSON parsing attempts failed for text", rawText);
+        throw new Error("Could not parse AI response as valid data structure.");
+      }
     }
   }
 }

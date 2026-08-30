@@ -103,7 +103,7 @@ export default function DashboardPage() {
 
         {/* 2. Voice DNA */}
         <Link
-          href="/dashboard/settings"
+          href="/dashboard/studio"
           className="group block glass glow-hover rounded-3xl p-8 !border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(16,185,129,0.08)] hover:border-emerald-200 transition-all duration-300 relative overflow-hidden"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110" />
@@ -144,12 +144,13 @@ export default function DashboardPage() {
         </Link>
 
         {/* 4. Repurposer Studio */}
-        <div className="group block bg-surface-container-low rounded-3xl p-8 border border-outline-variant/40 border-dashed relative overflow-hidden opacity-80 hover:opacity-100 transition-all duration-300 cursor-not-allowed">
-          <div className="absolute top-4 right-4 bg-surface-container-high text-on-surface-variant px-3 py-1 rounded-full text-[0.65rem] font-bold uppercase tracking-widest">
-            Coming Soon
-          </div>
+        <Link
+          href="/dashboard/repurpose"
+          className="group block glass glow-hover rounded-3xl p-8 !border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(245,158,11,0.08)] hover:border-amber-200 transition-all duration-300 relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110" />
           <div className="relative z-10">
-            <div className="w-14 h-14 bg-surface-container-high text-on-surface-variant rounded-2xl flex items-center justify-center mb-6">
+            <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-6 shadow-sm">
               <Repeat className="w-7 h-7" />
             </div>
             <h2 className="text-2xl font-bold text-on-background mb-3">Repurposer Studio</h2>
@@ -157,11 +158,11 @@ export default function DashboardPage() {
               Turn YouTube videos, podcast transcripts, and blog posts into viral LinkedIn threads
               with a single click.
             </p>
-            <div className="flex items-center text-sm font-bold text-on-surface-variant/70 uppercase tracking-widest gap-2">
-              In Development <ArrowRight className="w-4 h-4" />
+            <div className="flex items-center text-sm font-bold text-amber-600 uppercase tracking-widest group-hover:gap-3 transition-all gap-2">
+              Launch Studio <ArrowRight className="w-4 h-4" />
             </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Mini Stats Row */}

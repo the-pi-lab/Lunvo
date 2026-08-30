@@ -60,6 +60,7 @@ function FloatingNav({ onEnter }: { onEnter: () => void }) {
         <a
           href="https://github.com/the-pi-lab/Lunvo"
           target="_blank"
+          rel="noopener noreferrer"
           className="hidden text-sm font-semibold text-zinc-600 hover:text-zinc-900 sm:inline"
         >
           GitHub
@@ -284,6 +285,7 @@ export default function EntryPage() {
             <a
               href="https://github.com/the-pi-lab/Lunvo"
               target="_blank"
+              rel="noopener noreferrer"
               className="hover:text-zinc-900"
             >
               GitHub

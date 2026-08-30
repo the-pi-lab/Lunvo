@@ -81,45 +81,37 @@ class UpstashConnector implements RateLimitConnector {
   }
 
   async check(key: string, limit: number, windowMs: number): Promise<RateLimitResult> {
-    // Upstash uses fixed window via INCR + EXPIRE via Lua. We emulate with
-    // EVAL: get count, if missing set 1 with PEXPIRE, else if count<limit INCR.
-    // REST pipeline: https://upstash.com/docs/redis/features/restapi
     const now = Date.now();
     const redisKey = `lunvo:rl:${key}`;
 
-    // Simple REST pipeline: try EVAL if available, fallback to INCR/PEXPIRE.
-    // We use INCR + TTL pattern that is atomic enough for rate limit.
     try {
-      // INCR
-      const incrRes = await fetch(`${this.url}/incr/${encodeURIComponent(redisKey)}`, {
+      // Execute INCR and PTTL together via Upstash pipeline for atomic evaluation
+      const pipeRes = await fetch(`${this.url}/pipeline`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${this.token}` },
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify([
+          ["INCR", redisKey],
+          ["PTTL", redisKey],
+        ]),
       });
-      if (!incrRes.ok) throw new Error(`upstash incr ${incrRes.status}`);
-      const incrJson = (await incrRes.json()) as { result: number };
-      const count = incrJson.result;
 
-      if (count === 1) {
-        // first hit in window -> set expire
+      if (!pipeRes.ok) throw new Error(`upstash pipeline ${pipeRes.status}`);
+      const results = (await pipeRes.json()) as Array<{ result: number }>;
+      const count = results[0]?.result ?? 1;
+      let ttl = results[1]?.result ?? -1;
+
+      // If key has no expiration set (first hit or ttl expired/missing), set it now
+      if (ttl <= 0) {
         await fetch(`${this.url}/pexpire/${encodeURIComponent(redisKey)}/${windowMs}`, {
           method: "POST",
           headers: { Authorization: `Bearer ${this.token}` },
         });
-        return {
-          allowed: true,
-          remaining: limit - 1,
-          limit,
-          resetAt: now + windowMs,
-          retryAfterMs: 0,
-        };
+        ttl = windowMs;
       }
 
-      // Need TTL to compute resetAt
-      const ttlRes = await fetch(`${this.url}/pttl/${encodeURIComponent(redisKey)}`, {
-        headers: { Authorization: `Bearer ${this.token}` },
-      });
-      const ttlJson = (await ttlRes.json()) as { result: number };
-      const ttl = ttlJson.result > 0 ? ttlJson.result : windowMs;
       const resetAt = now + ttl;
 
       if (count <= limit) {
@@ -140,7 +132,7 @@ class UpstashConnector implements RateLimitConnector {
         retryAfterMs: ttl,
       };
     } catch {
-      // Fallback to allow (fail-open) but log
+      // Fallback to allow (fail-open)
       return {
         allowed: true,
         remaining: limit,

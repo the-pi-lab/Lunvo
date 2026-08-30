@@ -35,14 +35,17 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("Connection Test Error:", error);
 
+    const rawStatus = typeof error?.statusCode === "number" ? error.statusCode : 500;
+    const httpStatus = rawStatus >= 200 && rawStatus <= 599 ? rawStatus : 500;
+
     return NextResponse.json(
       {
         success: false,
         error: error.message || "An unknown error occurred",
         provider: error.provider || "unknown",
-        statusCode: error.statusCode || 500,
+        statusCode: rawStatus,
       },
-      { status: error.statusCode || 500 }
+      { status: httpStatus }
     );
   }
 }

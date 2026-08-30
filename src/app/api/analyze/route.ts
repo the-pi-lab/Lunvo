@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, DAY_MS } from "@/lib/ai/serverLimiter";
-import { buildAnalyzePrompt } from "@/lib/ai/prompts";
+import { buildAnalyzePrompt, LINKEDIN_SYSTEM_PROMPT } from "@/lib/ai/prompts";
 import { unifiedAI, parseAIJson } from "@/lib/ai/router.unified";
 import { AnalyzeResultSchema } from "@/lib/ai/schemas";
 
@@ -61,10 +61,13 @@ export async function POST(req: NextRequest) {
     if (provider && apiKey) {
       // BYOK path — use profile
       const profile = { provider, apiKey, baseURL, model: model || "gpt-3.5-turbo" } as const;
-      const systemPrompt = buildAnalyzePrompt(post, "Professional", "Growth", "Professional");
+      const userPrompt = buildAnalyzePrompt(post, "Professional", "Growth", "Professional");
       const res = await unifiedAI({
         profile: profile as never,
-        messages: [{ role: "user", content: systemPrompt }],
+        messages: [
+          { role: "system", content: LINKEDIN_SYSTEM_PROMPT },
+          { role: "user", content: userPrompt },
+        ],
         temperature: 0.3,
         maxTokens: 1400,
       });
@@ -78,10 +81,13 @@ export async function POST(req: NextRequest) {
         process.env.NVIDIA_API_KEY_DEEPSEEK
       );
       if (hasPlatformKey) {
-        const systemPrompt = buildAnalyzePrompt(post, "Professional", "Growth", "Professional");
+        const userPrompt = buildAnalyzePrompt(post, "Professional", "Growth", "Professional");
         const res = await unifiedAI({
           plan: "free",
-          messages: [{ role: "user", content: systemPrompt }],
+          messages: [
+            { role: "system", content: LINKEDIN_SYSTEM_PROMPT },
+            { role: "user", content: userPrompt },
+          ],
           temperature: 0.3,
           maxTokens: 1400,
         } as never);

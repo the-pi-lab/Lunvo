@@ -1,7 +1,7 @@
 export interface LocalModelInfo {
   id: string;
   name: string;
-  engine: 'ollama' | 'lmstudio';
+  engine: "ollama" | "lmstudio";
 }
 
 export async function discoverLocalModels(): Promise<LocalModelInfo[]> {
@@ -9,38 +9,40 @@ export async function discoverLocalModels(): Promise<LocalModelInfo[]> {
 
   // Try Ollama
   try {
-    const ollamaResponse = await fetch('http://localhost:11434/api/tags', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+    const ollamaResponse = await fetch("http://localhost:11434/api/tags", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(1500),
     });
     if (ollamaResponse.ok) {
       const data = await ollamaResponse.json();
       if (data.models && Array.isArray(data.models)) {
         data.models.forEach((m: any) => {
-          models.push({ id: m.name, name: m.name, engine: 'ollama' });
+          models.push({ id: m.name, name: m.name, engine: "ollama" });
         });
       }
     }
   } catch (e) {
-    // Ollama not running
+    // Ollama not running or timed out
   }
 
   // Try LM Studio
   try {
-    const lmStudioResponse = await fetch('http://localhost:1234/v1/models', {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+    const lmStudioResponse = await fetch("http://localhost:1234/v1/models", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(1500),
     });
     if (lmStudioResponse.ok) {
       const data = await lmStudioResponse.json();
       if (data.data && Array.isArray(data.data)) {
         data.data.forEach((m: any) => {
-          models.push({ id: m.id, name: m.id, engine: 'lmstudio' });
+          models.push({ id: m.id, name: m.id, engine: "lmstudio" });
         });
       }
     }
   } catch (e) {
-    // LM Studio not running
+    // LM Studio not running or timed out
   }
 
   return models;
