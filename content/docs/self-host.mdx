@@ -1,0 +1,54 @@
+---
+title: Self-Host in 3 Steps
+description: Run LUNVO locally or via Docker in 30 seconds
+---
+
+# Self-Host in 3 Steps
+
+Run LUNVO fully self-hosted — local-first, no cloud required.
+
+## Step 1: Clone
+
+```bash
+git clone https://github.com/the-pi-lab/Lunvo.git
+cd Lunvo
+```
+
+## Step 2: Env
+
+```bash
+cp .env.example .env.local
+# Edit .env.local — paste at least one BYOK key:
+# GEMINI_API_KEY=AIza...  (https://aistudio.google.com)
+# or GROQ_API_KEY=gsk_... (https://console.groq.com)
+# For local LLM: OLLAMA_BASE_URL=http://localhost:11434/v1
+```
+
+> All keys can also be pasted in **Dashboard → Studio → Providers** (stored in `localStorage`, never sent to our server).
+
+## Step 3: Run
+
+**Local:**
+
+```bash
+npm install
+npm run dev
+# → http://localhost:3000
+```
+
+**Docker (node:20-alpine):**
+
+```bash
+chmod +x setup.sh && ./setup.sh
+# → http://localhost:3000 + health check
+# Manual: docker compose up -d --build
+```
+
+**Verify:**
+
+```bash
+curl http://localhost:3000/api/health
+# {"ok":true,"version":"2.0.0","mode":"local-studio"}
+```
+
+Next: [BYOK Setup](./byok) or [API Reference](./api).

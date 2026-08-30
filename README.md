@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/the-pi-lab/Lunvo/actions/workflows/ci.yml"><img src="https://github.com/the-pi-lab/Lunvo/actions/workflows/ci.yml/badge.svg" alt="Build Passing"/></a>
   <a href="https://github.com/the-pi-lab/Lunvo"><img src="https://img.shields.io/badge/version-2.0.0-004AC6.svg?style=for-the-badge" alt="version"/></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-006e2d.svg?style=for-the-badge" alt="license"/></a>
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-15-black.svg?style=for-the-badge&logo=nextdotjs" alt="nextjs"/></a>
@@ -66,22 +67,29 @@
 
 ---
 
-## ✨ See It In Action — 15s
+## ✨ See It In Action — 15s GIF
 
 <div align="center">
 
-> **Live Demo → https://lunvo.vercel.app** — Try 1 free analysis without signup.
+> **Live Demo → https://lunvo.vercel.app** — Try 1 free analysis without signup. `10s me samajh` — paste → Scout (angle + 3 hooks) → Writer (Voice DNA) → Critic (94/100) → Copy.
 
-<img src="https://via.placeholder.com/1200x675.png?text=LUNVO+Demo+GIF+%E2%80%94+Replace+with+real+screen+recording+%28Scout+Writer+Critic+live%29" alt="Demo" width="90%"/>
+<a href="https://lunvo.vercel.app"><img src="https://via.placeholder.com/1200x675.png?text=LUNVO+15s+Demo:+Scout→Writer→Critic+Live+Streaming+Word-by-Word" alt="LUNVO 15s Demo GIF — Scout Writer Critic Live" width="90%" style="border-radius:12px; border:1px solid #E5E2DA;"/></a>
 
-_Scout finds 3 hooks → Writer injects your Voice DNA → Critic scores 94/100 — all in 8s._
+_Scout finds 3 hooks → Writer streams word-by-word with your Voice DNA → Critic scores 94/100 — all in 8s. No signup, BYOK or local Ollama._
+
+<p>
+<a href="https://lunvo.vercel.app"><img src="https://img.shields.io/badge/LIVE_DEMO-Try_Now-004AC6?style=for-the-badge&logo=vercel" alt="Live Demo"/></a>
+<a href="https://vercel.com/new/clone?repository-url=https://github.com/the-pi-lab/Lunvo"><img src="https://img.shields.io/badge/Deploy_with_Vercel-000?style=for-the-badge&logo=vercel" alt="Deploy Vercel"/></a>
+<a href="https://railway.app/template/github/the-pi-lab/Lunvo"><img src="https://img.shields.io/badge/Deploy_on_Railway-0B0D0E?style=for-the-badge&logo=railway" alt="Deploy Railway"/></a>
+</p>
 
 <details>
 <summary><b>📸 Click to see more screenshots</b></summary>
 <br/>
-<img src="https://via.placeholder.com/1000x600.png?text=Dashboard+Bento+Grid+V2" width="100%"/>
-<img src="https://via.placeholder.com/1000x600.png?text=Editor+with+LinkedIn+Preview+Side-by-Side" width="100%"/>
-<img src="https://via.placeholder.com/1000x600.png?text=Voice+DNA+Tuner+4+Sliders" width="100%"/>
+<img src="https://via.placeholder.com/1000x600.png?text=Dashboard+Bento+Grid+V2+Glass+Pastel" width="100%"/>
+<img src="https://via.placeholder.com/1000x600.png?text=Editor+V2+Tiptap+Slash+Preview+Side-by-Side" width="100%"/>
+<img src="https://via.placeholder.com/1000x600.png?text=Voice+DNA+Tuner+V2+4+Sliders+Auto-fill" width="100%"/>
+<img src="https://via.placeholder.com/1000x600.png?text=Image+Studio+6+Styles+Carousel+PDF" width="100%"/>
 </details>
 
 </div>
@@ -324,6 +332,19 @@ If this saves you **$199/mo**, please drop a ⭐ — it helps us destroy paid wr
 <a href="https://github.com/the-pi-lab/Lunvo/fork"><img src="https://img.shields.io/github/forks/the-pi-lab/Lunvo?style=social" alt="forks"/></a>
 
 **Share the love:** Tweet `I just found LUNVO — open source Taplio killer. BYOK. Zero ban. Self-host in 30s. github.com/the-pi-lab/Lunvo` 🚀
+
+</div>
+
+---
+
+## 👥 Contributors — You Make LUNVO Shine
+
+<div align="center">
+
+<a href="https://github.com/the-pi-lab/Lunvo/graphs/contributors"><img src="https://contrib.rocks/image?repo=the-pi-lab/Lunvo" alt="Contributors" /></a>
+
+<br/>
+<sub>Made with [contrib.rocks](https://contrib.rocks) — Want your avatar here? PR welcome! See <code>good first issue</code></sub>
 
 </div>
 

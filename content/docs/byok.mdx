@@ -1,0 +1,34 @@
+---
+title: BYOK Setup
+description: Bring Your Own Key — 48 providers + local Ollama
+---
+
+# BYOK Setup
+
+LUNVO never stores your keys. BYOK means **your key, your provider, your bill**.
+
+## Supported Providers (48)
+
+`openai` `anthropic` `gemini` `groq` `xai` `deepseek` `mistral` `openrouter` `together` `groq` `ollama` `lmstudio` + 36 more — see `src/lib/ai/providers/registry.ts:21`.
+
+## Where to Paste Keys
+
+**Option A — Dashboard (recommended, local-only):**
+
+`Dashboard → Studio → Providers` → paste `apiKey` + `baseURL` + `model` → vault with failover (`lumvo_ai_profiles` in `localStorage`).
+
+**Option B — Env:**
+
+```bash
+GEMINI_API_KEY=AIza...
+GROQ_API_KEY=gsk_...
+NVIDIA_API_KEY_DEEPSEEK=...
+OLLAMA_BASE_URL=http://localhost:11434/v1
+```
+
+## How It Works
+
+`src/lib/ai/router.unified.ts:16` — `unifiedAI({profile})` → BYOK adapter chain (`openai-compatible`/`gemini`/`anthropic` + `src/lib/ai/profileVault.ts:1` failover), `unifiedAI({plan:"free"})` → server platform keys (weighted `deepseek`/`moonshot`).
+
+Offline: `ollama`/`lmstudio` (`http://localhost:11434/v1`) works with no internet.
+

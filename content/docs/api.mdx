@@ -1,0 +1,42 @@
+---
+title: API Reference
+description: unifiedAI() and MCP tools for programmatic use
+---
+
+# API Reference
+
+## `unifiedAI()` — Single Entry Point
+
+```ts
+import { unifiedAI } from "@/lib/ai/router.unified";
+
+const res = await unifiedAI({
+  profile, // BYOK AIProfile (or)
+  plan: "free", // server platform keys
+  messages: [{ role: "user", content: "Write a post about..." }],
+  temperature: 0.7,
+  maxTokens: 1500,
+  stream: true,
+  onChunk: (c) => console.log(c.text),
+});
+// res: { text, finishReason, usage?, latencyMs? }
+```
+
+## MCP Server
+
+Read-only tools for Claude/Cursor:
+
+```bash
+npx lunvo-mcp
+```
+
+- `search_trending({query, limit})` → RSS/HN/Dev.to/GitHub/Currents
+- `analyze_draft({content})` → `hook/readability/engagement/structure 0-10` + `isHumanScore`
+
+See `src/mcp/server.ts:1`.
+
+## REST
+
+- `POST /api/analyze` — `{post}` → `{scores, overall_score, predictedEngagementRate}`
+- `POST /api/repurpose` — `{post, youtubeUrl, target}` → `{tweets, newsletter}`
+- `GET /api/search-trending?q=AI&limit=5` → `{articles}`
