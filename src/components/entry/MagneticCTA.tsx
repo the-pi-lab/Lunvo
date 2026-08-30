@@ -3,6 +3,8 @@
 import { useRef, type ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 
+import Link from "next/link";
+
 /**
  * Magnetic button with a rotating conic-gradient border ring.
  * Pulls gently toward the cursor; springs back on leave.
@@ -10,10 +12,12 @@ import { ArrowRight } from "lucide-react";
 export default function MagneticCTA({
   children,
   onClick,
+  href,
   disabled,
 }: {
   children: ReactNode;
-  onClick: () => void;
+  onClick?: () => void;
+  href?: string;
   disabled?: boolean;
 }) {
   const wrap = useRef<HTMLButtonElement>(null);
@@ -45,14 +49,14 @@ export default function MagneticCTA({
     }, 500);
   };
 
-  return (
+  const buttonContent = (
     <button
       ref={wrap}
       onClick={onClick}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
       disabled={disabled}
-      className="group relative inline-flex rounded-[18px] p-[1.5px] overflow-hidden disabled:opacity-70"
+      className="group relative inline-flex rounded-[18px] p-[1.5px] overflow-hidden disabled:opacity-70 cursor-pointer"
       style={{ willChange: "transform" }}
     >
       {/* rotating conic ring */}
@@ -68,4 +72,14 @@ export default function MagneticCTA({
       </span>
     </button>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className="inline-block">
+        {buttonContent}
+      </Link>
+    );
+  }
+
+  return buttonContent;
 }

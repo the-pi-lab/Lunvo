@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { ArrowUpRight, Sparkles, ArrowRight } from "lucide-react";
 import SilkCanvas from "@/components/fx/SilkCanvas";
 import Cursor from "@/components/fx/Cursor";
@@ -46,7 +47,7 @@ function EditorialMarquee() {
   );
 }
 
-function FloatingNav({ onEnter }: { onEnter: () => void }) {
+function FloatingNav() {
   return (
     <header className="fixed inset-x-0 top-4 z-[95] flex justify-center px-4">
       <nav className="flex items-center gap-4 rounded-full border border-white/40 bg-white/30 px-4 py-2 shadow-lg backdrop-blur-xl">
@@ -66,12 +67,12 @@ function FloatingNav({ onEnter }: { onEnter: () => void }) {
           GitHub
         </a>
         <LocaleToggle />
-        <button
-          onClick={onEnter}
+        <Link
+          href="/dashboard"
           className="inline-flex items-center gap-1.5 rounded-full bg-zinc-900 px-4 py-1.5 text-xs font-bold text-white transition-transform hover:scale-105"
         >
           Enter <ArrowRight className="h-3.5 w-3.5" />
-        </button>
+        </Link>
       </nav>
     </header>
   );
@@ -104,10 +105,6 @@ export default function EntryPage() {
     };
   }, []);
 
-  const enter = () => {
-    window.location.href = "/dashboard";
-  };
-
   const heroLines: KineticToken[][] = [
     [{ t: "Posts that refuse" }],
     [{ t: "to" }, { t: "scroll by.", em: true }],
@@ -131,7 +128,7 @@ export default function EntryPage() {
         className="fixed top-0 left-0 right-0 z-[100] h-[3px] origin-left scale-x-0 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-blue-500"
       />
 
-      <FloatingNav onEnter={enter} />
+      <FloatingNav />
 
       {/* ===== HERO — large editorial typography as the narrative anchor ===== */}
       <section className="relative min-h-screen">
@@ -160,7 +157,7 @@ export default function EntryPage() {
           </p>
 
           <div className="mt-9 flex flex-col items-center gap-3">
-            <MagneticCTA onClick={enter}>Enter the Studio</MagneticCTA>
+            <MagneticCTA href="/dashboard">Enter the Studio</MagneticCTA>
             <span className="text-[0.625rem] font-mono uppercase tracking-[0.3em] text-violet-800/60">
               No sign-up · No card · MIT licensed
             </span>
@@ -208,7 +205,7 @@ export default function EntryPage() {
                 No sign-up. No card. Runs entirely on your machine.
               </p>
               <div className="mt-9 flex justify-center">
-                <MagneticCTA onClick={enter}>Enter the Studio</MagneticCTA>
+                <MagneticCTA href="/dashboard">Enter the Studio</MagneticCTA>
               </div>
             </div>
           </div>
@@ -244,12 +241,12 @@ export default function EntryPage() {
                   ))}
                 </div>
               </div>
-              <button
-                onClick={enter}
+              <Link
+                href="/dashboard/cloud"
                 className="shrink-0 inline-flex items-center gap-2 rounded-full bg-zinc-900 px-6 py-3 text-sm font-bold text-white shadow-lg hover:bg-zinc-800 transition-colors"
               >
                 Connect cloud <ArrowRight className="h-4 w-4" />
-              </button>
+              </Link>
             </div>
           </div>
         </Reveal>
