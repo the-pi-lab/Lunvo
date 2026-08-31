@@ -1,15 +1,17 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import type {
   Workflow,
   WorkflowNode,
+  WorkflowEdge,
   NodeType,
   WorkflowExecutionContext,
 } from "@/lib/workflow/types";
 import {
   Play,
   CheckCircle2,
+  AlertCircle,
   Loader2,
   Sparkles,
   Zap,
@@ -19,10 +21,16 @@ import {
   Code2,
   Copy,
   Check,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  X,
+  Trash2,
   Layers,
 } from "lucide-react";
-import type { AIProfile } from "@/lib/ai/types";
 import { executeWorkflow } from "@/lib/workflow/workflowRunner";
+import { getActiveAIProfile } from "@/lib/apiHelper";
+import { getVoiceDNA } from "@/lib/voice-dna/memory";
 
 interface WorkflowCanvasProps {
   workflow: Workflow;
@@ -42,6 +50,8 @@ export function WorkflowCanvas({
   const [executionResult, setExecutionResult] = useState<WorkflowExecutionContext | null>(null);
   const [copied, setCopied] = useState(false);
   const [topicInput, setTopicInput] = useState("Next.js 15 Partial Prerendering & Server Actions");
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [connectingSourceId, setConnectingSourceId] = useState<string | null>(null);
 
   // Dragging state
   const draggingNodeRef = useRef<{
@@ -53,8 +63,8 @@ export function WorkflowCanvas({
   } | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  // Handle Dragging
-  const handleMouseDown = (e: React.MouseEvent, node: WorkflowNode) => {
+  // Handle Dragging Nodes
+  const handleNodeMouseDown = (e: React.MouseEvent, node: WorkflowNode) => {
     e.stopPropagation();
     onSelectNode(node.id);
     draggingNodeRef.current = {
@@ -67,11 +77,11 @@ export function WorkflowCanvas({
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
       if (!draggingNodeRef.current) return;
-      const dx = moveEvent.clientX - draggingNodeRef.current.startX;
-      const dy = moveEvent.clientY - draggingNodeRef.current.startY;
+      const dx = (moveEvent.clientX - draggingNodeRef.current.startX) / zoomLevel;
+      const dy = (moveEvent.clientY - draggingNodeRef.current.startY) / zoomLevel;
 
-      const newX = Math.max(20, draggingNodeRef.current.initX + dx);
-      const newY = Math.max(20, draggingNodeRef.current.initY + dy);
+      const newX = Math.max(20, Math.round(draggingNodeRef.current.initX + dx));
+      const newY = Math.max(20, Math.round(draggingNodeRef.current.initY + dy));
 
       onUpdateWorkflow({
         ...workflow,
@@ -91,24 +101,66 @@ export function WorkflowCanvas({
     window.addEventListener("mouseup", handleMouseUp);
   };
 
+  // Connect edges by clicking ports
+  const handleStartConnection = (e: React.MouseEvent, nodeId: string) => {
+    e.stopPropagation();
+    setConnectingSourceId(nodeId);
+  };
+
+  const handleEndConnection = (e: React.MouseEvent, targetNodeId: string) => {
+    e.stopPropagation();
+    if (!connectingSourceId || connectingSourceId === targetNodeId) {
+      setConnectingSourceId(null);
+      return;
+    }
+
+    const edgeExists = workflow.edges.some(
+      (edge) => edge.source === connectingSourceId && edge.target === targetNodeId
+    );
+
+    if (!edgeExists) {
+      const newEdge: WorkflowEdge = {
+        id: `e-${connectingSourceId}-${targetNodeId}-${Date.now()}`,
+        source: connectingSourceId,
+        target: targetNodeId,
+      };
+      onUpdateWorkflow({
+        ...workflow,
+        edges: [...workflow.edges, newEdge],
+      });
+    }
+    setConnectingSourceId(null);
+  };
+
+  const handleDeleteEdge = (edgeId: string) => {
+    onUpdateWorkflow({
+      ...workflow,
+      edges: workflow.edges.filter((e) => e.id !== edgeId),
+    });
+  };
+
   // Run Workflow execution
   const handleRunPipeline = async () => {
     if (isRunning) return;
     setIsRunning(true);
     setExecutionResult(null);
 
-    const profile: AIProfile = {
-      id: "canvas-profile",
-      label: "Canvas Profile",
-      provider: (process.env.NEXT_PUBLIC_AI_PROVIDER as any) || "groq",
+    const savedProfile = getActiveAIProfile();
+    const profile = savedProfile || {
+      id: "default-profile",
+      label: "Default Local Profile",
+      provider: "groq" as any,
       apiKey: "",
       model: "llama-3.3-70b-versatile",
     };
+
+    const voiceDna = getVoiceDNA();
 
     try {
       const result = await executeWorkflow({
         workflow,
         profile,
+        voiceDna,
         topic: topicInput,
         onStepUpdate: (nodeId, status) => {
           setActiveStepNodeId(
@@ -189,6 +241,7 @@ export function WorkflowCanvas({
       <div className="h-14 px-5 border-b border-outline-variant/40 bg-surface-container-lowest/80 backdrop-blur-md flex items-center justify-between z-20 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-on-surface-variant">Input Topic:</span>
             <input
               type="text"
               placeholder="Enter seed topic for automation run..."
@@ -200,6 +253,18 @@ export function WorkflowCanvas({
         </div>
 
         <div className="flex items-center gap-2">
+          {connectingSourceId && (
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-xs font-bold animate-pulse">
+              <span>Click target node input port to connect</span>
+              <button
+                onClick={() => setConnectingSourceId(null)}
+                className="p-0.5 hover:bg-amber-200 rounded"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+
           {/* Run Pipeline Button */}
           <button
             onClick={handleRunPipeline}
@@ -224,131 +289,205 @@ export function WorkflowCanvas({
       {/* Canvas Grid Body */}
       <div
         ref={canvasRef}
-        onClick={() => onSelectNode(null)}
+        onClick={() => {
+          onSelectNode(null);
+          setConnectingSourceId(null);
+        }}
         className="relative flex-1 w-full h-full overflow-auto bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] cursor-grab active:cursor-grabbing"
       >
-        {/* SVG Bezier Connection Edges */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none z-0 min-w-[1400px] min-h-[900px]">
-          <defs>
-            <marker
-              id="arrow"
-              viewBox="0 0 10 10"
-              refX="6"
-              refY="5"
-              markerWidth="6"
-              markerHeight="6"
-              orient="auto-start-reverse"
-            >
-              <path d="M 0 1 L 8 5 L 0 9 z" fill="#94A3B8" />
-            </marker>
-          </defs>
+        <div
+          style={{
+            transform: `scale(${zoomLevel})`,
+            transformOrigin: "0 0",
+            minWidth: "1600px",
+            minHeight: "1000px",
+            position: "relative",
+          }}
+        >
+          {/* SVG Bezier Connection Edges */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+            <defs>
+              <marker
+                id="arrow"
+                viewBox="0 0 10 10"
+                refX="6"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 1 L 8 5 L 0 9 z" fill="#94A3B8" />
+              </marker>
+            </defs>
 
-          {workflow.edges.map((edge) => {
-            const sourceNode = workflow.nodes.find((n) => n.id === edge.source);
-            const targetNode = workflow.nodes.find((n) => n.id === edge.target);
-            if (!sourceNode || !targetNode) return null;
+            {workflow.edges.map((edge) => {
+              const sourceNode = workflow.nodes.find((n) => n.id === edge.source);
+              const targetNode = workflow.nodes.find((n) => n.id === edge.target);
+              if (!sourceNode || !targetNode) return null;
 
-            // Dimensions: Node is approx 240px wide, 90px high
-            const startX = sourceNode.position.x + 240;
-            const startY = sourceNode.position.y + 45;
-            const endX = targetNode.position.x;
-            const endY = targetNode.position.y + 45;
+              // Node dimensions: 240px wide, ~85px high
+              const startX = sourceNode.position.x + 240;
+              const startY = sourceNode.position.y + 42;
+              const endX = targetNode.position.x;
+              const endY = targetNode.position.y + 42;
 
-            const dx = Math.abs(endX - startX) * 0.5;
-            const pathData = `M ${startX} ${startY} C ${startX + dx} ${startY}, ${endX - dx} ${endY}, ${endX} ${endY}`;
-            const isEdgeActive =
-              activeStepNodeId === edge.source || activeStepNodeId === edge.target;
+              const dx = Math.abs(endX - startX) * 0.5;
+              const pathData = `M ${startX} ${startY} C ${startX + dx} ${startY}, ${endX - dx} ${endY}, ${endX} ${endY}`;
+              const isEdgeActive =
+                activeStepNodeId === edge.source || activeStepNodeId === edge.target;
+
+              return (
+                <g key={edge.id} className="group pointer-events-auto">
+                  <path
+                    d={pathData}
+                    fill="none"
+                    stroke={isEdgeActive ? "#3B82F6" : "#94A3B8"}
+                    strokeWidth={isEdgeActive ? "3.5" : "2.5"}
+                    strokeDasharray={isEdgeActive ? "6,6" : undefined}
+                    className={`${isEdgeActive ? "animate-[dash_1s_linear_infinite]" : ""} transition-colors`}
+                    markerEnd="url(#arrow)"
+                  />
+                  {/* Midpoint Delete / Label */}
+                  <g
+                    transform={`translate(${(startX + endX) / 2}, ${(startY + endY) / 2})`}
+                    className="cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteEdge(edge.id);
+                    }}
+                  >
+                    <rect
+                      x="-20"
+                      y="-10"
+                      width="40"
+                      height="20"
+                      rx="6"
+                      fill="white"
+                      stroke="#CBD5E1"
+                      className="group-hover:stroke-rose-400 group-hover:fill-rose-50"
+                    />
+                    <text
+                      x="0"
+                      y="3"
+                      fill="#64748B"
+                      fontSize="9"
+                      fontWeight="bold"
+                      textAnchor="middle"
+                      className="group-hover:fill-rose-600 select-none"
+                    >
+                      {edge.label || "✕"}
+                    </text>
+                  </g>
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* Nodes Layer */}
+          {workflow.nodes.map((node) => {
+            const { icon: NodeIcon, border, bg, ring } = getNodeVisuals(node.type);
+            const isSelected = selectedNodeId === node.id;
+            const isActive = activeStepNodeId === node.id;
 
             return (
-              <g key={edge.id}>
-                <path
-                  d={pathData}
-                  fill="none"
-                  stroke={isEdgeActive ? "#3B82F6" : "#CBD5E1"}
-                  strokeWidth={isEdgeActive ? "3" : "2"}
-                  strokeDasharray={isEdgeActive ? "6,6" : undefined}
-                  className={isEdgeActive ? "animate-[dash_1s_linear_infinite]" : ""}
-                  markerEnd="url(#arrow)"
-                />
-                {edge.label && (
-                  <text
-                    x={(startX + endX) / 2}
-                    y={(startY + endY) / 2 - 8}
-                    fill="#64748B"
-                    fontSize="10"
-                    fontWeight="bold"
-                    textAnchor="middle"
-                    className="bg-white px-1"
-                  >
-                    {edge.label}
-                  </text>
-                )}
-              </g>
-            );
-          })}
-        </svg>
-
-        {/* Nodes Layer */}
-        {workflow.nodes.map((node) => {
-          const { icon: NodeIcon, border, bg, ring } = getNodeVisuals(node.type);
-          const isSelected = selectedNodeId === node.id;
-          const isActive = activeStepNodeId === node.id;
-
-          return (
-            <div
-              key={node.id}
-              onMouseDown={(e) => handleMouseDown(e, node)}
-              style={{
-                left: `${node.position.x}px`,
-                top: `${node.position.y}px`,
-              }}
-              className={`absolute w-60 bg-white/95 backdrop-blur-md rounded-2xl border ${border} p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer z-10 ${
-                isSelected ? `ring-2 ${ring} shadow-lg` : ""
-              } ${isActive ? "ring-4 ring-blue-500 animate-pulse" : ""}`}
-            >
-              {/* Node Header */}
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className={`w-7 h-7 rounded-lg ${bg} flex items-center justify-center`}>
-                    <NodeIcon className="w-3.5 h-3.5" />
+              <div
+                key={node.id}
+                onMouseDown={(e) => handleNodeMouseDown(e, node)}
+                style={{
+                  left: `${node.position.x}px`,
+                  top: `${node.position.y}px`,
+                }}
+                className={`absolute w-60 bg-white/95 backdrop-blur-md rounded-2xl border ${border} p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer z-10 ${
+                  isSelected ? `ring-2 ${ring} shadow-lg` : ""
+                } ${isActive ? "ring-4 ring-blue-500 animate-pulse" : ""}`}
+              >
+                {/* Node Header */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-7 h-7 rounded-lg ${bg} flex items-center justify-center`}>
+                      <NodeIcon className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-on-background truncate max-w-[130px]">
+                        {node.data.label || node.id}
+                      </h4>
+                      <span className="text-[9px] uppercase tracking-wider text-on-surface-variant font-semibold">
+                        {node.type.replace(/_/g, " ")}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-on-background truncate max-w-[130px]">
-                      {node.data.label || node.id}
-                    </h4>
-                    <span className="text-[9px] uppercase tracking-wider text-on-surface-variant font-semibold">
-                      {node.type.replace(/_/g, " ")}
-                    </span>
-                  </div>
+
+                  {isActive && <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />}
                 </div>
 
-                {isActive && <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />}
-              </div>
+                {/* Node Summary details */}
+                <div className="text-[11px] text-on-surface-variant/80 bg-surface-container/50 px-2.5 py-1.5 rounded-lg font-mono truncate">
+                  {node.type === "agent_writer" && "Draft Generator"}
+                  {node.type === "agent_scout" && "Angle & Hooks"}
+                  {node.type === "agent_critic" && "1-100 Virality Audit"}
+                  {node.type === "condition_gate" &&
+                    `Gate: ${node.data.field || "score"} >= ${node.data.threshold || 85}`}
+                  {node.type === "output_webhook" && `Target: Zapier / Make`}
+                  {node.type === "trigger_rss" && `RSS: ${node.data.category || "Tech"}`}
+                  {node.type === "carousel_formatter" && "1080×1350 PDF Format"}
+                  {node.type === "humanizer_filter" && "Anti-AI Slop Filter"}
+                  {node.type === "trigger_schedule" &&
+                    `Schedule: ${node.data.timeOfDay || "09:00"}`}
+                  {node.type === "trigger_manual" && "Manual Prompt Trigger"}
+                  {node.type === "voice_dna_transform" && "Voice DNA Tone Ingest"}
+                  {node.type === "repurpose_transformer" && "Multi-Channel Formats"}
+                  {node.type === "output_draft_store" && "Local Draft Store"}
+                </div>
 
-              {/* Node Summary details */}
-              <div className="text-[11px] text-on-surface-variant/80 bg-surface-container/50 px-2.5 py-1.5 rounded-lg font-mono truncate">
-                {node.type === "agent_writer" && "Draft Generator"}
-                {node.type === "agent_scout" && "Angle & Hooks"}
-                {node.type === "agent_critic" && "1-100 Virality Audit"}
-                {node.type === "condition_gate" &&
-                  `Gate: ${node.data.field || "score"} >= ${node.data.threshold || 85}`}
-                {node.type === "output_webhook" && `Target: Zapier / Make`}
-                {node.type === "trigger_rss" && `RSS: ${node.data.category || "Tech"}`}
-                {node.type === "carousel_formatter" && "1080×1350 PDF Format"}
-                {node.type === "humanizer_filter" && "Anti-AI Slop Filter"}
-                {node.type === "trigger_schedule" && `Schedule: ${node.data.timeOfDay || "09:00"}`}
-                {node.type === "trigger_manual" && "Manual Prompt Trigger"}
-                {node.type === "voice_dna_transform" && "Voice DNA Tone Ingest"}
-                {node.type === "repurpose_transformer" && "Multi-Channel Formats"}
-                {node.type === "output_draft_store" && "Local Draft Store"}
-              </div>
+                {/* Input Port (Left) */}
+                <div
+                  onClick={(e) => handleEndConnection(e, node.id)}
+                  title="Input Port (Click to connect here)"
+                  className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-slate-200 border-2 border-white shadow-xs hover:scale-125 hover:bg-blue-500 transition-all cursor-crosshair z-20"
+                />
 
-              {/* Input & Output Ports */}
-              <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-slate-300 border-2 border-white" />
-              <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-slate-400 border-2 border-white" />
-            </div>
-          );
-        })}
+                {/* Output Port (Right) */}
+                <div
+                  onClick={(e) => handleStartConnection(e, node.id)}
+                  title="Output Port (Click to draw connection wire)"
+                  className={`absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-xs hover:scale-125 transition-all cursor-crosshair z-20 ${
+                    connectingSourceId === node.id
+                      ? "bg-amber-500 scale-125 ring-4 ring-amber-200"
+                      : "bg-slate-400 hover:bg-blue-500"
+                  }`}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Zoom & Canvas Controls (Bottom Right) */}
+      <div className="absolute bottom-5 right-5 z-20 flex items-center gap-1 bg-white/90 backdrop-blur-md p-1 rounded-2xl border border-outline-variant/60 shadow-lg">
+        <button
+          onClick={() => setZoomLevel((z) => Math.max(0.6, z - 0.1))}
+          className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors"
+          title="Zoom Out"
+        >
+          <ZoomOut className="w-4 h-4" />
+        </button>
+        <span className="text-xs font-mono font-bold px-2 text-on-surface-variant">
+          {Math.round(zoomLevel * 100)}%
+        </span>
+        <button
+          onClick={() => setZoomLevel((z) => Math.min(1.4, z + 0.1))}
+          className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors"
+          title="Zoom In"
+        >
+          <ZoomIn className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => setZoomLevel(1)}
+          className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors"
+          title="Reset Zoom"
+        >
+          <Maximize2 className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Live Output Drawer (if execution is done) */}
