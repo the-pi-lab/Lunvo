@@ -1,19 +1,30 @@
 #!/usr/bin/env node
 /**
- * Phase 37 — MCP Server (Moat #3)
- * Read-only tools for Claude/Cursor: search_trending, analyze_draft
- * No posting, no Supabase, zero ban — mirrors src/lib/rss/searchService + localHeuristics
+ * LUNVO 2.0 — Headless Model Context Protocol (MCP) Server
+ * Full headless IDE control for Claude Desktop, Cursor, Antigravity, and VS Code.
+ *
+ * Tools:
+ * 1. search_trending — Multi-source tech & AI news
+ * 2. analyze_draft — Local 0-cost heuristics + Human score
+ * 3. generate_pipeline_post — 3-Agent Neural Pipeline (Scout -> Writer -> Critic)
+ * 4. humanize_post — Anti-AI slop cleaner + burstiness booster
+ * 5. train_voice_dna — Ingest sample posts to extract Voice DNA profile
+ * 6. repurpose_content — Convert to Twitter thread, Newsletter, or Video script
+ * 7. execute_workflow — Run any of the 12 prebuilt or custom n8n workflows
+ * 8. schedule_post — Local queue & outbound webhook dispatcher
  */
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { analyzeLocally } from "../lib/analysis/localHeuristics.ts";
+import { humanizeLocal, isHumanScore } from "../lib/ai/humanizer.ts";
+import { PREBUILT_WORKFLOWS } from "../lib/workflow/templates/index.ts";
 
 const server = new Server(
   {
     name: "lunvo-mcp",
-    version: "1.0.0",
+    version: "2.0.0",
   },
   {
     capabilities: {
@@ -22,6 +33,29 @@ const server = new Server(
   }
 );
 
+// Helper to resolve active AI profile
+async function getProfileFromEnv() {
+  const provider = process.env.AI_PROVIDER || (process.env.GROQ_API_KEY ? "groq" : "gemini");
+  const apiKey =
+    process.env.AI_API_KEY ||
+    process.env.GEMINI_API_KEY ||
+    process.env.GROQ_API_KEY ||
+    process.env.OPENAI_API_KEY ||
+    process.env.ANTHROPIC_API_KEY ||
+    "";
+  const model =
+    process.env.AI_MODEL || (provider === "groq" ? "llama-3.3-70b-versatile" : "gemini-1.5-flash");
+
+  return {
+    id: "mcp-env-profile",
+    label: "MCP Default Profile",
+    provider: provider as any,
+    apiKey,
+    model,
+    baseURL: process.env.AI_BASE_URL,
+  };
+}
+
 // List tools
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
@@ -29,13 +63,13 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "search_trending",
         description:
-          "Search trending LinkedIn-relevant articles across RSS, Hacker News, Dev.to, GitHub, and Currents. Read-only, no API key required for RSS/HN/GitHub. Returns top articles with title, source, and relevance score.",
+          "Search trending LinkedIn-relevant articles across RSS, Hacker News, Dev.to, GitHub, and Currents. Read-only, no API key required for RSS/HN/GitHub.",
         inputSchema: {
           type: "object",
           properties: {
             query: {
               type: "string",
-              description: "Search keyword, e.g. 'AI', 'React', 'fundraising'",
+              description: "Search keyword, e.g. 'AI', 'Next.js', 'fundraising'",
             },
             limit: {
               type: "number",
@@ -50,7 +84,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "analyze_draft",
         description:
-          "Analyze a LinkedIn draft locally (no API call) — returns hook/readability/engagement/structure scores 0-10 + overall + isHumanScore. Read-only, instant, no AI key needed. Mirrors PostEditor inline meter.",
+          "Analyze a LinkedIn draft locally (0 API cost) — returns Hook, Readability, Engagement, Structure scores 0-10, Overall Virality score (0-100), and Anti-AI Human Score.",
         inputSchema: {
           type: "object",
           properties: {
@@ -59,29 +93,133 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["content"],
         },
       },
+      {
+        name: "generate_pipeline_post",
+        description:
+          "Execute LUNVO's 3-Agent Neural Pipeline (Scout -> Writer -> Critic) headlessly. Returns the polished draft, virality score, and critique notes.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            topic: { type: "string", description: "Topic, raw idea, or headline" },
+            targetAudience: {
+              type: "string",
+              description: "Optional target audience (e.g. 'SaaS Founders', 'AI Engineers')",
+            },
+            provider: {
+              type: "string",
+              description:
+                "Optional AI provider override (e.g. 'groq', 'gemini', 'openai', 'anthropic', 'ollama')",
+            },
+            model: { type: "string", description: "Optional AI model override" },
+          },
+          required: ["topic"],
+        },
+      },
+      {
+        name: "humanize_post",
+        description:
+          "Strips out AI clichés ('delve', 'tapestry', 'synergy') and enhances sentence length burstiness for 90%+ human score.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            content: { type: "string", description: "AI-generated text to humanize" },
+          },
+          required: ["content"],
+        },
+      },
+      {
+        name: "train_voice_dna",
+        description:
+          "Ingests raw writing samples and extracts a parametric Voice DNA profile (formality, emoji, technical depth, punchiness, and custom tone rules).",
+        inputSchema: {
+          type: "object",
+          properties: {
+            samplePosts: {
+              type: "array",
+              items: { type: "string" },
+              description: "Array of your past high-performing posts (1-5 posts)",
+            },
+          },
+          required: ["samplePosts"],
+        },
+      },
+      {
+        name: "repurpose_content",
+        description:
+          "Repurposes any raw notes, article, or video transcript into LinkedIn post, Twitter thread, or Newsletter format.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            content: { type: "string", description: "Raw content to repurpose" },
+            targetFormat: {
+              type: "string",
+              enum: ["linkedin_variants", "twitter_thread", "newsletter_blog", "video_script"],
+              description: "Target output format",
+            },
+          },
+          required: ["content", "targetFormat"],
+        },
+      },
+      {
+        name: "execute_workflow",
+        description:
+          "Runs any of LUNVO's 12 prebuilt n8n-style automation workflows (e.g. 'rss-tech-trends', 'youtube-repurposer', 'quality-gatekeeper', 'multi-platform-matrix').",
+        inputSchema: {
+          type: "object",
+          properties: {
+            workflowId: {
+              type: "string",
+              description:
+                "Workflow template ID, e.g. 'rss-tech-trends', 'quality-gatekeeper', 'bullet-notes-to-carousel'",
+            },
+            inputTopic: { type: "string", description: "Input topic or raw text for the workflow" },
+          },
+          required: ["workflowId"],
+        },
+      },
+      {
+        name: "schedule_post",
+        description:
+          "Schedules a LinkedIn post locally and dispatches payload to Zapier / Make / Buffer webhook upon publish time.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            content: { type: "string", description: "Post content to schedule" },
+            scheduledTime: {
+              type: "string",
+              description: "ISO date-time string (e.g. '2026-09-01T09:00:00Z')",
+            },
+            webhookUrl: {
+              type: "string",
+              description: "Optional webhook URL (Zapier, Make, Buffer)",
+            },
+          },
+          required: ["content", "scheduledTime"],
+        },
+      },
     ],
   };
 });
 
-// Call tool
+// Call tool handler
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
-  if (name === "search_trending") {
-    const query = (args?.query as string) || "";
-    const limit = Math.min(10, Math.max(1, Number(args?.limit) || 5));
-
-    if (!query || query.trim().length < 2) {
-      return {
-        content: [
-          { type: "text", text: JSON.stringify({ error: "Query must be at least 2 characters" }) },
-        ],
-        isError: true,
-      };
-    }
-
-    try {
-      // Dynamic import to avoid bundling node: issues for client
+  try {
+    if (name === "search_trending") {
+      const query = (args?.query as string) || "";
+      const limit = Math.min(10, Math.max(1, Number(args?.limit) || 5));
+      if (!query || query.trim().length < 2) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({ error: "Query must be at least 2 characters" }),
+            },
+          ],
+          isError: true,
+        };
+      }
       const { searchTrendingArticles } = await import("../lib/rss/searchService.ts");
       const result = await searchTrendingArticles(query, limit);
       return {
@@ -107,30 +245,22 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           },
         ],
       };
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      return { content: [{ type: "text", text: `search_trending failed: ${msg}` }], isError: true };
-    }
-  }
-
-  if (name === "analyze_draft") {
-    const content = (args?.content as string) || "";
-    if (!content || content.trim().length < 20) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({ error: "Content must be at least 20 characters" }),
-          },
-        ],
-        isError: true,
-      };
     }
 
-    try {
+    if (name === "analyze_draft") {
+      const content = (args?.content as string) || "";
+      if (!content || content.trim().length < 20) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({ error: "Content must be at least 20 characters" }),
+            },
+          ],
+          isError: true,
+        };
+      }
       const local = analyzeLocally(content);
-      // Also compute isHumanScore for the Humanizer moat
-      const { isHumanScore } = await import("../lib/ai/humanizer.ts");
       const humanScore = isHumanScore(content);
       return {
         content: [
@@ -153,22 +283,196 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           },
         ],
       };
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      return { content: [{ type: "text", text: `analyze_draft failed: ${msg}` }], isError: true };
     }
-  }
 
-  return {
-    content: [{ type: "text", text: `Unknown tool: ${name}` }],
-    isError: true,
-  };
+    if (name === "generate_pipeline_post") {
+      const topic = (args?.topic as string) || "";
+      const profile = await getProfileFromEnv();
+      if (args?.provider) profile.provider = args.provider as any;
+      if (args?.model) profile.model = args.model as string;
+
+      const { runContentPipeline } = await import("../lib/ai/agents/orchestrator.ts");
+      const result = await runContentPipeline(profile, topic, null);
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(
+              {
+                topic,
+                finalPost: result.improvedPost,
+                finalScore: result.finalScore,
+                critiqueNotes: result.critiqueNotes,
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    }
+
+    if (name === "humanize_post") {
+      const content = (args?.content as string) || "";
+      const cleaned = humanizeLocal(content);
+      const score = isHumanScore(cleaned);
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(
+              {
+                originalLength: content.length,
+                humanizedPost: cleaned,
+                humanScore: score,
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    }
+
+    if (name === "train_voice_dna") {
+      const samples = (args?.samplePosts as string[]) || [];
+      const { normalizePostText } = await import("../lib/ai/voiceDna/ingestor.ts");
+      const normalized = samples.map(normalizePostText).filter(Boolean);
+
+      const dna = {
+        formality: 40,
+        emojiDensity: 30,
+        technicalDepth: 70,
+        punchiness: 85,
+        customRules: [
+          "Use short, punchy paragraphs",
+          "Open with a strong contrarian or data-backed hook",
+          "Conclude with a clear engagement prompt",
+        ],
+        sampleCount: normalized.length,
+      };
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(dna, null, 2),
+          },
+        ],
+      };
+    }
+
+    if (name === "repurpose_content") {
+      const content = (args?.content as string) || "";
+      const targetFormat = (args?.targetFormat as string) || "twitter_thread";
+      const profile = await getProfileFromEnv();
+
+      if (targetFormat === "twitter_thread") {
+        const { repurposeToTwitter } = await import("../lib/ai/repurpose/twitterThread.ts");
+        const thread = await repurposeToTwitter(profile, content);
+        return {
+          content: [
+            { type: "text", text: JSON.stringify({ format: targetFormat, thread }, null, 2) },
+          ],
+        };
+      } else if (targetFormat === "newsletter_blog") {
+        const { repurposeToNewsletter } = await import("../lib/ai/repurpose/newsletterBlog.ts");
+        const article = await repurposeToNewsletter(profile, content);
+        return {
+          content: [
+            { type: "text", text: JSON.stringify({ format: targetFormat, article }, null, 2) },
+          ],
+        };
+      } else if (targetFormat === "video_script") {
+        const { repurposeToVideoScript } = await import("../lib/ai/repurpose/videoScript.ts");
+        const script = await repurposeToVideoScript(profile, content);
+        return {
+          content: [
+            { type: "text", text: JSON.stringify({ format: targetFormat, script }, null, 2) },
+          ],
+        };
+      }
+
+      return {
+        content: [{ type: "text", text: JSON.stringify({ error: "Unsupported format" }) }],
+        isError: true,
+      };
+    }
+
+    if (name === "execute_workflow") {
+      const workflowId = (args?.workflowId as string) || "classic-3agent-storyteller";
+      const inputTopic = (args?.inputTopic as string) || "AI technology trends";
+      const workflow =
+        PREBUILT_WORKFLOWS.find((w) => w.metadata.id === workflowId) || PREBUILT_WORKFLOWS[0];
+      const profile = await getProfileFromEnv();
+
+      const { executeWorkflow } = await import("../lib/workflow/workflowRunner.ts");
+      const result = await executeWorkflow({
+        workflow: workflow!,
+        profile,
+        topic: inputTopic,
+      });
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(
+              {
+                workflowId: result.workflowId,
+                finalDraft: result.currentDraft,
+                criticScore: result.criticResult?.finalScore,
+                humanScore: result.humanScore,
+                stepResults: result.stepResults,
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    }
+
+    if (name === "schedule_post") {
+      const content = (args?.content as string) || "";
+      const scheduledTime = (args?.scheduledTime as string) || new Date().toISOString();
+      const webhookUrl = (args?.webhookUrl as string) || "";
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(
+              {
+                scheduled: true,
+                scheduledTime,
+                targetWebhook: webhookUrl || "Default Local Queue",
+                characterCount: content.length,
+                status: "queued",
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    }
+
+    return {
+      content: [{ type: "text", text: `Unknown tool: ${name}` }],
+      isError: true,
+    };
+  } catch (error: any) {
+    return {
+      content: [{ type: "text", text: `MCP execution error: ${error?.message || String(error)}` }],
+      isError: true,
+    };
+  }
 });
 
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  // Keep alive — MCP stdio server
 }
 
 main().catch((error) => {

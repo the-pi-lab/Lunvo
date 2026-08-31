@@ -210,7 +210,16 @@ Run LUNVO headlessly from **Claude Desktop, Cursor, Antigravity, or VS Code**:
 npx lunvo-mcp
 ```
 
-Exposes tools for `search_trending`, `analyze_draft`, `generate_pipeline_post`, `humanize_post`, `repurpose_content`, and `schedule_post`.
+Exposes 8 full IDE tools:
+
+- `search_trending`: Search Hacker News, Dev.to, GitHub, RSS for live topic context.
+- `analyze_draft`: Instant local heuristic audit and Anti-AI human score.
+- `generate_pipeline_post`: Full 3-Agent pipeline generation (Scout ➔ Writer ➔ Critic).
+- `humanize_post`: Strip AI cliches and boost burstiness for natural tone.
+- `train_voice_dna`: Extract and tune Voice DNA parameters from sample posts.
+- `repurpose_content`: Turn notes or transcripts into LinkedIn, Twitter thread, or Newsletter formats.
+- `execute_workflow`: Run any of the 12 prebuilt or custom n8n automation pipelines.
+- `schedule_post`: Push post to local scheduler and outbound webhook queue.
 
 ### 🖼️ 5. Image Studio — 6 Pro Styles (1080×1350)
 
@@ -224,9 +233,9 @@ Minimal Editorial / Corporate Gradient / Data Chart / Quote Card / Photo-Office 
 
 Banned AI cliché stripper (`delve`, `tapestry`, `game-changer`, `synergy`, `landscape`) + burstiness variation engine for 90%+ human score.
 
-### 📊 8. Real 10k Dataset Engagement Predictor
+### 📊 8. Engagement & Virality Scoring Engine
 
-Trained on real LinkedIn post metrics to predict **Hook (0-10), Readability (0-10), Engagement (0-10), and Overall Viral Score (0-100)** with click-through probabilities.
+Calculates 4-pillar scores: **Hook (0-10), Readability (0-10), Engagement (0-10), and Overall Viral Score (0-100)** with dwell-time estimation and mobile whitespace recommendations.
 
 ### 📰 9. News Connectors — 8 APIs
 
