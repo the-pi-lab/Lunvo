@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   PenTool,
   BarChart2,
@@ -10,9 +10,12 @@ import {
   TrendingUp,
   Activity,
   Zap,
+  GitFork,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { getUsage, getLastER, getLastHook } from "@/lib/localStore";
+import { ModeSwitcher } from "@/components/workflow/ModeSwitcher";
 
 interface UserData {
   full_name: string;
@@ -54,7 +57,7 @@ export default function DashboardPage() {
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="space-y-8 sm:space-y-12">
+    <div className="space-y-8 sm:space-y-10">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-outline-variant/40">
         <div>
@@ -68,7 +71,8 @@ export default function DashboardPage() {
             </span>
           </h1>
         </div>
-        <div className="flex flex-col items-start md:items-end gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          <ModeSwitcher />
           <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-full border border-blue-100">
             <Activity className="w-4 h-4 text-blue-600" />
             <span className="text-xs font-bold uppercase tracking-widest text-blue-700 font-mono">
@@ -78,9 +82,39 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Bento Grid: Main Action Engines */}
+      {/* Hero Highlight Card: n8n-Style Workflow Studio */}
+      <Link
+        href="/dashboard/workflow"
+        className="group block relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 p-8 sm:p-10 text-white shadow-xl hover:shadow-2xl hover:scale-[1.005] transition-all duration-300"
+      >
+        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl group-hover:bg-blue-400/30 transition-all" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-bold uppercase tracking-wider mb-4">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>NEW: LUNVO 2.0 Node Builder</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-3">
+              Autonomous n8n-Style Workflow Canvas
+            </h2>
+            <p className="text-blue-100/80 text-sm leading-relaxed mb-4">
+              Visually assemble custom pipelines, chain condition gates (score &gt;= 85), connect
+              RSS triggers, and schedule outbound webhooks with 12 prebuilt templates.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="px-5 py-3 rounded-2xl bg-white text-blue-900 font-bold text-xs uppercase tracking-wider shadow-lg group-hover:bg-blue-50 flex items-center gap-2 transition-colors">
+              <GitFork className="w-4 h-4" />
+              <span>Open Node Canvas</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </div>
+          </div>
+        </div>
+      </Link>
+
+      {/* Bento Grid: Core Modules */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-        {/* 1. Content Factory */}
+        {/* 1. Simple Content Factory */}
         <Link
           href="/dashboard/create"
           className="group block glass glow-hover rounded-3xl p-8 !border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(37,99,235,0.08)] hover:border-blue-200 transition-all duration-300 relative overflow-hidden"
@@ -90,13 +124,13 @@ export default function DashboardPage() {
             <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-6 shadow-sm">
               <PenTool className="w-7 h-7" />
             </div>
-            <h2 className="text-2xl font-bold text-on-background mb-3">Content Factory</h2>
+            <h2 className="text-2xl font-bold text-on-background mb-3">Simple Studio</h2>
             <p className="text-on-surface-variant mb-8 max-w-sm leading-relaxed text-sm">
-              Deploy our 3-Agent Neural Pipeline (Scout → Writer → Critic) to generate highly
-              optimized LinkedIn posts from a single prompt.
+              Deploy our 3-Agent Neural Pipeline (Scout → Writer → Critic) to generate high-reach
+              LinkedIn posts instantly from a single prompt.
             </p>
             <div className="flex items-center text-sm font-bold text-blue-600 uppercase tracking-widest group-hover:gap-3 transition-all gap-2">
-              Initialize Pipeline <ArrowRight className="w-4 h-4" />
+              Launch Studio <ArrowRight className="w-4 h-4" />
             </div>
           </div>
         </Link>
