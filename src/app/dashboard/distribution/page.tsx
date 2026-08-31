@@ -4,206 +4,344 @@ import { useEffect, useState } from "react";
 import {
   Share2,
   Check,
-  ExternalLink,
-  Eye,
-  EyeOff,
-  Twitter,
-  MessageSquare,
   Zap,
+  Clock,
+  Send,
+  Trash2,
+  Plus,
+  RefreshCw,
+  ExternalLink,
+  Sliders,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
 } from "lucide-react";
 import PageHeader from "@/components/premium/PageHeader";
 import Panel from "@/components/premium/Panel";
 import Reveal from "@/components/motion/Reveal";
-
-type Platform = "zapier" | "twitter" | "reddit";
-
-const CONNECTORS: {
-  id: Platform;
-  name: string;
-  desc: string;
-  placeholder: string;
-  keyUrl: string;
-  color: string;
-}[] = [
-  {
-    id: "zapier",
-    name: "Zapier (LinkedIn)",
-    desc: "Paste your Zap webhook URL — we POST {text, image} to YOUR Zap, it posts to YOUR LinkedIn",
-    placeholder: "https://hooks.zapier.com/hooks/catch/...",
-    keyUrl: "https://zapier.com/shared/lunvo-linkedin-template",
-    color: "#FF4A00",
-  },
-  {
-    id: "twitter",
-    name: "Twitter / X",
-    desc: "BYOK — paste Bearer token from developer.twitter.com (App → Keys)",
-    placeholder: "AAAAAAAAAAAAAAAA...",
-    keyUrl: "https://developer.twitter.com/en/portal/dashboard",
-    color: "#1DA1F2",
-  },
-  {
-    id: "reddit",
-    name: "Reddit",
-    desc: "BYOK — paste OAuth token (script app) or webhook",
-    placeholder: " paste token or https://hooks...",
-    keyUrl: "https://www.reddit.com/prefs/apps",
-    color: "#FF4500",
-  },
-];
-
-const PREFIX = "lunvo_dist_";
+import {
+  getScheduledQueue,
+  deleteScheduledPost,
+  getWebhookConfigs,
+  saveWebhookConfigs,
+} from "@/lib/scheduler/queueStore";
+import { dispatchScheduledPost } from "@/lib/scheduler/webhookDispatcher";
+import { startSchedulerLoop, runSchedulerTick } from "@/lib/scheduler/localCron";
+import type { ScheduledPost, WebhookConfig } from "@/lib/scheduler/types";
 
 export default function DistributionPage() {
-  const [vals, setVals] = useState<Record<string, string>>({});
-  const [visible, setVisible] = useState<Record<string, boolean>>({});
-  const [saved, setSaved] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"queue" | "webhooks">("queue");
+  const [queue, setQueue] = useState<ScheduledPost[]>([]);
+  const [webhooks, setWebhooks] = useState<WebhookConfig[]>([]);
+  const [testingId, setTestingId] = useState<string | null>(null);
+  const [dispatchingId, setDispatchingId] = useState<string | null>(null);
+  const [feedbackMsg, setFeedbackMsg] = useState<{
+    id: string;
+    success: boolean;
+    msg: string;
+  } | null>(null);
 
+  // Initialize and start scheduler background loop
   useEffect(() => {
-    const m: Record<string, string> = {};
-    for (const c of CONNECTORS) m[c.id] = localStorage.getItem(`${PREFIX}${c.id}`) || "";
-    setVals(m);
+    refreshData();
+    startSchedulerLoop(20000); // Check every 20s
   }, []);
 
-  const save = (id: string) => {
-    localStorage.setItem(`${PREFIX}${id}`, (vals[id] || "").trim());
-    setSaved(id);
-    setTimeout(() => setSaved(null), 1500);
+  const refreshData = () => {
+    setQueue(getScheduledQueue());
+    setWebhooks(getWebhookConfigs());
   };
 
-  const test = async (id: string) => {
-    const url = vals[id];
-    if (!url) return alert("Paste webhook/token first");
+  const handleManualDispatch = async (post: ScheduledPost) => {
+    setDispatchingId(post.id);
+    const result = await dispatchScheduledPost(post);
+    setDispatchingId(null);
+    setFeedbackMsg({
+      id: post.id,
+      success: result.success,
+      msg: result.success ? "Successfully dispatched to Webhook!" : result.error || "Failed",
+    });
+    refreshData();
+    setTimeout(() => setFeedbackMsg(null), 3000);
+  };
+
+  const handleDelete = (id: string) => {
+    deleteScheduledPost(id);
+    refreshData();
+  };
+
+  const handleWebhookUrlChange = (id: string, url: string) => {
+    const updated = webhooks.map((w) => (w.id === id ? { ...w, url } : w));
+    setWebhooks(updated);
+    saveWebhookConfigs(updated);
+  };
+
+  const handleToggleWebhook = (id: string) => {
+    const updated = webhooks.map((w) => (w.id === id ? { ...w, isActive: !w.isActive } : w));
+    setWebhooks(updated);
+    saveWebhookConfigs(updated);
+  };
+
+  const handleTestWebhook = async (webhook: WebhookConfig) => {
+    if (!webhook.url) {
+      alert("Please enter a webhook URL first.");
+      return;
+    }
+    setTestingId(webhook.id);
     try {
-      // For Zapier, POST test payload
-      if (id === "zapier") {
-        await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            platform: "linkedin",
-            content: "Test from LUNVO — ignore",
-            source: "test",
-          }),
-          mode: "no-cors",
-        });
-        alert("Sent test to Zapier (check Zap history)");
-      } else {
-        alert("Saved — will be used on Post via Connector");
-      }
-    } catch (e) {
-      alert("Test failed: " + (e as Error).message);
+      const res = await fetch(webhook.url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event: "lunvo.test.ping",
+          timestamp: new Date().toISOString(),
+          message: "Hello from LUNVO 2.0 Outbound Dispatcher!",
+        }),
+        mode: "no-cors",
+      });
+      setFeedbackMsg({
+        id: webhook.id,
+        success: true,
+        msg: "Test ping sent! Check your Zapier/Make history.",
+      });
+    } catch (e: any) {
+      setFeedbackMsg({
+        id: webhook.id,
+        success: false,
+        msg: `Test failed: ${e?.message}`,
+      });
+    } finally {
+      setTestingId(null);
+      setTimeout(() => setFeedbackMsg(null), 3500);
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-10">
+    <div className="max-w-5xl mx-auto space-y-8">
       <PageHeader
-        kicker="Distribution"
-        title={
-          <>
-            Ship <em className="italic">everywhere.</em>
-          </>
-        }
-        description="BYOC — your keys, your accounts. LinkedIn via Zapier (your webhook), Twitter/Reddit direct. No central API approval needed."
+        kicker="Distribution Engine"
+        title="Distribution & Webhook Scheduler"
+        description="Schedule posts and dispatch outbound webhooks to Zapier, Make, and Buffer — 100% Zero-Ban."
       />
 
-      <div className="grid gap-4">
-        {CONNECTORS.map((c, idx) => (
-          <Reveal key={c.id} delay={idx * 0.04}>
-            <Panel
-              icon={c.id === "zapier" ? Zap : c.id === "twitter" ? Twitter : MessageSquare}
-              eyebrow={vals[c.id] ? "Connected" : "Not connected"}
-              title={c.name}
-              subtitle={c.desc}
-              aside={
-                vals[c.id] ? (
-                  <span className="px-2 py-1 rounded-md bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 text-[0.625rem] font-bold uppercase tracking-widest">
-                    Active
-                  </span>
-                ) : (
-                  <span className="px-2 py-1 rounded-md bg-surface-container-high text-on-surface-variant ring-1 ring-outline-variant/30 text-[0.625rem] font-bold uppercase tracking-widest">
-                    Idle
-                  </span>
-                )
-              }
-            >
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <input
-                      type={visible[c.id] ? "text" : "password"}
-                      value={vals[c.id] || ""}
-                      onChange={(e) => setVals((m) => ({ ...m, [c.id]: e.target.value }))}
-                      placeholder={c.placeholder}
-                      className="w-full rounded-lg bg-surface-container-low ring-1 ring-outline-variant/40 focus:ring-2 focus:ring-primary/30 px-3.5 py-2.5 pr-10 text-sm font-mono text-on-background outline-none"
-                    />
-                    <button
-                      onClick={() => setVisible((v) => ({ ...v, [c.id]: !v[c.id] }))}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-on-surface-variant/50 hover:text-primary"
-                    >
-                      {visible[c.id] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => save(c.id)}
-                    className="shrink-0 px-5 py-2.5 rounded-lg bg-zinc-950 text-white text-xs font-bold uppercase tracking-wider hover:bg-zinc-800 active:scale-[0.98] transition-all"
-                  >
-                    {saved === c.id ? <Check className="w-4 h-4" /> : "Save"}
-                  </button>
-                </div>
-                <div className="flex items-center gap-3 text-xs">
-                  <a
-                    href={c.keyUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-primary hover:underline"
-                  >
-                    Get key <ExternalLink className="w-3 h-3" />
-                  </a>
-                  <button
-                    onClick={() => test(c.id)}
-                    className="ml-auto text-xs font-bold uppercase tracking-wider text-on-surface-variant hover:text-primary"
-                  >
-                    Test
-                  </button>
-                  <span className="text-[0.625rem] font-mono uppercase tracking-widest text-on-surface-variant/40">
-                    Stored locally
-                  </span>
-                </div>
-                {c.id === "zapier" && (
-                  <p className="text-xs text-on-surface-variant/70 leading-relaxed">
-                    Create Zap: Trigger <b>Catch Hook</b> → Action <b>LinkedIn Create Share</b>.
-                    Copy webhook URL, paste above. Each user uses <b>their own</b> Zap (free 100
-                    tasks/month ≈ 3 posts/day).
-                  </p>
-                )}
-              </div>
-            </Panel>
-          </Reveal>
-        ))}
+      {/* Tabs */}
+      <div className="flex items-center gap-2 p-1 bg-surface-container/60 rounded-2xl w-fit border border-outline-variant/40">
+        <button
+          onClick={() => setActiveTab("queue")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "queue"
+              ? "bg-white text-primary shadow-sm"
+              : "text-on-surface-variant hover:text-on-background"
+          }`}
+        >
+          <Clock className="w-4 h-4" />
+          <span>Scheduled Queue ({queue.filter((q) => q.status === "queued").length})</span>
+        </button>
+        <button
+          onClick={() => setActiveTab("webhooks")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === "webhooks"
+              ? "bg-white text-primary shadow-sm"
+              : "text-on-surface-variant hover:text-on-background"
+          }`}
+        >
+          <Share2 className="w-4 h-4" />
+          <span>Webhook Connectors ({webhooks.filter((w) => w.url).length})</span>
+        </button>
       </div>
 
-      <Panel
-        icon={Share2}
-        eyebrow="How it ships"
-        title="1 post → 3 platforms"
-        subtitle="Full machine"
-      >
-        <p className="text-sm text-on-surface-variant leading-relaxed">
-          Write once in <b>Create</b>, generate image in <b>Image Studio</b> (toggle
-          Relevancy/Prompt), then <b>Distribute</b>:{" "}
-          <code className="px-1.5 py-0.5 rounded bg-surface-container text-xs font-mono">Copy</code>{" "}
-          +{" "}
-          <code className="px-1.5 py-0.5 rounded bg-surface-container text-xs font-mono">
-            Share
-          </code>{" "}
-          +{" "}
-          <code className="px-1.5 py-0.5 rounded bg-surface-container text-xs font-mono">
-            Connector
-          </code>
-          . Repurpose page will also use these connectors for Thread/Newsletter/Video.
-        </p>
-      </Panel>
+      {/* Tab 1: Scheduled Queue */}
+      {activeTab === "queue" && (
+        <Reveal>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-on-background uppercase tracking-wider">
+                Upcoming Scheduled Dispatches
+              </h3>
+              <button
+                onClick={() => {
+                  runSchedulerTick();
+                  refreshData();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-surface-container hover:bg-surface-container-high transition-colors"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Check Due Posts</span>
+              </button>
+            </div>
+
+            {queue.length === 0 ? (
+              <div className="p-12 text-center rounded-3xl bg-surface-container/30 border border-outline-variant/40 space-y-3">
+                <Clock className="w-8 h-8 text-on-surface-variant/50 mx-auto" />
+                <h4 className="text-sm font-bold text-on-background">No Scheduled Posts Yet</h4>
+                <p className="text-xs text-on-surface-variant max-w-sm mx-auto">
+                  Posts scheduled from the Simple Studio or Node Builder will queue up here and
+                  dispatch automatically.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {queue.map((item) => {
+                  const isQueued = item.status === "queued";
+                  const isDispatched = item.status === "dispatched";
+                  const isFailed = item.status === "failed";
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="p-5 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all hover:border-outline-variant/80"
+                    >
+                      <div className="space-y-1.5 max-w-xl">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${
+                              isQueued
+                                ? "bg-amber-100 text-amber-800"
+                                : isDispatched
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : "bg-rose-100 text-rose-800"
+                            }`}
+                          >
+                            {item.status}
+                          </span>
+                          <span className="text-xs font-mono text-on-surface-variant flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            {new Date(item.scheduledTime).toLocaleString()}
+                          </span>
+                          {item.criticScore && (
+                            <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md">
+                              Score: {item.criticScore}/100
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-xs text-on-background line-clamp-2 leading-relaxed">
+                          {item.content}
+                        </p>
+
+                        {feedbackMsg?.id === item.id && (
+                          <div
+                            className={`text-xs font-semibold ${
+                              feedbackMsg.success ? "text-emerald-600" : "text-rose-600"
+                            }`}
+                          >
+                            {feedbackMsg.msg}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        {isQueued && (
+                          <button
+                            onClick={() => handleManualDispatch(item)}
+                            disabled={dispatchingId === item.id}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary/90 transition-colors disabled:opacity-50"
+                          >
+                            <Send className="w-3.5 h-3.5" />
+                            <span>{dispatchingId === item.id ? "Sending..." : "Dispatch Now"}</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="p-2 text-on-surface-variant hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </Reveal>
+      )}
+
+      {/* Tab 2: Webhook Connectors */}
+      {activeTab === "webhooks" && (
+        <Reveal>
+          <div className="space-y-6">
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 flex items-start gap-3">
+              <Zap className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+              <div>
+                <h4 className="text-xs font-bold text-blue-950">How Safe Scheduling Works</h4>
+                <p className="text-[11px] text-blue-900 leading-relaxed mt-0.5">
+                  LUNVO sends structured JSON payloads directly to your private Zapier, Make.com, or
+                  Buffer webhooks. Your workflow receives the text, scores, and carousels, and
+                  publishes them safely through official integrations.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {webhooks.map((w) => (
+                <div
+                  key={w.id}
+                  className="p-6 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 shadow-xs space-y-4"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-surface-container text-primary flex items-center justify-center font-bold text-xs">
+                        {w.platform[0]?.toUpperCase()}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-on-background">{w.name}</h4>
+                        <span className="text-[10px] text-on-surface-variant font-mono uppercase">
+                          Platform: {w.platform}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={w.isActive}
+                          onChange={() => handleToggleWebhook(w.id)}
+                          className="rounded border-outline-variant text-primary focus:ring-primary"
+                        />
+                        <span>Active Target</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-on-background mb-1">
+                      Webhook Catch URL
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="url"
+                        placeholder="https://hooks.zapier.com/hooks/catch/..."
+                        value={w.url}
+                        onChange={(e) => handleWebhookUrlChange(w.id, e.target.value)}
+                        className="flex-1 text-xs px-3.5 py-2.5 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
+                      />
+                      <button
+                        onClick={() => handleTestWebhook(w)}
+                        disabled={testingId === w.id || !w.url}
+                        className="px-4 py-2.5 rounded-xl text-xs font-bold bg-surface-container hover:bg-surface-container-high transition-colors disabled:opacity-40 shrink-0"
+                      >
+                        {testingId === w.id ? "Pinging..." : "Test Webhook"}
+                      </button>
+                    </div>
+                    {feedbackMsg?.id === w.id && (
+                      <p
+                        className={`text-xs font-semibold mt-2 ${
+                          feedbackMsg.success ? "text-emerald-600" : "text-rose-600"
+                        }`}
+                      >
+                        {feedbackMsg.msg}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+      )}
     </div>
   );
 }
