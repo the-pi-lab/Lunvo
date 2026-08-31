@@ -12,7 +12,7 @@ _Visual Node Automations · Real Webhook Scheduling · 24/7 Telegram Remote Bot 
 [![License](https://img.shields.io/badge/license-MIT-006e2d.svg?style=for-the-badge)](LICENSE)
 [![Stars](https://img.shields.io/github/stars/the-pi-lab/Lunvo?style=for-the-badge&logo=github&color=FFB400)](https://github.com/the-pi-lab/Lunvo/stargazers)
 
-[**English**](./README.md) | [**हिंदी (Hindi)**](./README_hi.md) | [**Live Demo**](https://lunvo.vercel.app) | [**Report a Bug**](https://github.com/the-pi-lab/Lunvo/issues)
+[**Live Demo**](https://lunvo.vercel.app) | [**Deploy on Railway**](https://railway.app/new/template?template=https://github.com/the-pi-lab/Lunvo) | [**Report a Bug**](https://github.com/the-pi-lab/Lunvo/issues)
 
 <!-- Dynamic social banner -->
 <img src="https://socialify.git.ci/the-pi-lab/Lunvo/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Circuit%20Board&theme=Dark" alt="LUNVO Banner" width="100%"/>
@@ -35,9 +35,9 @@ _Visual Node Automations · Real Webhook Scheduling · 24/7 Telegram Remote Bot 
 
 ## 🤯 Why LUNVO?
 
-Most LinkedIn AI tools are **$39-$199/mo closed SaaS wrappers** around simple GPT calls. They use unauthorized browser extensions that scrape cookies and risk **permanent account bans**.
+Most LinkedIn AI tools are **$39-$199/mo closed SaaS wrappers** around simple GPT calls. They use unauthorized browser extensions that scrape session cookies, which exposes your account to **permanent LinkedIn bans**.
 
-**LUNVO is different.** It is 100% open-source, BYOK (Bring Your Own Key), and runs entirely locally. It gives you a **Visual Node Builder**, a **3-Agent Neural Pipeline**, **Real Outbound Webhook Scheduling**, and **24/7 Telegram Remote Control** — without risking your account.
+**LUNVO is fundamentally different.** It is 100% open-source, BYOK (Bring Your Own Key), and runs completely on your machine. It provides a visual **n8n-Style Node Builder**, an orchestrated **3-Agent Neural Pipeline**, **Real Outbound Webhook Scheduling**, and **24/7 Telegram Remote Bot Control** — without ever risking your LinkedIn account.
 
 | Feature                        | Taplio          | Supergrow     | AuthoredUp  | **LUNVO 2.0 (Open Source)**                              |
 | :----------------------------- | :-------------- | :------------ | :---------- | :------------------------------------------------------- |
@@ -55,48 +55,48 @@ Most LinkedIn AI tools are **$39-$199/mo closed SaaS wrappers** around simple GP
 
 ---
 
-## 🌟 Core Features
+## 🌟 Futuristic Features
 
 ### ⚡ 1. n8n-Style Visual Node Builder (12 Prebuilts)
 
-Build, customize, and chain your own content automations on an interactive visual canvas:
+Build, chain, and customize your own autonomous AI content pipelines with a visual drag-and-drop canvas:
 
-- **12 Production Templates**: Daily RSS Tech News to Post, YouTube Video Repurposer, Bullet Notes to 5-Slide Carousel PDF, Self-Healing Quality Gatekeeper (Retry loop if Score < 85), Multi-Platform Matrix (LinkedIn + X + Newsletter), and more.
-- **Per-Node AI Routing**: Assign fast Groq Llama-3.3 for Scout brainstorming, Claude 3.5 Sonnet for Writer drafting, and DeepSeek for strict critique.
-- **Shareable JSON**: Export and import pipeline templates in 1 click.
+- **12 Production Prebuilt Templates**: Daily RSS Tech News to Post, YouTube Video Repurposer, Bullet Notes to 5-Slide Carousel PDF, Self-Healing Quality Gatekeeper (Retry if Score < 85), Multi-Platform Matrix (LinkedIn + X + Newsletter), and more.
+- **Per-Node AI Model Routing**: Assign Groq Llama-3.3 for lightning-fast Scout brainstorming, Claude 3.5 Sonnet for creative narrative drafting, and DeepSeek / Gemini for strict critique.
+- **Shareable Pipeline JSON**: 1-click export and import of workflow templates with your team or community.
 
 ### 🌐 2. Real Webhook Scheduler (Zapier / Make / Buffer)
 
 True hands-off scheduling with **100% Zero-Ban Safety**:
 
-- Set target publish times (_e.g. Tomorrow at 9:00 AM_).
+- Set target publish timestamps (_e.g. Tomorrow at 9:00 AM_).
 - Dispatches formatted payloads (Post copy, character metrics, tags, and Carousel PDF base64) directly to **Zapier, Make.com, Buffer, or Pipedream** webhooks.
-- No browser scrapers, no cookie hijacking, zero ban risk.
+- No browser extensions, no cookie hijacking, zero ban risk.
 
 ### 📱 3. 24/7 Telegram Remote Bot Companion
 
-Leave LUNVO running on your local machine, home server, or Raspberry Pi and **control everything from your smartphone**:
+Leave LUNVO running on your local machine, home server, or Raspberry Pi and **control your entire LinkedIn content engine from your smartphone**:
 
-- `/idea <topic>` ➔ Generates a full post with your active Voice DNA and sends it to Telegram in 10s.
+- `/idea <topic>` ➔ Generates a full post with your active Voice DNA and delivers it directly to your Telegram chat in 10s.
 - `/approve` ➔ Immediately dispatches the post to your scheduled webhook queue.
 - `/trending` ➔ Fetches today's top 5 AI & tech trends on your phone.
 - `/queue` ➔ Views upcoming scheduled posts for the week.
 
-### 🤖 4. The 3-Agent Neural Pipeline
+### 🤖 4. The 3-Agent Content Pipeline
 
-Why use a single prompt when you can have an editorial team?
+Why use one prompt when you can have an entire editorial team?
 
-- **🕵️‍♂️ Scout Agent**: Analyzes live trends and creates 3 distinct viral hooks (Data, Story, Controversial).
-- **✍️ Writer Agent**: Drafts the post word-by-word strictly matching your cadence and Voice DNA.
-- **🧐 Critic Agent**: Audits readability, eliminates fluff, formats mobile whitespace, and outputs a 1-100 Virality Score.
+- **🕵️‍♂️ Scout Agent**: Finds viral trends, analyzes angles, and creates 3 distinct hooks (Data, Story, Controversial).
+- **✍️ Writer Agent**: Drafts the post word-by-word strictly following your unique formatting, cadence, and Voice DNA.
+- **🧐 Critic Agent**: Audits the draft against the LinkedIn algorithm, removes fluff, fixes whitespace, and assigns a Virality Score (1-100).
 
 ### 🧬 5. Voice DNA Technology
 
-Configure your **Voice DNA** with 4 interactive sliders (Formality, Emoji Usage, Technical Depth, Punchiness). LUNVO injects your unique linguistic fingerprint into every prompt so the AI sounds authentically like **YOU**.
+Configure your **Voice DNA** with 4 interactive sliders (Formality, Emoji Usage, Technical Depth, Punchiness). LUNVO saves this schema locally and dynamically injects it into every prompt so the AI sounds authentically like **YOU**.
 
-### 🛡️ 6. Anti-AI Humanizer (Moat #2)
+### 🛡️ 6. Anti-AI Humanizer Engine
 
-Strips out dead giveaways of AI writing (`delve`, `tapestry`, `game-changer`, `synergy`) and dynamically adjusts sentence length variation (burstiness) for a **90%+ human score**.
+Strips out dead giveaways of AI writing (`delve`, `tapestry`, `game-changer`, `synergy`, `landscape`) and dynamically adjusts sentence length variation (burstiness) for a **90%+ human score**.
 
 ### 🎠 7. Carousel PDF Generator (1080×1350)
 
@@ -104,11 +104,11 @@ Convert raw ideas or posts into high-engagement **1080×1350 multi-slide PDF car
 
 ### 🔄 8. Multi-Channel Repurposer Studio
 
-Turn a single LinkedIn post or YouTube transcript into a multi-channel campaign with one click:
+Turn a single LinkedIn post or YouTube transcript into a multi-channel empire with one click:
 
-- 🐦 **Twitter Thread**: Hook-optimized and auto-numbered.
+- 🐦 **Twitter Thread**: Automatically numbered and hook-optimized.
 - 💌 **Newsletter / Blog**: Expanded long-form deep dive.
-- 🎥 **Video Script**: 60-second visual/audio script for Reels & Shorts.
+- 🎥 **Video Script**: 60-second visual/audio script for TikTok, Reels & Shorts.
 
 ### 🔌 9. Headless Model Context Protocol (MCP) Server
 
@@ -129,6 +129,14 @@ No vendor lock-in. Connect any provider in seconds:
 - 🔵 **Google AI** (Gemini 1.5 Pro / Flash)
 - 🟠 **Groq** (Llama 3.3 70B @ 300 tokens/sec)
 - 🦙 **Local Offline** (Ollama / LM Studio)
+
+### 📊 11. Real 10k Dataset Engagement Predictor
+
+Trained on real LinkedIn post metrics to predict **Hook (0-10), Readability (0-10), Engagement (0-10), and Overall Viral Score (0-100)** with click-through probabilities.
+
+### 📰 12. News Connectors & Live Trends
+
+Integrates with 8 real-time news sources (Currents, NewsAPI, GNews, Mediastack, Hacker News, Dev.to, GitHub Trending, and RSS) to supply timely industry context to your posts.
 
 ---
 
@@ -187,5 +195,5 @@ Want to make LUNVO even better? Check out our [Contributing Guidelines](CONTRIBU
 
 <div align="center">
   <b>Built with ❤️ by The Pi Lab</b><br>
-  If you find LUNVO helpful, please leave a ⭐ on GitHub!
+  If you found this tool helpful, please leave a ⭐ on GitHub!
 </div>
