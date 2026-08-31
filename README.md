@@ -1,12 +1,12 @@
-﻿<div align="center">
+<div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=004AC6&height=220&text=LUNVO&fontSize=80&fontColor=ffffff&animation=fadeIn&desc=The%20Open%20Source%20LinkedIn%20OS&descAlignY=75" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=004AC6&height=220&text=LUNVO%202.0&fontSize=80&fontColor=ffffff&animation=fadeIn&desc=Autonomous%20Content%20OS%20%E2%80%94%20Node%20Builder%20%C2%B7%20Webhook%20Scheduler%20%C2%B7%20Telegram%20Bot&descAlignY=75" width="100%"/>
 
-[![Typing SVG](https://readme-typing-svg.herokuapp.com?font=JetBrains+Mono&weight=700&size=22&duration=2200&pause=800&color=004AC6&center=true&vCenter=true&width=900&lines=Zero-Ban.+BYOK.+Local-First.;3-Agent+AI+Pipeline+that+writes+like+YOU.;The+Taplio+Killer+—+100%25+Free+%26+Self-Hostable.)](https://git.io/typing-svg)
+[![Typing SVG](<https://readme-typing-svg.herokuapp.com?font=JetBrains+Mono&weight=700&size=22&duration=2200&pause=800&color=004AC6&center=true&vCenter=true&width=900&lines=LUNVO+2.0:+The+Autonomous+LinkedIn+OS.;n8n-Style+Visual+Node+Builder+%2B+12+Prebuilt+Templates.;Real+Webhook+Scheduling+(Zapier%2FMake)+%2B+Telegram+Remote+Bot.;100%25+Free+%26+Self-Hostable.+Zero-Ban+Guaranteed.>)](https://git.io/typing-svg)
 
 <p align="center">
-  <b>The Ultimate, Locally-Hosted, Zero-Ban AI Content Factory for LinkedIn.</b><br/>
-  <i>Write like a human. Scale like a machine. No SaaS subscriptions. No vendor lock-in.</i>
+  <b>The World's First Autonomous, Locally-Hosted AI Content Operating System for LinkedIn.</b><br/>
+  <i>Visual Node Automations. Real Webhook Scheduling. 24/7 Telegram Remote Bot. 100% Open Source.</i>
 </p>
 
 <p align="center">
@@ -16,29 +16,25 @@
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-15-black.svg?style=for-the-badge&logo=nextdotjs" alt="nextjs"/></a>
   <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.6-3178C6.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="ts"/></a>
   <a href="https://github.com/the-pi-lab/Lunvo/stargazers"><img src="https://img.shields.io/github/stars/the-pi-lab/Lunvo?style=for-the-badge&logo=github&color=FFB400" alt="stars"/></a>
-  <a href="https://github.com/the-pi-lab/Lunvo/issues"><img src="https://img.shields.io/github/issues/the-pi-lab/Lunvo?style=for-the-badge&color=FF3B30" alt="issues"/></a>
 </p>
 
 <p align="center">
   <a href="https://lunvo.vercel.app"><img src="https://img.shields.io/badge/LIVE_DEMO-lunvo.vercel.app-004AC6?style=for-the-badge&logo=vercel" alt="demo"/></a>
+  <a href="https://railway.app/new/template?template=https://github.com/the-pi-lab/Lunvo"><img src="https://img.shields.io/badge/Deploy_on_Railway-0B0D0E?style=for-the-badge&logo=railway" alt="deploy railway"/></a>
   <a href="#-quick-start-30-seconds"><img src="https://img.shields.io/badge/Self--Host-30s-006e2d?style=for-the-badge&logo=docker" alt="self-host"/></a>
-  <a href="https://github.com/the-pi-lab/Lunvo/issues/new?labels=good+first+issue"><img src="https://img.shields.io/badge/Good_First_Issue-Claim_it-824500?style=for-the-badge" alt="gfi"/></a>
 </p>
 
 <p align="center">
   <a href="./README.md"><b>English</b></a> | <a href="./README_hi.md">हिंदी</a> — <code>/hi/dashboard</code> live via <code>next-intl</code>
 </p>
 
-<img src="https://socialify.git.ci/the-pi-lab/Lunvo/image?description=1&font=Inter&language=1&name=1&owner=1&pattern=Circuit%20Board&theme=Dark" alt="LUNVO Banner" width="100%"/>
-
-<br/>
-
 <table align="center">
 <tr>
 <td align="center"><b>$0/mo</b><br/><sub>vs $199 Taplio Pro</sub></td>
-<td align="center"><b>Zero-Ban</b><br/><sub>No unofficial API, only Clipboard</sub></td>
-<td align="center"><b>BYOK</b><br/><sub>OpenAI / Claude / Gemini / Groq / Ollama</sub></td>
-<td align="center"><b>Self-Host</b><br/><sub>1-click Docker / Vercel</sub></td>
+<td align="center"><b>n8n Node Builder</b><br/><sub>12 Prebuilt Automation Flows</sub></td>
+<td align="center"><b>Real Webhook Schedule</b><br/><sub>Zapier / Make / Buffer Dispatch</sub></td>
+<td align="center"><b>Telegram Remote</b><br/><sub>24/7 Phone Control via Bot</sub></td>
+<td align="center"><b>Zero-Ban</b><br/><sub>No unofficial scrapers, 100% Safe</sub></td>
 </tr>
 </table>
 
@@ -46,22 +42,23 @@
 
 ---
 
-## 🤯 Why LUNVO? Paid Tools Are Ripping You Off
+## 🤯 Why LUNVO 2.0? Paid Tools Are Ripping You Off
 
-> Most LinkedIn AI tools are **$39-$199/mo SaaS wrappers** around the same GPT call — plus they use **unauthorized browser extensions** that can get your LinkedIn **permanently banned**.
+> Traditional LinkedIn AI tools are **$39-$199/mo closed SaaS wrappers** that lock you into generic GPT prompts and use risky browser extensions that can get your LinkedIn account **permanently banned**.
 
-|                  | Taplio                  | Supergrow  | AuthoredUp | **LUNVO v2**                             |
-| ---------------- | :---------------------- | :--------- | :--------- | :--------------------------------------- |
-| **Price**        | $39-$199/mo             | $19-$69/mo | $19/mo     | **$0 — MIT Open Source**                 |
-| **AI Router**    | Locked to GPT           | Locked     | None       | **BYOK: 8 providers + Ollama**           |
-| **Voice Clone**  | Generic prompt          | Template   | Manual     | **Voice DNA (4 sliders + auto-extract)** |
-| **Pipeline**     | Single prompt           | Single     | None       | **3-Agent: Scout → Writer → Critic**     |
-| **Viral Score**  | Basic                   | No         | No         | **Real 10k posts dataset predictor**     |
-| **Carousel PDF** | Pro only                | No         | No         | **Built-in, 5 templates FREE**           |
-| **Humanizer**    | No                      | No         | No         | **Anti-AI-Slop 90%+ human**              |
-| **Ban Risk**     | Medium (unofficial API) | Medium     | Low        | **Zero — Clipboard only**                |
-| **Self-Host**    | No                      | No         | No         | **Docker in 30s**                        |
-| **MCP Server**   | No                      | No         | No         | **Yes, Claude-ready**                    |
+| Feature                        | Taplio          | Supergrow     | AuthoredUp  | **LUNVO 2.0 (Open Source)**                              |
+| :----------------------------- | :-------------- | :------------ | :---------- | :------------------------------------------------------- |
+| **Pricing**                    | $39-$199/mo     | $19-$69/mo    | $19/mo      | **$0 — MIT Open Source**                                 |
+| **Node Automation Engine**     | ❌ None         | ❌ None       | ❌ None     | **✅ n8n-Style Visual Canvas (12 Prebuilts)**            |
+| **Real Auto-Scheduling**       | Risky Scraper   | Risky Scraper | Manual only | **✅ Outbound Webhooks (Zapier / Make / Buffer)**        |
+| **Remote Phone Control**       | ❌ None         | ❌ None       | ❌ None     | **✅ 24/7 Telegram Companion Bot (`/idea`, `/approve`)** |
+| **AI Model Routing**           | Locked to GPT   | Locked        | None        | **✅ BYOK: 8 Providers + Offline Ollama / LMStudio**     |
+| **Voice DNA Cloning**          | Generic prompt  | Template      | Manual      | **✅ 4 Parametric Sliders + Auto Ingestion**             |
+| **Neural Pipeline**            | Single prompt   | Single        | None        | **✅ 3-Agent: Scout ➔ Writer ➔ Critic**                  |
+| **Carousel 1080×1350 PDF**     | Pro only ($99+) | ❌ None       | ❌ None     | **✅ Built-in 5 Templates, 100% Free**                   |
+| **Anti-AI Humanizer**          | ❌ None         | ❌ None       | ❌ None     | **✅ Banned phrase stripper + Burstiness booster**       |
+| **Headless MCP Control**       | ❌ None         | ❌ None       | ❌ None     | **✅ `npx lunvo-mcp` for Claude Desktop / Cursor**       |
+| **Self-Host & 1-Click Deploy** | ❌ No           | ❌ No         | ❌ No       | **✅ 1-Click Vercel, Railway, Docker in 30s**            |
 
 **LUNVO is the first open source project that gives you Taplio + Supergrow + ViralBrain + AuthoredUp — without paying a rupee and without risking your account.**
 
@@ -202,33 +199,56 @@ All AI keys can also be pasted in **Dashboard → Settings → AI Config** (stor
 
 ## 🎨 Features That No One Else Has Open Source
 
-### 🖼️ Image Studio — 6 Pro Styles (NEW v2.1)
+### ⚡ 1. n8n-Style Visual Node Builder (NEW v2.0)
 
-Minimal Editorial / Corporate Gradient / Data Chart / Quote Card / Photo-Office / Carousel Text → **1080×1350** `Relevancy (from post)` vs `Prompt` toggle, `src/lib/ai/image/presets.ts:1` + fallback canvas, integrated in `src/app/dashboard/create/page.tsx:1` (always visible).
+Build, chain, and customize your own autonomous AI content pipelines with a visual drag-and-drop canvas:
 
-### 📰 News Connectors — 8 APIs (NEW)
+- **12 Production Prebuilt Templates**: Daily RSS Tech News to Post, YouTube Video Repurposer, Bullet Notes to 5-Slide Carousel PDF, Self-Healing Quality Gatekeeper (Retry if Score < 85), Multi-Platform Matrix (LinkedIn + X + Newsletter), and more.
+- **Per-Node AI Model Routing**: Assign Groq Llama-3.3 for lightning-fast Scout brainstorming, Claude 3.5 Sonnet for creative narrative drafting, and DeepSeek / Gemini for strict critique.
+- **Shareable Pipeline JSON**: 1-click export and import of workflow templates with your team or community.
 
-Currents, NewsAPI, GNews, Mediastack, NewsData, TheNewsAPI, WorldNews, Bing — `src/lib/news/providers.ts:1` + `src/app/dashboard/news/page.tsx:1` BYOC `localStorage lunvo_news_key_*`, daily hooks via `src/lib/rss/aiService.ts:1` + `src/lib/news/newsCache.ts:1` 6hr TTL.
+### 🌐 2. Real Webhook Scheduler Engine (Zapier / Make / Buffer)
 
-### 🎠 Carousel Generator (Moat #1)
+True hands-off scheduling with **100% Zero-Ban Safety**:
 
-5 templates (Minimal / Bold / Data / Quote / Checklist) → **1080×1350 PDF** `src/lib/carousel/generator.ts:1` via `jspdf` — the most viral format. Paid tools charge Pro for this.
+- Set target publish timestamps (e.g. _Tomorrow at 9:00 AM_).
+- Dispatches formatted payloads (Post copy, character metrics, tags, and Carousel PDF base64) directly to **Zapier, Make.com, Buffer, or Pipedream** webhooks.
+- No risky browser extensions, no cookie hijackers, zero LinkedIn account bans.
 
-### 🛡️ Humanizer — Anti-AI-Slop (Moat #2)
+### 📱 3. 24/7 Telegram Remote Bot Companion
 
-Banned phrases `src/lib/ai/prompts.ts:25` + `src/lib/ai/humanizer.ts:7` `BANNED_AI_PHRASES` burstiness 90%+ human, toggle in `src/components/create/PostEditor.tsx:1` with meter.
+Leave LUNVO running on your local machine, home server, or Raspberry Pi and **control your entire LinkedIn content engine from your smartphone**:
 
-### 🔌 Universal AI Router — BYOK (48 providers)
+- `/idea <topic>` ➔ Generates a full post with your active Voice DNA and delivers it directly to your Telegram chat in 10s.
+- `/approve` ➔ Immediately dispatches the post to your scheduled webhook queue.
+- `/trending` ➔ Fetches today's top 5 AI & tech trends on your phone.
+- `/queue` ➔ Views upcoming scheduled posts for the week.
 
-OpenAI, Anthropic, Gemini, Groq, Nvidia, OpenRouter, **Ollama (local)**, LM Studio — one `AIProfile` type `src/lib/ai/types.ts:1`. No vendor lock-in. Offline mode fully works. `src/lib/ai/serverLimiter.ts:1` memory/Upstash/custom.
+### 🔌 4. Headless Model Context Protocol (MCP) Server
 
-### 📊 Engagement Predictor — Real Data, Not Vibes
+Run LUNVO headlessly from **Claude Desktop, Cursor, Antigravity, or VS Code**:
 
-Trained on `LinkedIn_Post_Engagement_Analytics_Medium.csv` (10k posts). Predicts **hook/readability/engagement/structure 0-10 + overall/10** + `predictedEngagementRate %` — not fake scores. See `src/lib/ai/engagementPredictor.ts:1` + `src/lib/ai/scoringEngine.ts:1`.
+```bash
+npx lunvo-mcp
+```
 
-### 🔌 MCP Server — Claude-Ready
+Exposes tools for `search_trending`, `analyze_draft`, `generate_pipeline_post`, `humanize_post`, `repurpose_content`, and `schedule_post`.
 
-`src/mcp/server.ts` exposes `search_trending` + `analyze_draft` to Claude/Cursor. Read-only, no scraping, zero ban. Like `stickerdaniel/linkedin-mcp-server` but safe.
+### 🖼️ 5. Image Studio — 6 Pro Styles (1080×1350)
+
+Minimal Editorial / Corporate Gradient / Data Chart / Quote Card / Photo-Office / Carousel Text → `1080×1350` aspect ratio optimized for LinkedIn mobile feed.
+
+### 🎠 6. Carousel PDF Generator (Moat #1)
+
+5 templates (Minimal / Bold / Data / Quote / Checklist) → **1080×1350 PDF** via `jspdf` — the single highest-reach format on LinkedIn.
+
+### 🛡️ 7. Anti-AI Humanizer (Moat #2)
+
+Banned AI cliché stripper (`delve`, `tapestry`, `game-changer`, `synergy`) + burstiness variation engine for 90%+ human score.
+
+### 📊 8. Real 10k Dataset Engagement Predictor
+
+Trained on real LinkedIn post metrics to predict **Hook (0-10), Readability (0-10), Engagement (0-10), and Overall Viral Score (0-100)** with click-through probabilities.
 
 ---
 
