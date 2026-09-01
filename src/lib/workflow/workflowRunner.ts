@@ -12,6 +12,7 @@ import { runCriticAgent, type CriticResult } from "@/lib/ai/agents/criticAgent";
 import { humanizeLocal, isHumanScore } from "@/lib/ai/humanizer";
 import { saveDraft } from "@/lib/localStore";
 import { resolveNewsContext } from "@/lib/news/newsCache";
+import { isSafeWebhookUrl } from "@/lib/scheduler/webhookDispatcher";
 
 export interface RunWorkflowOptions {
   workflow: Workflow;
@@ -334,7 +335,14 @@ What is your experience with this? Drop your thoughts below.`;
     case "output_webhook": {
       const webhookUrl = (node.data as any).url;
       if (!webhookUrl || typeof fetch === "undefined") {
-        return { dispatched: false, reason: "No webhook URL" };
+        return { dispatched: false, reason: "No webhook URL provided" };
+      }
+      const safeCheck = isSafeWebhookUrl(webhookUrl);
+      if (!safeCheck.valid) {
+        return {
+          dispatched: false,
+          error: safeCheck.reason || "Blocked dangerous webhook destination",
+        };
       }
       const payload = {
         event: "lunvo.post.publish",
@@ -351,6 +359,7 @@ What is your experience with this? Drop your thoughts below.`;
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(12000),
         });
         return { dispatched: res.ok, status: res.status };
       } catch (e: any) {

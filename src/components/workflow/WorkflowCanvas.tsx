@@ -67,6 +67,8 @@ export function WorkflowCanvas({
   const handleNodeMouseDown = (e: React.MouseEvent, node: WorkflowNode) => {
     e.stopPropagation();
     onSelectNode(node.id);
+    let hasDragged = false;
+
     draggingNodeRef.current = {
       id: node.id,
       startX: e.clientX,
@@ -79,6 +81,10 @@ export function WorkflowCanvas({
       if (!draggingNodeRef.current) return;
       const dx = (moveEvent.clientX - draggingNodeRef.current.startX) / zoomLevel;
       const dy = (moveEvent.clientY - draggingNodeRef.current.startY) / zoomLevel;
+
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        hasDragged = true;
+      }
 
       const newX = Math.max(20, Math.round(draggingNodeRef.current.initX + dx));
       const newY = Math.max(20, Math.round(draggingNodeRef.current.initY + dy));
@@ -289,9 +295,11 @@ export function WorkflowCanvas({
       {/* Canvas Grid Body */}
       <div
         ref={canvasRef}
-        onClick={() => {
-          onSelectNode(null);
-          setConnectingSourceId(null);
+        onClick={(e) => {
+          if (e.target === canvasRef.current || (e.target as HTMLElement).tagName === "svg") {
+            onSelectNode(null);
+            setConnectingSourceId(null);
+          }
         }}
         className="relative flex-1 w-full h-full overflow-auto bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] cursor-grab active:cursor-grabbing"
       >
@@ -393,12 +401,16 @@ export function WorkflowCanvas({
               <div
                 key={node.id}
                 onMouseDown={(e) => handleNodeMouseDown(e, node)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectNode(node.id);
+                }}
                 style={{
                   left: `${node.position.x}px`,
                   top: `${node.position.y}px`,
                 }}
                 className={`absolute w-60 bg-white/95 backdrop-blur-md rounded-2xl border ${border} p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer z-10 ${
-                  isSelected ? `ring-2 ${ring} shadow-lg` : ""
+                  isSelected ? `ring-2 ${ring} shadow-lg ring-offset-2` : ""
                 } ${isActive ? "ring-4 ring-blue-500 animate-pulse" : ""}`}
               >
                 {/* Node Header */}
