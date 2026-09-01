@@ -10,6 +10,7 @@ import {
   Share2,
   Cloud,
   GitFork,
+  Bot,
 } from "lucide-react";
 
 export interface NavItem {
@@ -22,6 +23,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Overview", href: "/dashboard", icon: Home },
   { label: "Workflows", href: "/dashboard/workflow", icon: GitFork },
   { label: "Create", href: "/dashboard/create", icon: PenTool },
+  { label: "Telegram", href: "/dashboard/telegram", icon: Bot },
   { label: "Analyze", href: "/dashboard/analyze", icon: BarChart2 },
   { label: "Studio", href: "/dashboard/studio", icon: BrainCircuit },
   { label: "News", href: "/dashboard/news", icon: Newspaper },
