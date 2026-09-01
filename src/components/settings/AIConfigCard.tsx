@@ -76,6 +76,10 @@ export function AIConfigCard() {
   const [addError, setAddError] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [localModels, setLocalModels] = useState<LocalModelInfo[]>([]);
+  const [discoveredModels, setDiscoveredModels] = useState<
+    { id: string; name: string; isLive?: boolean }[]
+  >([]);
+  const [isFetchingModels, setIsFetchingModels] = useState(false);
 
   const refresh = useCallback(() => {
     setVault(getVault());
@@ -86,6 +90,41 @@ export function AIConfigCard() {
     refresh();
   }, [refresh]);
 
+  // Dynamic live model discovery when provider, key, or baseURL changes
+  useEffect(() => {
+    let active = true;
+    const timeoutId = setTimeout(async () => {
+      if (!draft.provider) return;
+      setIsFetchingModels(true);
+      try {
+        const res = await fetch("/api/ai/models", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            provider: draft.provider,
+            apiKey: draft.apiKey,
+            baseURL: draft.baseURL,
+          }),
+        });
+        if (res.ok && active) {
+          const data = await res.json();
+          if (data.models && Array.isArray(data.models) && data.models.length > 0) {
+            setDiscoveredModels(data.models);
+          }
+        }
+      } catch {
+        // ignore
+      } finally {
+        if (active) setIsFetchingModels(false);
+      }
+    }, 400);
+
+    return () => {
+      active = false;
+      clearTimeout(timeoutId);
+    };
+  }, [draft.provider, draft.apiKey, draft.baseURL]);
+
   // Background discovery of local models
   useEffect(() => {
     if (draft.provider === "ollama" || draft.provider === "lmstudio") {
@@ -95,6 +134,7 @@ export function AIConfigCard() {
 
   const handleProviderSelect = (def: ProviderDef) => {
     setSelectedDef(def);
+    setDiscoveredModels((def.models || []).map((m) => ({ id: m, name: m, isLive: false })));
     setDraft({
       provider: def.id as AIProvider,
       apiKey: "",
@@ -315,32 +355,58 @@ export function AIConfigCard() {
             />
           </div>
 
-          {/* Model */}
+          {/* Dynamic Model Dropdown */}
           <div>
-            <label className="block text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono mb-1.5">
-              Model
-            </label>
-            {draft.provider === "ollama" &&
-            localModels.filter((m) => m.engine === "ollama").length > 0 ? (
-              <select
-                value={draft.model}
-                onChange={(e) => setDraft({ ...draft, model: e.target.value })}
-                className="w-full rounded-[8px] bg-surface-container-lowest ring-1 ring-[rgba(229,226,218,0.5)] px-3 py-2 text-sm font-mono text-on-background outline-none"
-              >
-                {localModels
-                  .filter((m) => m.engine === "ollama")
-                  .map((m) => (
-                    <option key={m.name} value={m.name}>
-                      {m.name}
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/60 font-mono">
+                Model{" "}
+                {isFetchingModels && (
+                  <span className="text-primary normal-case font-sans animate-pulse">
+                    · Discovering live models...
+                  </span>
+                )}
+              </label>
+              {discoveredModels.some((m) => m.isLive) && (
+                <span className="text-[0.625rem] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-mono">
+                  ● Live API Connected
+                </span>
+              )}
+            </div>
+
+            {discoveredModels.length > 0 ? (
+              <div className="space-y-2">
+                <select
+                  value={draft.model}
+                  onChange={(e) => setDraft({ ...draft, model: e.target.value })}
+                  className="w-full rounded-[8px] bg-surface-container-lowest ring-1 ring-[rgba(229,226,218,0.5)] focus:ring-2 focus:ring-primary/30 px-3 py-2 text-sm font-mono text-on-background outline-none transition-all"
+                >
+                  {discoveredModels.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name || m.id} {m.isLive ? "✓" : ""}
                     </option>
                   ))}
-              </select>
+                  <option value="__custom__">+ Enter Custom Model Name...</option>
+                </select>
+
+                {/* If custom model selected or not in discovered list */}
+                {(!discoveredModels.some((m) => m.id === draft.model) ||
+                  draft.model === "__custom__") && (
+                  <input
+                    type="text"
+                    placeholder="Enter custom model ID (e.g. mistral-large, llama3:latest)"
+                    value={draft.model === "__custom__" ? "" : draft.model}
+                    onChange={(e) => setDraft({ ...draft, model: e.target.value })}
+                    className="w-full rounded-[8px] bg-surface-container-lowest ring-1 ring-primary/40 focus:ring-2 focus:ring-primary/30 px-3 py-1.5 text-xs font-mono text-on-background outline-none"
+                  />
+                )}
+              </div>
             ) : (
               <>
                 <input
                   list="provider-models"
                   value={draft.model}
                   onChange={(e) => setDraft({ ...draft, model: e.target.value })}
+                  placeholder="e.g. gpt-4o-mini, llama-3.3-70b-versatile"
                   className="w-full rounded-[8px] bg-surface-container-lowest ring-1 ring-[rgba(229,226,218,0.5)] focus:ring-2 focus:ring-primary/30 px-3 py-2 text-sm font-mono text-on-background outline-none transition-all"
                 />
                 <datalist id="provider-models">
