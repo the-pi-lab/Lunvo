@@ -45,6 +45,14 @@ export const BANNED_AI_PHRASES = [
   "cutting-edge",
   "revolutionary",
   "groundbreaking",
+  "paradigm shift",
+  "boils down to",
+  "at the end of the day",
+  "move the needle",
+  "think outside the box",
+  "low-hanging fruit",
+  "seamlessly",
+  "foster",
 ];
 
 const CONTRACTIONS: Record<string, string> = {

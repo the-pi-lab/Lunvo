@@ -431,6 +431,67 @@ async function callGroq(
   return text;
 }
 
+/**
+ * Balanced brace JSON extractor — safely ignores braces/colons inside string literals.
+ */
+function extractBalancedJson(raw: string): string | null {
+  let inString = false;
+  let escape = false;
+  let startIdx = -1;
+  let braceCount = 0;
+  let bracketCount = 0;
+  let targetType: "object" | "array" | null = null;
+
+  for (let i = 0; i < raw.length; i++) {
+    const char = raw[i];
+
+    if (escape) {
+      escape = false;
+      continue;
+    }
+
+    if (char === "\\") {
+      escape = true;
+      continue;
+    }
+
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (!inString) {
+      if (startIdx === -1) {
+        if (char === "{") {
+          startIdx = i;
+          braceCount = 1;
+          targetType = "object";
+        } else if (char === "[") {
+          startIdx = i;
+          bracketCount = 1;
+          targetType = "array";
+        }
+      } else {
+        if (targetType === "object") {
+          if (char === "{") braceCount++;
+          else if (char === "}") {
+            braceCount--;
+            if (braceCount === 0) return raw.substring(startIdx, i + 1);
+          }
+        } else if (targetType === "array") {
+          if (char === "[") bracketCount++;
+          else if (char === "]") {
+            bracketCount--;
+            if (bracketCount === 0) return raw.substring(startIdx, i + 1);
+          }
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
 export function parseAIJson<T>(rawText: string): T {
   let cleaned = rawText.trim();
 
@@ -444,26 +505,17 @@ export function parseAIJson<T>(rawText: string): T {
   try {
     return JSON.parse(cleaned) as T;
   } catch {
-    // 2. Extract outermost JSON object { ... } or array [ ... ]
-    const firstBrace = cleaned.indexOf("{");
-    const lastBrace = cleaned.lastIndexOf("}");
-    const firstBracket = cleaned.indexOf("[");
-    const lastBracket = cleaned.lastIndexOf("]");
-
-    let jsonTarget = cleaned;
-    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-      jsonTarget = cleaned.substring(firstBrace, lastBrace + 1);
-    } else if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
-      jsonTarget = cleaned.substring(firstBracket, lastBracket + 1);
-    }
+    // 2. Extract balanced JSON structure
+    const balanced = extractBalancedJson(cleaned);
+    const jsonTarget = balanced || cleaned;
 
     try {
       return JSON.parse(jsonTarget) as T;
     } catch {
       // 3. Repair common LLM syntax flaws on the extracted JSON target
       const repaired = jsonTarget
-        .replace(/,\s*([\]}])/g, "$1")
-        .replace(/([{,])\s*([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
+        .replace(/,\s*([\]}])/g, "$1") // Remove trailing commas
+        .replace(/(['"])?([a-zA-Z0-9_]+)(['"])?\s*:\s*/g, '"$2":'); // Standardize keys
 
       try {
         return JSON.parse(repaired) as T;

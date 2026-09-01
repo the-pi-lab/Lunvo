@@ -45,7 +45,7 @@ const ENGAGEMENT_PATTERNS = {
     image: { avgEngagement: 4.2, variance: 1.1 },
     text: { avgEngagement: 4.0, variance: 0.8 },
   },
-  
+
   // Hashtag impact (correlation from data)
   hashtags: {
     none: { multiplier: 0.85, note: "Lower visibility" },
@@ -115,9 +115,7 @@ const CTA_IMPACT = {
 /**
  * Predict engagement rate for a post
  */
-export function predictEngagementRate(
-  metrics: PostMetrics
-): PredictedScore {
+export function predictEngagementRate(metrics: PostMetrics): PredictedScore {
   let baseScore = 4.0; // Average LinkedIn engagement rate
   const breakdown = {
     contentLengthScore: 0,
@@ -131,9 +129,7 @@ export function predictEngagementRate(
 
   // 1. POST TYPE IMPACT (25% of score)
   const typeData =
-    ENGAGEMENT_PATTERNS.byPostType[
-      metrics.postType as keyof typeof ENGAGEMENT_PATTERNS.byPostType
-    ];
+    ENGAGEMENT_PATTERNS.byPostType[metrics.postType as keyof typeof ENGAGEMENT_PATTERNS.byPostType];
   const typeScore = (typeData.avgEngagement / 4.0) * 10; // Normalize to 10
   breakdown.postTypeScore = typeScore;
   baseScore += (typeScore - 4) * 0.25;
@@ -141,9 +137,7 @@ export function predictEngagementRate(
   if (metrics.postType === "video") {
     insights.push("✅ Videos get 5.1% avg engagement (highest)");
   } else {
-    insights.push(
-      `📊 ${metrics.postType} posts average ${typeData.avgEngagement}% engagement`
-    );
+    insights.push(`📊 ${metrics.postType} posts average ${typeData.avgEngagement}% engagement`);
   }
 
   // 2. HASHTAG IMPACT (15% of score)
@@ -159,9 +153,7 @@ export function predictEngagementRate(
     insights.push("✅ Optimal hashtag count (" + metrics.hashtagCount + ")");
   } else if (metrics.hashtagCount <= 10) {
     hashtagMultiplier = 1.05;
-    insights.push(
-      "⚠️ " + metrics.hashtagCount + " hashtags (diminishing returns)"
-    );
+    insights.push("⚠️ " + metrics.hashtagCount + " hashtags (diminishing returns)");
   } else {
     hashtagMultiplier = 0.95;
     insights.push("❌ Too many hashtags (" + metrics.hashtagCount + ") - looks spammy");
@@ -181,9 +173,7 @@ export function predictEngagementRate(
     insights.push("✅ Good mobile-friendly length (" + contentLen + " chars)");
   } else if (contentLen <= 400) {
     lengthMultiplier = 1.15;
-    insights.push(
-      "✅ Optimal length sweet spot (" + contentLen + " chars) - highest engagement"
-    );
+    insights.push("✅ Optimal length sweet spot (" + contentLen + " chars) - highest engagement");
   } else if (contentLen <= 500) {
     lengthMultiplier = 1.0;
     insights.push("✅ Good length (" + contentLen + " chars)");
@@ -195,16 +185,32 @@ export function predictEngagementRate(
   baseScore = baseScore * lengthMultiplier * 0.15 + baseScore * (1 - 0.15);
 
   // 4. TIMING IMPACT (15% of score)
-  const dayMultiplier = ENGAGEMENT_PATTERNS.byDayOfWeek[
-    metrics.dayOfWeek as keyof typeof ENGAGEMENT_PATTERNS.byDayOfWeek
-  ] || 1.0;
-  breakdown.timingScore = dayMultiplier * 10;
-  baseScore = baseScore * dayMultiplier * 0.15 + baseScore * (1 - 0.15);
+  const dayMultiplier =
+    ENGAGEMENT_PATTERNS.byDayOfWeek[
+      metrics.dayOfWeek as keyof typeof ENGAGEMENT_PATTERNS.byDayOfWeek
+    ] || 1.0;
+
+  let hourMultiplier = 1.0;
+  if (typeof metrics.postHour === "number") {
+    const h = metrics.postHour;
+    if (h >= 8 && h < 10)
+      hourMultiplier = 1.1; // Early morning
+    else if (h >= 10 && h < 12) hourMultiplier = 0.95;
+    else if (h >= 12 && h < 14)
+      hourMultiplier = 1.05; // Lunch
+    else if (h >= 14 && h < 16) hourMultiplier = 1.0;
+    else if (h >= 16 && h < 18)
+      hourMultiplier = 1.15; // Late afternoon peak
+    else if (h >= 18 && h < 20) hourMultiplier = 1.05;
+    else hourMultiplier = 0.85; // Night low
+  }
+
+  const timingMultiplier = (dayMultiplier + hourMultiplier) / 2;
+  breakdown.timingScore = timingMultiplier * 10;
+  baseScore = baseScore * timingMultiplier * 0.15 + baseScore * (1 - 0.15);
 
   if (metrics.dayOfWeek === "Tuesday" || metrics.dayOfWeek === "Friday") {
-    insights.push(
-      "✅ Posting on " + metrics.dayOfWeek + " (peak engagement day)"
-    );
+    insights.push("✅ Posting on " + metrics.dayOfWeek + " (peak engagement day)");
   } else if (metrics.dayOfWeek === "Saturday" || metrics.dayOfWeek === "Sunday") {
     insights.push("⚠️ Weekend posts get 5-10% lower engagement");
   }
@@ -212,8 +218,7 @@ export function predictEngagementRate(
   // 5. HOOK QUALITY (20% of score)
   let hookMultiplier = 1.0;
   if (metrics.hookType && HOOK_IMPACT[metrics.hookType as keyof typeof HOOK_IMPACT]) {
-    hookMultiplier =
-      HOOK_IMPACT[metrics.hookType as keyof typeof HOOK_IMPACT] / 1.2; // Normalize
+    hookMultiplier = HOOK_IMPACT[metrics.hookType as keyof typeof HOOK_IMPACT] / 1.2; // Normalize
     insights.push(
       "✅ " +
         metrics.hookType.replace(/_/g, " ") +
@@ -240,11 +245,8 @@ export function predictEngagementRate(
   }
 
   // CALCULATE FINAL SCORE
-  const predictedEngagementRate = Math.min(
-    8.5,
-    Math.max(1.5, baseScore)
-  );
-  
+  const predictedEngagementRate = Math.min(8.5, Math.max(1.5, baseScore));
+
   // Confidence (higher if we have more data)
   const confidence = Math.min(
     95,
@@ -285,7 +287,7 @@ export function convertLegacyScore(
 ): number {
   // Old system scores 0-10 in each category
   const avgScore = (hookScore + readabilityScore + engagementScore + structureScore) / 4;
-  
+
   // Map old score to engagement prediction
   // Old 8/10 should become ~4.5% (realistic)
   // Old 6/10 should become ~3% (below average)
@@ -293,9 +295,8 @@ export function convertLegacyScore(
 
   // Post type adjustment
   const typeMultiplier =
-    ENGAGEMENT_PATTERNS.byPostType[
-      postType as keyof typeof ENGAGEMENT_PATTERNS.byPostType
-    ]?.avgEngagement / 4.0 || 1.0;
+    ENGAGEMENT_PATTERNS.byPostType[postType as keyof typeof ENGAGEMENT_PATTERNS.byPostType]
+      ?.avgEngagement / 4.0 || 1.0;
 
   return Math.min(8.0, Math.max(1.0, mapped * typeMultiplier));
 }
