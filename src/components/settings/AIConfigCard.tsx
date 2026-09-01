@@ -269,7 +269,8 @@ export function AIConfigCard() {
                     <button
                       onClick={() => handleSetActive(profile)}
                       title="Set active"
-                      className="p-1.5 rounded-[6px] text-on-surface-variant/50 hover:text-primary hover:bg-primary/10 transition-colors"
+                      aria-label={`Set ${profile.label || profile.provider} as active provider`}
+                      className="p-1.5 rounded-[6px] text-on-surface-variant/50 hover:text-primary hover:bg-primary/10 transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                     >
                       <Star className="w-3.5 h-3.5" />
                     </button>
@@ -281,7 +282,8 @@ export function AIConfigCard() {
                   <button
                     onClick={() => handleRemove(profile.id ?? "")}
                     title="Remove"
-                    className="p-1.5 rounded-[6px] text-on-surface-variant/50 hover:text-error hover:bg-error/10 transition-colors"
+                    aria-label={`Remove ${profile.label || profile.provider} from key vault`}
+                    className="p-1.5 rounded-[6px] text-on-surface-variant/50 hover:text-error hover:bg-error/10 transition-colors focus-visible:ring-2 focus-visible:ring-error focus-visible:outline-none"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>

@@ -103,10 +103,12 @@ function SilkPlane({
   intensity,
   speed,
   tint,
+  isVisible,
 }: {
   intensity: number;
   speed: number;
   tint: "aurora" | "purple";
+  isVisible: boolean;
 }) {
   const mat = useRef<THREE.ShaderMaterial>(null);
   const mouse = useRef(new THREE.Vector2(0, 0));
@@ -136,6 +138,7 @@ function SilkPlane({
   }, []);
 
   useFrame((state) => {
+    if (!isVisible) return; // 0 CPU/GPU calculation when tab or element is hidden
     const u = mat.current?.uniforms as
       | {
           uTime: { value: number };
@@ -177,24 +180,52 @@ export default function SilkCanvas({
   className?: string;
 }) {
   const [ok, setOk] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setOk(!reduced);
+
+    // Pause rendering when tab is hidden (saves CPU & battery)
+    const handleVisibilityChange = () => {
+      setIsVisible(!document.hidden);
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // IntersectionObserver to pause when out of viewport
+    let observer: IntersectionObserver | null = null;
+    if (containerRef.current) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+          if (entry) setIsVisible(entry.isIntersecting && !document.hidden);
+        },
+        { threshold: 0.05 }
+      );
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (observer) observer.disconnect();
+    };
   }, []);
 
-  if (!ok) return <div className={`absolute inset-0 ${className}`} aria-hidden />;
+  if (!ok)
+    return <div ref={containerRef} className={`absolute inset-0 ${className}`} aria-hidden />;
 
   return (
-    <div className={`absolute inset-0 ${className}`} aria-hidden>
+    <div ref={containerRef} className={`absolute inset-0 ${className}`} aria-hidden>
       <Canvas
-        dpr={[1, 1.5]}
+        dpr={[1, 1.25]}
+        frameloop={isVisible ? "always" : "never"}
         gl={{ antialias: false, alpha: false, powerPreference: "high-performance" }}
         camera={{ position: [0, 0, 1] }}
         style={{ position: "absolute", inset: 0 }}
       >
-        <SilkPlane intensity={intensity} speed={speed} tint={tint} />
+        <SilkPlane intensity={intensity} speed={speed} tint={tint} isVisible={isVisible} />
       </Canvas>
     </div>
   );

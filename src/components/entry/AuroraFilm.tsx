@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame } from "@react-three/fiber";
 import { RoundedBox, Environment, Float, ContactShadows } from "@react-three/drei";
-import { useRef, useMemo, Suspense } from "react";
+import { useRef, useMemo, useState, useEffect, Suspense } from "react";
 import * as THREE from "three";
 import type { StoryState } from "./storyState";
 
@@ -157,11 +157,20 @@ export default function AuroraFilm({
   story: React.MutableRefObject<StoryState>;
   shardCount: number;
 }) {
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const handleVisibility = () => setIsVisible(!document.hidden);
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+
   return (
     <div className="absolute inset-0" aria-hidden>
       <Canvas
         camera={{ position: [0, 0, 7], fov: 38 }}
-        dpr={[1, 1.5]}
+        dpr={[1, 1.25]}
+        frameloop={isVisible ? "always" : "never"}
         gl={{ antialias: true, alpha: true }}
         style={{ background: "transparent" }}
       >
