@@ -11,6 +11,7 @@ import {
   Cloud,
   GitFork,
   Bot,
+  Terminal,
 } from "lucide-react";
 
 export interface NavItem {
@@ -24,6 +25,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Workflows", href: "/dashboard/workflow", icon: GitFork },
   { label: "Create", href: "/dashboard/create", icon: PenTool },
   { label: "Telegram", href: "/dashboard/telegram", icon: Bot },
+  { label: "MCP Suite", href: "/dashboard/mcp", icon: Terminal },
   { label: "Analyze", href: "/dashboard/analyze", icon: BarChart2 },
   { label: "Studio", href: "/dashboard/studio", icon: BrainCircuit },
   { label: "News", href: "/dashboard/news", icon: Newspaper },
