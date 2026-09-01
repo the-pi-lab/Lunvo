@@ -178,7 +178,7 @@ export default function PrivacyPolicyPage() {
         </p>
         <div className="mt-8 flex items-center gap-4 text-[0.6875rem] font-mono text-on-surface-variant/40">
           <span className="bg-surface-container px-3 py-1 rounded-[4px]">
-            Revision: v2.4.5 (April 2024)
+            Revision: v2.0.0 (September 2026)
           </span>
         </div>
       </section>
@@ -223,7 +223,7 @@ export default function PrivacyPolicyPage() {
           <div>
             <span className="font-serif italic text-xl text-on-background">LUNVO</span>
             <p className="text-[0.6875rem] text-on-surface-variant/50 font-mono mt-1">
-              © 2024 THE Π LAB. ALL RIGHTS RESERVED.
+              © 2026 THE Π LAB. ALL RIGHTS RESERVED.
             </p>
           </div>
           <div className="flex gap-8 text-[0.875rem] font-medium text-on-surface-variant">

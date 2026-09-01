@@ -208,6 +208,34 @@ export async function checkRateLimit(
   return connector.check(key, limit, windowMs);
 }
 
-/** Convenience: daily window (24h) */
+/**
+ * Extracts a secure client IP address from request headers.
+ */
+export function extractClientIp(req: {
+  headers: { get: (name: string) => string | null };
+}): string {
+  // Cloudflare
+  const cfIp = req.headers.get("cf-connecting-ip");
+  if (cfIp && cfIp.trim()) return cfIp.trim();
+
+  // Standard reverse proxy
+  const realIp = req.headers.get("x-real-ip");
+  if (realIp && realIp.trim()) return realIp.trim();
+
+  // Vercel / AWS ALB
+  const vercelIp = req.headers.get("x-vercel-forwarded-for");
+  if (vercelIp && vercelIp.trim()) return vercelIp.split(",")[0]!.trim();
+
+  // Forwarded for header (take leftmost)
+  const forwarded = req.headers.get("x-forwarded-for");
+  if (forwarded && forwarded.trim()) {
+    const firstIp = forwarded.split(",")[0]!.trim();
+    if (firstIp) return firstIp;
+  }
+
+  return "127.0.0.1";
+}
+
+/** Convenience: daily and minute windows */
 export const DAY_MS = 24 * 60 * 60 * 1000;
 export const MINUTE_MS = 60 * 1000;

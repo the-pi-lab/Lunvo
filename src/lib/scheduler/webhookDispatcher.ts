@@ -36,6 +36,52 @@ export function buildOutboundPayload(post: ScheduledPost): OutboundPayload {
 }
 
 /**
+ * Validates that a webhook URL is safe against SSRF attacks.
+ */
+export function isSafeWebhookUrl(urlString: string): { valid: boolean; reason?: string } {
+  try {
+    const url = new URL(urlString.trim());
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return { valid: false, reason: "Only HTTP/HTTPS webhook protocols are permitted" };
+    }
+
+    const hostname = url.hostname.toLowerCase();
+
+    // Block loopback, link-local, and cloud metadata endpoints
+    if (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "::1" ||
+      hostname === "0.0.0.0" ||
+      hostname.endsWith(".localhost") ||
+      hostname.endsWith(".local") ||
+      hostname === "169.254.169.254" ||
+      hostname === "metadata.google.internal" ||
+      hostname.startsWith("169.254.")
+    ) {
+      return {
+        valid: false,
+        reason: "Internal loopback and metadata endpoints are blocked for security",
+      };
+    }
+
+    // Block private subnets in production
+    const isPrivateIpv4 =
+      /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+      /^172\.(1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+      /^192\.168\.\d{1,3}\.\d{1,3}$/.test(hostname);
+
+    if (isPrivateIpv4 && process.env.NODE_ENV === "production") {
+      return { valid: false, reason: "Private network destinations are blocked" };
+    }
+
+    return { valid: true };
+  } catch {
+    return { valid: false, reason: "Malformed URL format" };
+  }
+}
+
+/**
  * Dispatches a post to its configured webhook endpoint.
  */
 export async function dispatchScheduledPost(
@@ -46,6 +92,18 @@ export async function dispatchScheduledPost(
 
   if (!targetUrl || !targetUrl.trim()) {
     const errorMsg = "No webhook URL configured for dispatch";
+    updatePostStatus(post.id, "failed", errorMsg);
+    return {
+      success: false,
+      error: errorMsg,
+      dispatchedAt: new Date().toISOString(),
+    };
+  }
+
+  // SSRF Safety Check
+  const urlCheck = isSafeWebhookUrl(targetUrl);
+  if (!urlCheck.valid) {
+    const errorMsg = `Security Block: ${urlCheck.reason}`;
     updatePostStatus(post.id, "failed", errorMsg);
     return {
       success: false,

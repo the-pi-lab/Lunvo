@@ -102,4 +102,17 @@ describe("LUNVO 2.0 Webhook Dispatcher & Queue Engine", () => {
     expect(due.length).toBe(1);
     expect(due[0]?.id).toBe("due-post-1");
   });
+
+  it("blocks dangerous SSRF destinations (loopback, metadata, invalid schemes)", async () => {
+    const { isSafeWebhookUrl } = await import("./webhookDispatcher");
+
+    expect(isSafeWebhookUrl("http://127.0.0.1/api").valid).toBe(false);
+    expect(isSafeWebhookUrl("http://localhost:3000/hook").valid).toBe(false);
+    expect(isSafeWebhookUrl("http://169.254.169.254/latest/meta-data/").valid).toBe(false);
+    expect(isSafeWebhookUrl("file:///etc/passwd").valid).toBe(false);
+    expect(isSafeWebhookUrl("javascript:alert(1)").valid).toBe(false);
+
+    expect(isSafeWebhookUrl("https://hooks.zapier.com/hooks/catch/123/abc").valid).toBe(true);
+    expect(isSafeWebhookUrl("https://hook.eu1.make.com/xyz123").valid).toBe(true);
+  });
 });

@@ -37,6 +37,15 @@ const SLASH_COMMANDS = [
   },
 ];
 
+function escapeHtml(str: string) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export function TiptapEditor({
   content,
   onChange,
@@ -60,7 +69,7 @@ export function TiptapEditor({
     content: content
       ? `<p>${content
           .split("\n")
-          .map((l) => l || "<br>")
+          .map((l) => escapeHtml(l) || "<br>")
           .join("</p><p>")}</p>`
       : "",
     immediatelyRender: false,
@@ -75,10 +84,10 @@ export function TiptapEditor({
           event.preventDefault();
           const normalized = normalizePostText(text);
           const ed = (view as unknown as { editor?: Editor })?.editor || editorRef.current;
-          // Use view dispatch for reliability (avoids stale closure)
+          // Safe escaped HTML mapping to prevent XSS execution
           const html = normalized
             .split("\n")
-            .map((l) => (l ? `<p>${l}</p>` : "<p><br></p>"))
+            .map((l) => (l ? `<p>${escapeHtml(l)}</p>` : "<p><br></p>"))
             .join("");
           // Insert via view's dispatcher after tick
           setTimeout(() => {
@@ -134,7 +143,7 @@ export function TiptapEditor({
         content
           ? `<p>${content
               .split("\n")
-              .map((l) => l || "<br>")
+              .map((l) => escapeHtml(l) || "<br>")
               .join("</p><p>")}</p>`
           : "<p></p>"
       );

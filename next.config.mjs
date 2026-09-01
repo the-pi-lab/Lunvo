@@ -12,7 +12,7 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "api.star-history.com" },
       { protocol: "https", hostname: "socialify.git.ci" },
-      { protocol: "https", hostname: "via.placeholder.com" },
+      { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "capsule-render.vercel.app" },
       { protocol: "https", hostname: "readme-typing-svg.herokuapp.com" },
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
@@ -63,7 +63,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https: blob:",
-              "connect-src 'self' https: wss: https://us.i.posthog.com https://us-assets.i.posthog.com",
+              "connect-src 'self' https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com https://api.groq.com https://api.deepseek.com https://openrouter.ai https://api.telegram.org https://us.i.posthog.com https://us-assets.i.posthog.com http://localhost:* http://127.0.0.1:* https://*.zapier.com https://*.make.com https://api.bufferapp.com",
               "frame-ancestors 'none'",
               "object-src 'none'",
               "base-uri 'self'",

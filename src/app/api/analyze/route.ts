@@ -1,23 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, DAY_MS } from "@/lib/ai/serverLimiter";
+import { checkRateLimit, extractClientIp, DAY_MS } from "@/lib/ai/serverLimiter";
 import { buildAnalyzePrompt, LINKEDIN_SYSTEM_PROMPT } from "@/lib/ai/prompts";
 import { unifiedAI, parseAIJson } from "@/lib/ai/router.unified";
 import { AnalyzeResultSchema } from "@/lib/ai/schemas";
 
 export const dynamic = "force-dynamic";
 
-function getClientIp(req: NextRequest): string {
-  const forwarded = req.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]!.trim();
-  const realIp = req.headers.get("x-real-ip");
-  if (realIp) return realIp.trim();
-  const vercel = req.headers.get("x-vercel-forwarded-for");
-  if (vercel) return vercel.split(",")[0]!.trim();
-  return "127.0.0.1";
-}
-
 function getIsBYOK(req: NextRequest): boolean {
-  return Boolean(req.headers.get("x-ai-key") || req.headers.get("x-ai-provider"));
+  const key = req.headers.get("x-ai-key");
+  const provider = req.headers.get("x-ai-provider");
+  // Minimum length check to prevent single-char dummy key bypass
+  return Boolean(provider && key && key.trim().length >= 8);
 }
 
 export async function POST(req: NextRequest) {
@@ -36,7 +29,7 @@ export async function POST(req: NextRequest) {
     // BYOK users bypass IP limit (they use their own keys)
     const isBYOK = getIsBYOK(req);
     if (!isBYOK) {
-      const ip = getClientIp(req);
+      const ip = extractClientIp(req);
       const rl = await checkRateLimit(`ip:${ip}:analyze`, 5, DAY_MS);
       if (!rl.allowed) {
         return NextResponse.json(
