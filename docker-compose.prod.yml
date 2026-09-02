@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  lunvo-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lunvo-os:latest
+    container_name: lunvo-server
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+      - WEBHOOK_BUFFER_URL=${WEBHOOK_BUFFER_URL:-}
+      - WEBHOOK_ZAPIER_URL=${WEBHOOK_ZAPIER_URL:-}
+      - WEBHOOK_MAKE_URL=${WEBHOOK_MAKE_URL:-}
+    volumes:
+      - lunvo_data:/app/.storage
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  lunvo_data:
+    driver: local

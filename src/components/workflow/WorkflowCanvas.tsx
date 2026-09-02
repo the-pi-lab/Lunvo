@@ -27,6 +27,7 @@ import {
   X,
   Trash2,
   Layers,
+  Plus,
 } from "lucide-react";
 import { executeWorkflow } from "@/lib/workflow/workflowRunner";
 import { getActiveAIProfile } from "@/lib/apiHelper";
@@ -37,6 +38,7 @@ interface WorkflowCanvasProps {
   onUpdateWorkflow: (updated: Workflow) => void;
   selectedNodeId: string | null;
   onSelectNode: (nodeId: string | null) => void;
+  onOpenAddNode?: () => void;
 }
 
 export function WorkflowCanvas({
@@ -44,6 +46,7 @@ export function WorkflowCanvas({
   onUpdateWorkflow,
   selectedNodeId,
   onSelectNode,
+  onOpenAddNode,
 }: WorkflowCanvasProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [activeStepNodeId, setActiveStepNodeId] = useState<string | null>(null);
@@ -475,7 +478,16 @@ export function WorkflowCanvas({
       </div>
 
       {/* Zoom & Canvas Controls (Bottom Right) */}
-      <div className="absolute bottom-5 right-5 z-20 flex items-center gap-1 bg-white/90 backdrop-blur-md p-1 rounded-2xl border border-outline-variant/60 shadow-lg">
+      <div className="absolute bottom-5 right-5 z-20 flex items-center gap-1.5 bg-white/90 backdrop-blur-md p-1.5 rounded-2xl border border-outline-variant/60 shadow-lg">
+        {onOpenAddNode && (
+          <button
+            onClick={onOpenAddNode}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-white text-xs font-bold shadow-xs hover:bg-primary-dark transition-all hover:scale-105 mr-1"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Node</span>
+          </button>
+        )}
         <button
           onClick={() => setZoomLevel((z) => Math.max(0.6, z - 0.1))}
           className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors"

@@ -68,7 +68,7 @@ export default function DashboardPage() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [liveER, setLiveER] = useState<number | null>(null);
   const [liveHook, setLiveHook] = useState<number | null>(null);
-  const [activeModel, setActiveModel] = useState<string>("Groq Llama 3.3 70B");
+  const [activeModel, setActiveModel] = useState<string>("Dynamic Multi-Model Engine");
   const [voiceDnaScore, setVoiceDnaScore] = useState<number>(92);
 
   useEffect(() => {

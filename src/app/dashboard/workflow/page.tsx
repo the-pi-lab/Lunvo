@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { WorkflowCanvas } from "@/components/workflow/WorkflowCanvas";
 import { NodeInspector } from "@/components/workflow/NodeInspector";
 import { TemplateGalleryModal } from "@/components/workflow/TemplateGalleryModal";
+import { AddNodeModal } from "@/components/workflow/AddNodeModal";
 import { ModeSwitcher } from "@/components/workflow/ModeSwitcher";
 import { PREBUILT_WORKFLOWS } from "@/lib/workflow/templates";
 import {
@@ -19,6 +20,7 @@ export default function WorkflowBuilderPage() {
   const [activeWorkflow, setActiveWorkflow] = useState<Workflow>(PREBUILT_WORKFLOWS[0]!);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isAddNodeOpen, setIsAddNodeOpen] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Load from local storage or fallback to default prebuilt
@@ -85,7 +87,7 @@ export default function WorkflowBuilderPage() {
     const newNode: WorkflowNode = {
       id: newId,
       type,
-      position: { x: 100 + Math.random() * 200, y: 100 + Math.random() * 200 },
+      position: { x: 120 + Math.random() * 160, y: 120 + Math.random() * 160 },
       data: {
         label: `New ${type.replace(/_/g, " ")}`,
       },
@@ -130,57 +132,14 @@ export default function WorkflowBuilderPage() {
             </span>
           </button>
 
-          {/* Add Node Dropdown / Button */}
-          <div className="relative group">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-surface-container hover:bg-surface-container-high transition-colors text-on-background">
-              <Plus className="w-3.5 h-3.5" />
-              <span>Add Node</span>
-            </button>
-            <div className="absolute right-0 top-full mt-1 w-48 bg-surface-container-lowest rounded-2xl border border-outline-variant/60 shadow-xl p-1.5 hidden group-hover:block z-40">
-              <button
-                onClick={() => handleAddNode("agent_writer")}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-surface-container transition-colors"
-              >
-                + AI Writer Agent
-              </button>
-              <button
-                onClick={() => handleAddNode("agent_scout")}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-surface-container transition-colors"
-              >
-                + AI Scout Agent
-              </button>
-              <button
-                onClick={() => handleAddNode("agent_critic")}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-surface-container transition-colors"
-              >
-                + AI Critic Agent
-              </button>
-              <button
-                onClick={() => handleAddNode("condition_gate")}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-surface-container transition-colors"
-              >
-                + Condition Gate
-              </button>
-              <button
-                onClick={() => handleAddNode("output_webhook")}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-surface-container transition-colors"
-              >
-                + Webhook Node
-              </button>
-              <button
-                onClick={() => handleAddNode("carousel_formatter")}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-surface-container transition-colors"
-              >
-                + Carousel Formatter
-              </button>
-              <button
-                onClick={() => handleAddNode("humanizer_filter")}
-                className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium hover:bg-surface-container transition-colors"
-              >
-                + Anti-AI Humanizer
-              </button>
-            </div>
-          </div>
+          {/* Add Node Button -> Opens AddNodeModal */}
+          <button
+            onClick={() => setIsAddNodeOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-dark transition-all shadow-xs hover:scale-105 active:scale-95"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Node</span>
+          </button>
 
           {/* Save Workflow Button */}
           <button
@@ -218,6 +177,7 @@ export default function WorkflowBuilderPage() {
           onUpdateWorkflow={setActiveWorkflow}
           selectedNodeId={selectedNodeId}
           onSelectNode={setSelectedNodeId}
+          onOpenAddNode={() => setIsAddNodeOpen(true)}
         />
 
         {selectedNode && (
@@ -238,6 +198,13 @@ export default function WorkflowBuilderPage() {
           setActiveWorkflow(template);
           saveWorkflow(template);
         }}
+      />
+
+      {/* Add Node Modal */}
+      <AddNodeModal
+        isOpen={isAddNodeOpen}
+        onClose={() => setIsAddNodeOpen(false)}
+        onAddNode={handleAddNode}
       />
     </div>
   );

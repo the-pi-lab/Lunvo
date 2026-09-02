@@ -174,13 +174,13 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
                 className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none mb-2"
               >
                 <option value="inherit">Inherit Global Key Vault</option>
-                <option value="groq">Groq (Llama 3.3 70B Fast)</option>
-                <option value="gemini">Google Gemini 1.5</option>
-                <option value="openai">OpenAI (GPT-4o)</option>
-                <option value="anthropic">Anthropic (Claude 3.5 Sonnet)</option>
-                <option value="deepseek">DeepSeek (V3 / R1)</option>
-                <option value="openrouter">OpenRouter Multi-Model</option>
-                <option value="ollama">Local Ollama / LM Studio</option>
+                <option value="groq">Groq Cloud</option>
+                <option value="gemini">Google Gemini</option>
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="deepseek">DeepSeek</option>
+                <option value="openrouter">OpenRouter Gateway</option>
+                <option value="ollama">Local Self-Hosted (Ollama / LM Studio)</option>
               </select>
 
               {node.data.providerOverride && (
