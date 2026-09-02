@@ -16,6 +16,8 @@
 # misc
 .DS_Store
 *.pem
+*.mp4
+.freebuff/
 
 # debug
 npm-debug.log*
@@ -61,3 +63,6 @@ prod-build.log
 
 # graphify — local knowledge graph (do not publish)
 graphify-out/
+
+.vercel
+.env*
