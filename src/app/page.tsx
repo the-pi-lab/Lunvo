@@ -13,6 +13,7 @@ import SmoothScroll from "@/components/entry/SmoothScroll";
 import Reveal from "@/components/motion/Reveal";
 import PipelineTheater from "@/components/entry/PipelineTheater";
 import Primitives from "@/components/entry/Primitives";
+import { Logo } from "@/components/ui/Logo";
 
 const MARQUEE_WORDS = ["Write", "SCORE", "Ship", "REPEAT"];
 
@@ -52,9 +53,7 @@ function FloatingNav() {
     <header className="fixed inset-x-0 top-4 z-[95] flex justify-center px-4">
       <nav className="flex items-center gap-4 rounded-full border border-white/40 bg-white/30 px-4 py-2 shadow-lg backdrop-blur-xl">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-gradient-to-br from-violet-600 to-blue-600 shadow-sm">
-            <span className="text-xs font-bold text-white">L</span>
-          </div>
+          <Logo size={28} />
           <span className="font-serif text-lg italic text-zinc-900">LUNVO</span>
         </div>
         <span className="hidden h-4 w-px bg-zinc-900/15 sm:block" />
@@ -286,9 +285,7 @@ export default function EntryPage() {
       <footer className="relative z-10 border-t border-outline-variant/40 bg-background">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-900">
-              <span className="text-xs font-bold text-white">L</span>
-            </div>
+            <Logo size={26} />
             <span className="font-serif italic text-zinc-900">LUNVO</span>
             <span className="text-xs text-zinc-400">© 2026 THE Π LAB</span>
           </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut, PanelLeftClose, PanelLeftOpen, Settings, Sparkles } from "lucide-react";
 import { NAV_ITEMS, isNavActive } from "./nav-config";
+import { Logo } from "@/components/ui/Logo";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -31,8 +32,8 @@ function SidebarInner({ collapsed, mobileOpen, onCloseMobile, onLogout }: Sideba
           className="flex items-center gap-3 min-w-0 group"
           onClick={onCloseMobile}
         >
-          <div className="w-8.5 h-8.5 shrink-0 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-primary flex items-center justify-center shadow-md shadow-primary/20 group-hover:scale-105 transition-transform">
-            <span className="text-white font-black text-sm tracking-tighter">L</span>
+          <div className="shrink-0 group-hover:scale-105 transition-transform">
+            <Logo size={34} />
           </div>
           {!isCollapsed && (
             <div className="flex flex-col">
