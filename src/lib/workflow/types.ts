@@ -123,6 +123,8 @@ export interface WorkflowExecutionContext {
   >;
 }
 
+export type NodeExecutionStatus = "pending" | "running" | "success" | "skipped" | "failed";
+
 export type StepUpdateCallback = (
   nodeId: string,
   status: "running" | "success" | "skipped" | "failed",

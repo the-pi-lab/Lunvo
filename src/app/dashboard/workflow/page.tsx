@@ -5,6 +5,7 @@ import { WorkflowCanvas } from "@/components/workflow/WorkflowCanvas";
 import { NodeInspector } from "@/components/workflow/NodeInspector";
 import { TemplateGalleryModal } from "@/components/workflow/TemplateGalleryModal";
 import { AddNodeModal } from "@/components/workflow/AddNodeModal";
+import { RunWorkflowModal } from "@/components/workflow/RunWorkflowModal";
 import { ModeSwitcher } from "@/components/workflow/ModeSwitcher";
 import { PREBUILT_WORKFLOWS } from "@/lib/workflow/templates";
 import {
@@ -14,13 +15,14 @@ import {
   importWorkflowFromJson,
 } from "@/lib/workflow/workflowStore";
 import type { Workflow, WorkflowNode, NodeType } from "@/lib/workflow/types";
-import { Layers, Download, Upload, Save, Plus, Check } from "lucide-react";
+import { Layers, Download, Upload, Save, Plus, Check, Play } from "lucide-react";
 
 export default function WorkflowBuilderPage() {
   const [activeWorkflow, setActiveWorkflow] = useState<Workflow>(PREBUILT_WORKFLOWS[0]!);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isAddNodeOpen, setIsAddNodeOpen] = useState(false);
+  const [isRunModalOpen, setIsRunModalOpen] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Load from local storage or fallback to default prebuilt
@@ -120,6 +122,15 @@ export default function WorkflowBuilderPage() {
 
         {/* Right Action Buttons */}
         <div className="flex items-center gap-2">
+          {/* Run Workflow Button */}
+          <button
+            onClick={() => setIsRunModalOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-dark transition-all shadow-xs hover:scale-105 active:scale-95"
+          >
+            <Play className="w-3.5 h-3.5 fill-current" />
+            <span>Run Flow</span>
+          </button>
+
           {/* Template Gallery Button */}
           <button
             onClick={() => setIsGalleryOpen(true)}
@@ -135,7 +146,7 @@ export default function WorkflowBuilderPage() {
           {/* Add Node Button -> Opens AddNodeModal */}
           <button
             onClick={() => setIsAddNodeOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-dark transition-all shadow-xs hover:scale-105 active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-surface-container-high hover:bg-surface-container-highest transition-colors text-on-background"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Node</span>
@@ -205,6 +216,13 @@ export default function WorkflowBuilderPage() {
         isOpen={isAddNodeOpen}
         onClose={() => setIsAddNodeOpen(false)}
         onAddNode={handleAddNode}
+      />
+
+      {/* Run Live Workflow Modal */}
+      <RunWorkflowModal
+        isOpen={isRunModalOpen}
+        onClose={() => setIsRunModalOpen(false)}
+        workflow={activeWorkflow}
       />
     </div>
   );

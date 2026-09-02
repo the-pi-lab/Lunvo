@@ -339,11 +339,28 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { normalizePostText } = await import("../lib/ai/voiceDna/ingestor.ts");
       const normalized = samples.map(normalizePostText).filter(Boolean);
 
+      // Analyze actual linguistic characteristics from input samples
+      const allText = normalized.join(" ");
+      const emojiMatches =
+        allText.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu) || [];
+      const emojiDensity = Math.min(
+        100,
+        Math.round((emojiMatches.length / Math.max(1, allText.length)) * 1000)
+      );
+      const exclamationCount = (allText.match(/!/g) || []).length;
+      const punchiness = Math.min(100, Math.max(30, 60 + exclamationCount * 5));
+      const technicalKeywords = (
+        allText.match(
+          /\b(api|architecture|framework|database|cloud|ai|model|latency|docker|git)\b/gi
+        ) || []
+      ).length;
+      const technicalDepth = Math.min(100, Math.max(20, technicalKeywords * 10));
+
       const dna = {
-        formality: 40,
-        emojiDensity: 30,
-        technicalDepth: 70,
-        punchiness: 85,
+        formality: technicalDepth > 60 ? 70 : 45,
+        emojiDensity,
+        technicalDepth,
+        punchiness,
         customRules: [
           "Use short, punchy paragraphs",
           "Open with a strong contrarian or data-backed hook",
@@ -351,6 +368,29 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         ],
         sampleCount: normalized.length,
       };
+
+      try {
+        const { saveTrainedDna } = await import("../lib/voice-dna/memory.ts");
+        saveTrainedDna({
+          id: `dna-mcp-${Date.now()}`,
+          userId: "local-commander",
+          dna: {
+            tone: ["authentic", technicalDepth > 50 ? "technical" : "conversational"],
+            styleRules: dna.customRules,
+            targetAudience: "Engineering & Tech Founders",
+            emojiUsage: emojiDensity > 20 ? "moderate" : "minimal",
+            formattingPreferences: {
+              useBulletPoints: true,
+              useOneSentenceParagraphs: true,
+              useLineBreaksBetweenParagraphs: true,
+            },
+          },
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+      } catch {
+        // node/cli environment fallback
+      }
 
       return {
         content: [
@@ -438,6 +478,21 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const scheduledTime = (args?.scheduledTime as string) || new Date().toISOString();
       const webhookUrl = (args?.webhookUrl as string) || "";
 
+      const { saveScheduledPost } = await import("../lib/scheduler/queueStore.ts");
+      const post = {
+        id: `mcp-${Date.now()}`,
+        title: content.slice(0, 40) || "MCP Scheduled Post",
+        content,
+        scheduledTime,
+        status: "queued" as const,
+        targetWebhookUrl: webhookUrl || undefined,
+        retryCount: 0,
+        maxRetries: 3,
+        createdAt: new Date().toISOString(),
+        source: "workflow" as const,
+      };
+      saveScheduledPost(post);
+
       return {
         content: [
           {
@@ -445,6 +500,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             text: JSON.stringify(
               {
                 scheduled: true,
+                postId: post.id,
                 scheduledTime,
                 targetWebhook: webhookUrl || "Default Local Queue",
                 characterCount: content.length,
