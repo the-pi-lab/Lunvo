@@ -65,13 +65,6 @@ function FloatingNav() {
         >
           GitHub
         </a>
-        <Link
-          href="/demo"
-          className="text-xs font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200/60 px-3 py-1.5 rounded-full transition-all flex items-center gap-1"
-        >
-          <span>Demo</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-pulse" />
-        </Link>
         <LocaleToggle />
         <Link
           href="/dashboard"
@@ -159,17 +152,8 @@ export default function EntryPage() {
             unofficial APIs. Your keys. Your machine. Zero bans.
           </p>
 
-          <div className="mt-9 flex flex-col sm:flex-row items-center gap-3.5">
+          <div className="mt-9 flex justify-center">
             <MagneticCTA href="/dashboard">Enter the Studio</MagneticCTA>
-            <Link
-              href="/demo"
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-full text-xs font-bold bg-white/80 hover:bg-white text-violet-950 border border-violet-200/80 shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95"
-            >
-              <span className="w-4 h-4 rounded-full bg-violet-600 text-white flex items-center justify-center text-[10px] shadow-sm">
-                ▶
-              </span>
-              <span>Watch 95s Product Demo</span>
-            </Link>
           </div>
 
           <span className="mt-3 text-[0.625rem] font-mono uppercase tracking-[0.3em] text-violet-800/60">
