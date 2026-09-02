@@ -72,25 +72,30 @@ export default function DashboardPage() {
   const [voiceDnaScore, setVoiceDnaScore] = useState<number>(92);
 
   useEffect(() => {
-    const usage = getUsage();
-    const profile = getActiveAIProfile();
-    const voiceDna = getVoiceDNA();
+    try {
+      const usage = getUsage();
+      const profile = getActiveAIProfile();
+      const voiceDna = getVoiceDNA();
 
-    setUserData({
-      full_name: "Local Commander",
-      plan: "studio",
-      streak_count: Math.max(1, usage.generate + usage.analyze),
-    });
-    setLiveER(getLastER());
-    setLiveHook(getLastHook());
+      setUserData({
+        full_name: "Local Commander",
+        plan: "studio",
+        streak_count: Math.max(1, (usage?.generate || 0) + (usage?.analyze || 0)),
+      });
+      setLiveER(getLastER());
+      setLiveHook(getLastHook());
 
-    if (profile) {
-      setActiveModel(`${profile.provider.toUpperCase()} (${profile.model || "Default"})`);
+      if (profile && profile.provider) {
+        setActiveModel(`${profile.provider.toUpperCase()} (${profile.model || "Default"})`);
+      }
+      if (voiceDna && Array.isArray(voiceDna.tone) && voiceDna.tone.length > 0) {
+        setVoiceDnaScore(Math.min(98, 85 + voiceDna.tone.length * 3));
+      }
+    } catch (e) {
+      console.warn("Hydration warning in dashboard:", e);
+    } finally {
+      setLoading(false);
     }
-    if (voiceDna && voiceDna.tone && voiceDna.tone.length > 0) {
-      setVoiceDnaScore(Math.min(98, 85 + voiceDna.tone.length * 3));
-    }
-    setLoading(false);
   }, []);
 
   if (loading) {
