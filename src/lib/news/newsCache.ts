@@ -62,11 +62,10 @@ export async function resolveNewsContext(topic: string): Promise<RssArticle[]> {
     cache.set(key, { articles, cachedAt: now, totalFound: result.totalFound });
     return [...articles];
   } catch {
-    // timeout or fetch error -> cache empty to avoid hammering, return stale if exists
-    if (!entry) {
-      cache.set(key, { articles: [], cachedAt: now, totalFound: 0 });
+    // timeout or fetch error -> return stale cache if available, but avoid poisoning cache with empty array
+    if (entry && entry.articles.length > 0) {
+      return [...entry.articles];
     }
-    if (entry) return [...entry.articles];
     return [];
   }
 }

@@ -1,14 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleTelegramUpdate, type TelegramUpdate } from "@/lib/telegram/botService";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
+    // Secret token verification if TELEGRAM_WEBHOOK_SECRET is configured
+    const secretToken = process.env.TELEGRAM_WEBHOOK_SECRET;
+    if (secretToken) {
+      const incomingSecret = req.headers.get("x-telegram-bot-api-secret-token");
+      if (!incomingSecret || incomingSecret !== secretToken) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+    }
+
     const update: TelegramUpdate = await req.json();
+    if (!update || typeof update !== "object") {
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    }
+
     const result = await handleTelegramUpdate(update);
     return NextResponse.json({ success: true, result });
   } catch (error: any) {
-    console.error("Telegram webhook error:", error);
-    return NextResponse.json({ success: false, error: error?.message }, { status: 500 });
+    console.error("Telegram webhook internal error:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal processing error" },
+      { status: 500 }
+    );
   }
 }
 

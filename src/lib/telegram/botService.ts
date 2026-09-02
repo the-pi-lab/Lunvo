@@ -135,12 +135,33 @@ export async function sendTelegramWithKeyboard(
   }
 }
 
+export function escapeTelegramMarkdown(text: string): string {
+  if (!text) return "";
+  return text.replace(/([_*[\]()~`>#+\-=|{}.!\\])/g, "\\$1");
+}
+
 /**
  * Handles incoming Telegram bot updates and commands.
  */
 export async function handleTelegramUpdate(
   update: TelegramUpdate
 ): Promise<{ handled: boolean; reply?: string }> {
+  // Extract effective chat ID from message or callback query
+  const incomingChatId =
+    update.message?.chat.id ??
+    update.callback_query?.message?.chat.id ??
+    update.callback_query?.from?.id;
+  const { allowedChatId } = getTelegramConfig();
+
+  // Security check: If allowedChatId is configured, strictly enforce on all messages and callbacks
+  if (allowedChatId && incomingChatId && String(incomingChatId) !== String(allowedChatId)) {
+    await sendTelegramMessage(
+      incomingChatId,
+      "⚠️ *Unauthorized Access:* This LUNVO server is locked to its owner."
+    );
+    return { handled: true, reply: "Unauthorized" };
+  }
+
   // 1. Handle Callback Query (Button clicks)
   if (update.callback_query) {
     return handleCallbackQuery(update.callback_query);
@@ -151,16 +172,6 @@ export async function handleTelegramUpdate(
 
   const chatId = msg.chat.id;
   const rawText = msg.text.trim();
-  const { allowedChatId } = getTelegramConfig();
-
-  // Security check: If allowedChatId is configured, only respond to authorized owner
-  if (allowedChatId && String(chatId) !== String(allowedChatId)) {
-    await sendTelegramMessage(
-      chatId,
-      "⚠️ *Unauthorized Access:* This LUNVO server is locked to its owner."
-    );
-    return { handled: true, reply: "Unauthorized" };
-  }
 
   // Command: /start or /help
   if (rawText.startsWith("/start") || rawText.startsWith("/help")) {

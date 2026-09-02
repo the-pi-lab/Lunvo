@@ -1,32 +1,57 @@
 /**
- * LUNVO 2.0 — Outbound Webhook Dispatcher
- * Dispatches scheduled posts to Zapier, Make.com, Buffer, or Custom Webhooks safely.
+ * LUNVO 2.0 — Webhook Dispatcher Engine
+ * Zero-Ban Architecture: Pushes formatted content and carousel PDF payloads
+ * to user-owned automation platforms (Zapier, Make.com, Buffer, Pipedream).
  */
 
-import type { ScheduledPost, OutboundPayload, DispatchResult } from "./types";
-import { updatePostStatus } from "./queueStore";
+import type { ScheduledPost } from "./types";
 
-export function buildOutboundPayload(post: ScheduledPost): OutboundPayload {
+export interface DispatchResult {
+  success: boolean;
+  statusCode?: number;
+  error?: string;
+  timestamp: string;
+}
+
+export interface WebhookPayloadFormat {
+  event?: string;
+  postId?: string;
+  id?: string;
+  title: string;
+  content: string;
+  wordCount?: number;
+  characterCount?: number;
+  criticScore?: number;
+  humanScore?: number;
+  scheduledTime: string;
+  source: string;
+  tags?: string[];
+  carouselPdfBase64?: string;
+  meta: {
+    source: string;
+    version: string;
+  };
+}
+
+export function buildOutboundPayload(post: ScheduledPost): WebhookPayloadFormat {
   const content = post.content || "";
-  const words = content.trim().split(/\s+/).filter(Boolean).length;
-  const chars = content.length;
-
-  // Extract hashtags from content if any
-  const hashtagMatches = content.match(/#[a-zA-Z0-9_]+/g) || [];
-  const tags = Array.from(new Set([...(post.tags || []), ...hashtagMatches]));
+  const words = content.trim().split(/\s+/).filter(Boolean);
+  const detectedTags = content.match(/#[a-zA-Z0-9_]+/g) || [];
+  const mergedTags = Array.from(new Set([...(post.tags || []), ...detectedTags]));
 
   return {
     event: "lunvo.post.publish",
     postId: post.id,
-    title: post.title || "LinkedIn Post",
-    content,
+    id: post.id,
+    title: post.title,
+    content: post.content,
+    wordCount: words.length,
+    characterCount: content.length,
     criticScore: post.criticScore,
     humanScore: post.humanScore,
-    characterCount: chars,
-    wordCount: words,
-    tags,
     scheduledTime: post.scheduledTime,
-    dispatchedAt: new Date().toISOString(),
+    source: post.source || "studio",
+    tags: mergedTags,
     carouselPdfBase64: post.carouselPdfBase64,
     meta: {
       source: post.source || "lunvo_studio",
@@ -35,12 +60,20 @@ export function buildOutboundPayload(post: ScheduledPost): OutboundPayload {
   };
 }
 
+export const formatWebhookPayload = buildOutboundPayload;
+
 /**
  * Validates that a webhook URL is safe against SSRF attacks.
+ * Blocks loopback, cloud metadata, link-local, hex/octal representations, and private subnets.
  */
 export function isSafeWebhookUrl(urlString: string): { valid: boolean; reason?: string } {
   try {
-    const url = new URL(urlString.trim());
+    if (!urlString || typeof urlString !== "string") {
+      return { valid: false, reason: "URL is empty or invalid" };
+    }
+
+    const trimmed = urlString.trim();
+    const url = new URL(trimmed);
     if (url.protocol !== "http:" && url.protocol !== "https:") {
       return { valid: false, reason: "Only HTTP/HTTPS webhook protocols are permitted" };
     }
@@ -57,12 +90,20 @@ export function isSafeWebhookUrl(urlString: string): { valid: boolean; reason?: 
       hostname.endsWith(".local") ||
       hostname === "169.254.169.254" ||
       hostname === "metadata.google.internal" ||
-      hostname.startsWith("169.254.")
+      hostname.startsWith("169.254.") ||
+      hostname.startsWith("0.") ||
+      hostname.includes("::ffff:127.") ||
+      hostname.includes("::ffff:169.254.")
     ) {
       return {
         valid: false,
         reason: "Internal loopback and metadata endpoints are blocked for security",
       };
+    }
+
+    // Check for hex, octal, or integer IP representations
+    if (/^(0x[0-9a-f]+|\d+)$/i.test(hostname)) {
+      return { valid: false, reason: "Numeric or encoded IP representations are blocked" };
     }
 
     // Block private subnets in production
@@ -88,27 +129,23 @@ export async function dispatchScheduledPost(
   post: ScheduledPost,
   overrideWebhookUrl?: string
 ): Promise<DispatchResult> {
-  const targetUrl = overrideWebhookUrl || post.targetWebhookUrl;
+  const targetUrl = overrideWebhookUrl || post.targetWebhookUrl || (post as any).webhookUrl;
 
-  if (!targetUrl || !targetUrl.trim()) {
-    const errorMsg = "No webhook URL configured for dispatch";
-    updatePostStatus(post.id, "failed", errorMsg);
+  if (!targetUrl) {
     return {
       success: false,
-      error: errorMsg,
-      dispatchedAt: new Date().toISOString(),
+      error: "No webhook URL configured for this post.",
+      timestamp: new Date().toISOString(),
     };
   }
 
-  // SSRF Safety Check
-  const urlCheck = isSafeWebhookUrl(targetUrl);
-  if (!urlCheck.valid) {
-    const errorMsg = `Security Block: ${urlCheck.reason}`;
-    updatePostStatus(post.id, "failed", errorMsg);
+  // SSRF guard
+  const validation = isSafeWebhookUrl(targetUrl);
+  if (!validation.valid) {
     return {
       success: false,
-      error: errorMsg,
-      dispatchedAt: new Date().toISOString(),
+      error: `Security blocked webhook dispatch: ${validation.reason}`,
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -118,12 +155,12 @@ export async function dispatchScheduledPost(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout
 
-    const res = await fetch(targetUrl, {
+    const response = await fetch(targetUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "User-Agent": "LUNVO-Dispatcher/2.0",
-        "X-Lunvo-Event": "post.publish",
+        "User-Agent": "LUNVO-Webhook-Dispatcher/2.0",
+        "X-Lunvo-Delivery-Timestamp": new Date().toISOString(),
         "X-Lunvo-Post-Id": post.id,
       },
       body: JSON.stringify(payload),
@@ -132,35 +169,26 @@ export async function dispatchScheduledPost(
 
     clearTimeout(timeoutId);
 
-    if (res.ok || res.status === 200 || res.status === 201 || res.status === 204) {
-      updatePostStatus(post.id, "dispatched");
-      return {
-        success: true,
-        statusCode: res.status,
-        dispatchedAt: new Date().toISOString(),
-      };
-    } else {
-      const bodyText = await res.text().catch(() => "");
-      const errorMsg = `HTTP Error ${res.status}: ${bodyText.slice(0, 200)}`;
-      updatePostStatus(post.id, "failed", errorMsg);
+    if (!response.ok) {
       return {
         success: false,
-        statusCode: res.status,
-        responseBody: bodyText,
-        error: errorMsg,
-        dispatchedAt: new Date().toISOString(),
+        statusCode: response.status,
+        error: `Webhook returned HTTP ${response.status}: ${response.statusText}`,
+        timestamp: new Date().toISOString(),
       };
     }
+
+    return {
+      success: true,
+      statusCode: response.status,
+      timestamp: new Date().toISOString(),
+    };
   } catch (error: any) {
-    const errorMsg =
-      error?.name === "AbortError"
-        ? "Webhook request timed out (12s)"
-        : error?.message || "Network Error";
-    updatePostStatus(post.id, "failed", errorMsg);
+    const isAbort = error?.name === "AbortError";
     return {
       success: false,
-      error: errorMsg,
-      dispatchedAt: new Date().toISOString(),
+      error: isAbort ? "Webhook request timed out after 12s" : error?.message || "Network error",
+      timestamp: new Date().toISOString(),
     };
   }
 }

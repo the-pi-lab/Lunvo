@@ -34,7 +34,10 @@ export async function fetchYouTubeInfo(url: string): Promise<string> {
   // Try oEmbed (no key, fast)
   try {
     const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`;
-    const res = await fetch(oembedUrl, { next: { revalidate: 3600 } });
+    const res = await fetch(oembedUrl, {
+      signal: AbortSignal.timeout(10000),
+      next: { revalidate: 3600 },
+    });
     if (res.ok) {
       const data = (await res.json()) as { title?: string; author_name?: string };
       const title = data.title?.trim();
@@ -49,7 +52,9 @@ export async function fetchYouTubeInfo(url: string): Promise<string> {
 
   // Fallback: noembed
   try {
-    const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`);
+    const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${id}`, {
+      signal: AbortSignal.timeout(10000),
+    });
     if (res.ok) {
       const data = (await res.json()) as { title?: string; author_name?: string };
       if (data.title) {

@@ -1,32 +1,44 @@
-import type { RssArticle } from "./types";
+/**
+ * Hacker News API Service (FREE, NO API KEY REQUIRED)
+ * Official Firebase REST API: https://github.com/HackerNews/API
+ * Fetches top stories from tech and AI community
+ */
+
+import { RssArticle } from "./types";
 
 const HACKER_NEWS_API_BASE = "https://hacker-news.firebaseio.com/v0";
 
-export interface HNStory {
+interface HNStory {
   id: number;
-  type: string;
   title: string;
   url?: string;
   by: string;
   score: number;
   time: number;
-  descendants?: number;
+  type: string;
   text?: string;
 }
 
-function normalizeDescription(text?: string): string {
-  const cleaned = (text || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-  if (!cleaned) {
-    return "";
-  }
+/**
+ * Truncate description intelligently at word/sentence boundaries
+ */
+function normalizeDescription(rawText?: string): string {
+  if (!rawText) return "";
 
-  if (cleaned.length <= 700) {
-    return cleaned;
-  }
+  const snippet = rawText
+    .replace(/<[^>]*>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  const snippet = cleaned.slice(0, 700);
-  const boundary = Math.max(snippet.lastIndexOf("."), snippet.lastIndexOf("!"), snippet.lastIndexOf("?"));
-  if (boundary > 300) {
+  if (snippet.length <= 400) return snippet;
+
+  const boundary = Math.max(
+    snippet.lastIndexOf(". ", 400),
+    snippet.lastIndexOf("! ", 400),
+    snippet.lastIndexOf("? ", 400)
+  );
+
+  if (boundary > 250) {
     return snippet.slice(0, boundary + 1).trim();
   }
 
@@ -39,12 +51,11 @@ function normalizeDescription(text?: string): string {
 }
 
 /**
- * Fetch top stories from Hacker News Firebase API
+ * Fetch top stories from Hacker News Firebase API in parallel
  * No API key required, completely free!
  */
 export async function fetchHackerNewsStories(limit: number = 15): Promise<RssArticle[]> {
   try {
-    // Step 1: Get top story IDs
     const topStoriesRes = await fetch(`${HACKER_NEWS_API_BASE}/topstories.json`, {
       next: { revalidate: 3600 }, // Cache for 1 hour
     });
@@ -55,43 +66,41 @@ export async function fetchHackerNewsStories(limit: number = 15): Promise<RssArt
     }
 
     const storyIds: number[] = await topStoriesRes.json();
-
-    // Step 2: Fetch details for top N stories
-    const articles: RssArticle[] = [];
     const limitedIds = storyIds.slice(0, limit);
 
-    for (const storyId of limitedIds) {
+    const itemPromises: Promise<RssArticle | null>[] = limitedIds.map(async (storyId) => {
       try {
         const storyRes = await fetch(`${HACKER_NEWS_API_BASE}/item/${storyId}.json`, {
+          signal: AbortSignal.timeout(8000),
           next: { revalidate: 1800 }, // Cache for 30 minutes
         });
 
-        if (!storyRes.ok) continue;
+        if (!storyRes.ok) return null;
 
         const story: HNStory = await storyRes.json();
 
-        // Only include valid stories with URLs and EXCLUDE Ask HN, Show HN, Launch HN
-        if (!story.title) continue;
-        if (story.title.match(/^(Ask HN:|Show HN:|Launch HN:|Tell HN:)/i)) continue; // Skip non-news posts
-        if (!story.url) continue; // Only include stories with URLs (real external content)
-        if (story.score < 20) continue; // Only include posts with some engagement
+        if (!story || !story.title) return null;
+        if (story.title.match(/^(Ask HN:|Show HN:|Launch HN:|Tell HN:)/i)) return null;
+        if (!story.url) return null;
+        if (story.score < 20) return null;
 
         const description = normalizeDescription(story.text) || "Trending on Hacker News";
 
-        articles.push({
+        const article: RssArticle = {
           title: story.title,
           link: story.url,
           date: new Date(story.time * 1000).toISOString(),
           description,
           source: `Hacker News (${story.score} pts)`,
-        });
-      } catch (error) {
-        console.warn(`Failed to fetch HN story ${storyId}:`, error);
-        continue;
+        };
+        return article;
+      } catch {
+        return null;
       }
-    }
+    });
 
-    return articles;
+    const results = await Promise.all(itemPromises);
+    return results.filter((item): item is RssArticle => item !== null);
   } catch (error) {
     console.error("Error fetching Hacker News stories:", error);
     return [];
@@ -99,7 +108,7 @@ export async function fetchHackerNewsStories(limit: number = 15): Promise<RssArt
 }
 
 /**
- * Fetch best stories from Hacker News (highest quality)
+ * Fetch best stories from Hacker News in parallel (highest quality)
  */
 export async function fetchHackerNewsBestStories(limit: number = 10): Promise<RssArticle[]> {
   try {
@@ -112,40 +121,40 @@ export async function fetchHackerNewsBestStories(limit: number = 10): Promise<Rs
     }
 
     const storyIds: number[] = await bestStoriesRes.json();
-    const articles: RssArticle[] = [];
     const limitedIds = storyIds.slice(0, limit);
 
-    for (const storyId of limitedIds) {
+    const itemPromises: Promise<RssArticle | null>[] = limitedIds.map(async (storyId) => {
       try {
         const storyRes = await fetch(`${HACKER_NEWS_API_BASE}/item/${storyId}.json`, {
+          signal: AbortSignal.timeout(8000),
           next: { revalidate: 1800 },
         });
 
-        if (!storyRes.ok) continue;
+        if (!storyRes.ok) return null;
 
         const story: HNStory = await storyRes.json();
 
-        // Best stories - still filter out non-news
-        if (!story.title) continue;
-        if (story.title.match(/^(Ask HN:|Show HN:|Launch HN:|Tell HN:)/i)) continue;
-        if (!story.url) continue; // Only external content
+        if (!story || !story.title) return null;
+        if (story.title.match(/^(Ask HN:|Show HN:|Launch HN:|Tell HN:)/i)) return null;
+        if (!story.url) return null;
 
         const description = normalizeDescription(story.text) || "Top story on Hacker News";
 
-        articles.push({
+        const article: RssArticle = {
           title: story.title,
           link: story.url,
           date: new Date(story.time * 1000).toISOString(),
           description,
           source: `HN Best (${story.score} pts)`,
-        });
-      } catch (error) {
-        console.warn(`Failed to fetch HN best story ${storyId}:`, error);
-        continue;
+        };
+        return article;
+      } catch {
+        return null;
       }
-    }
+    });
 
-    return articles;
+    const results = await Promise.all(itemPromises);
+    return results.filter((item): item is RssArticle => item !== null);
   } catch (error) {
     console.error("Error fetching Hacker News best stories:", error);
     return [];

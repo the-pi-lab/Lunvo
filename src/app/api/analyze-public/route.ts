@@ -1,20 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, DAY_MS } from "@/lib/ai/serverLimiter";
+import { checkRateLimit, extractClientIp, DAY_MS } from "@/lib/ai/serverLimiter";
 import { buildAnalyzePrompt } from "@/lib/ai/prompts";
 import { unifiedAI, parseAIJson } from "@/lib/ai/router.unified";
 import { AnalyzeResultSchema } from "@/lib/ai/schemas";
 
 export const dynamic = "force-dynamic";
-
-function getClientIp(req: NextRequest): string {
-  const forwarded = req.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]!.trim();
-  const realIp = req.headers.get("x-real-ip");
-  if (realIp) return realIp.trim();
-  const vercel = req.headers.get("x-vercel-forwarded-for");
-  if (vercel) return vercel.split(",")[0]!.trim();
-  return "127.0.0.1";
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,7 +19,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Phase 24: IP limit 5/day for unauth public endpoint — 6th -> 429
-    const ip = getClientIp(req);
+    const ip = extractClientIp(req);
     const rl = await checkRateLimit(`ip:${ip}:analyze-public`, 5, DAY_MS);
     if (!rl.allowed) {
       return NextResponse.json(

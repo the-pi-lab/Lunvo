@@ -1,21 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, DAY_MS } from "@/lib/ai/serverLimiter";
+import { checkRateLimit, extractClientIp, DAY_MS } from "@/lib/ai/serverLimiter";
 import { fetchYouTubeInfo, isYouTubeUrl } from "@/lib/youtube";
 import { repurposeToTwitter } from "@/lib/ai/repurpose/twitterThread";
 import { repurposeToNewsletter } from "@/lib/ai/repurpose/newsletterBlog";
 import { repurposeToVideoScript } from "@/lib/ai/repurpose/videoScript";
 
 export const dynamic = "force-dynamic";
-
-function getClientIp(req: NextRequest): string {
-  const f = req.headers.get("x-forwarded-for");
-  if (f) return f.split(",")[0]!.trim();
-  return (
-    req.headers.get("x-real-ip")?.trim() ||
-    req.headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim() ||
-    "127.0.0.1"
-  );
-}
 
 function getProfileFromHeaders(req: NextRequest) {
   const provider = req.headers.get("x-ai-provider") || undefined;
@@ -55,7 +45,7 @@ export async function POST(req: NextRequest) {
     // Cost guard: 10 repurposes per day per IP for public (BYOK bypasses)
     const profile = getProfileFromHeaders(req);
     if (!profile) {
-      const ip = getClientIp(req);
+      const ip = extractClientIp(req);
       const rl = await checkRateLimit(`ip:${ip}:repurpose`, 10, DAY_MS);
       if (!rl.allowed) {
         return NextResponse.json(

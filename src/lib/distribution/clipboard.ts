@@ -104,18 +104,32 @@ export interface WebhookPayload {
   scheduledDate?: string; // ISO String
 }
 
+import { isSafeWebhookUrl } from "@/lib/scheduler/webhookDispatcher";
+
 export async function dispatchToWebhook(
   webhookUrl: string,
   payload: WebhookPayload
 ): Promise<boolean> {
+  const check = isSafeWebhookUrl(webhookUrl);
+  if (!check.valid) {
+    console.warn("Blocked unsafe webhook dispatch URL:", check.reason);
+    return false;
+  }
+
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
     const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
     return response.ok;
   } catch (error) {
     console.error("Webhook dispatch failed:", error);

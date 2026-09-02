@@ -6,7 +6,7 @@ import { runContentPipeline, PipelineProgress } from "@/lib/ai/agents/orchestrat
 import { getVoiceDNA, hasTrainedDna } from "@/lib/voice-dna/memory";
 import { predictEngagementRate } from "@/lib/ai/scoringEngine";
 import { setLastER, setLastHook, incrementUsage } from "@/lib/localStore";
-import { ImageStudio } from "@/components/create/ImageStudio";
+import dynamic from "next/dynamic";
 import {
   BrainCircuit,
   PenTool,
@@ -16,9 +16,18 @@ import {
   ArrowRight,
   ShieldCheck,
 } from "lucide-react";
-import { PostEditor } from "@/components/create/PostEditor";
 import PageHeader from "@/components/premium/PageHeader";
 import Reveal from "@/components/motion/Reveal";
+
+const ImageStudio = dynamic(
+  () => import("@/components/create/ImageStudio").then((mod) => mod.ImageStudio),
+  { ssr: false }
+);
+
+const PostEditor = dynamic(
+  () => import("@/components/create/PostEditor").then((mod) => mod.PostEditor),
+  { ssr: false }
+);
 
 type StepState = "waiting" | "active" | "done";
 
