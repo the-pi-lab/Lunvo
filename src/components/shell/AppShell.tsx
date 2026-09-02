@@ -5,6 +5,7 @@ import { Zap } from "lucide-react";
 import { runBootMaintenance } from "@/lib/cacheBust";
 import PWARegister from "@/components/PWARegister";
 import SilkCanvas from "@/components/fx/SilkCanvas";
+import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import CommandK from "./CommandK";
@@ -23,6 +24,7 @@ interface AppShellProps {
 const SIDEBAR_KEY = "lunvo-sidebar-collapsed";
 
 export default function AppShell({ profile, localMode, children }: AppShellProps) {
+  const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cmdkOpen, setCmdkOpen] = useState(false);
@@ -91,7 +93,7 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
           onOpenCmdK={() => setCmdkOpen(true)}
         />
 
-        {localMode && (
+        {localMode && !pathname?.startsWith("/dashboard/workflow") && (
           <div className="px-4 sm:px-6 lg:px-8 pt-4">
             <div className="max-w-7xl mx-auto flex items-center gap-2.5 px-4 py-2.5 rounded-[10px] bg-tertiary/10 border border-tertiary/25">
               <Zap className="w-3.5 h-3.5 text-tertiary shrink-0" />
@@ -103,7 +105,13 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
           </div>
         )}
 
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+        <main
+          className={
+            pathname?.startsWith("/dashboard/workflow")
+              ? "flex-1 w-full h-[calc(100vh-3.5rem)] overflow-hidden p-0"
+              : "flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10"
+          }
+        >
           {children}
         </main>
       </div>

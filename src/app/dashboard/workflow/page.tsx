@@ -103,7 +103,7 @@ export default function WorkflowBuilderPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col -m-4 sm:-m-8">
+    <div className="h-full w-full flex flex-col overflow-hidden">
       {/* Top Studio Control Bar */}
       <header className="h-16 px-6 border-b border-outline-variant/40 bg-surface-container-lowest flex items-center justify-between z-30 shadow-xs">
         {/* Left: Mode Switcher & Title */}

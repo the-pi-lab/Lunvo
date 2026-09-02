@@ -24,8 +24,12 @@ export default function SettingsPage() {
   }, []);
 
   const saveName = () => {
+    const updated = fullName.trim() || "Local Commander";
     try {
-      localStorage.setItem("lunvo_user_name", fullName.trim() || "Local Commander");
+      localStorage.setItem("lunvo_user_name", updated);
+      window.dispatchEvent(
+        new CustomEvent("lunvo:user-profile-updated", { detail: { name: updated } })
+      );
     } catch {
       // storage unavailable
     }

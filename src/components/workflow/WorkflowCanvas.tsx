@@ -56,6 +56,12 @@ export function WorkflowCanvas({
   const [zoomLevel, setZoomLevel] = useState(1);
   const [connectingSourceId, setConnectingSourceId] = useState<string | null>(null);
 
+  // Canvas Pan state (left-click drag canvas)
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const panRef = useRef({ x: 0, y: 0 });
+  panRef.current = pan;
+
   // Dragging state
   const draggingNodeRef = useRef<{
     id: string;
@@ -65,6 +71,61 @@ export function WorkflowCanvas({
     initY: number;
   } | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  // Handle Dragging Canvas (Pan on left-click drag)
+  const handleCanvasMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    const target = e.target as HTMLElement;
+    if (
+      target.closest(".workflow-node") ||
+      target.closest("button") ||
+      target.closest("input") ||
+      target.closest(".canvas-control")
+    ) {
+      return;
+    }
+
+    onSelectNode(null);
+    setConnectingSourceId(null);
+    setIsPanning(true);
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initX = panRef.current.x;
+    const initY = panRef.current.y;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+      setPan({
+        x: initX + dx,
+        y: initY + dy,
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsPanning(false);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  // Wheel pan / zoom
+  const handleCanvasWheel = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.05 : 0.95;
+      setZoomLevel((prev) => Math.min(1.8, Math.max(0.4, prev * zoomFactor)));
+    } else {
+      setPan((prev) => ({
+        x: prev.x - e.deltaX,
+        y: prev.y - e.deltaY,
+      }));
+    }
+  };
 
   // Handle Dragging Nodes
   const handleNodeMouseDown = (e: React.MouseEvent, node: WorkflowNode) => {
@@ -298,20 +359,21 @@ export function WorkflowCanvas({
       {/* Canvas Grid Body */}
       <div
         ref={canvasRef}
-        onClick={(e) => {
-          if (e.target === canvasRef.current || (e.target as HTMLElement).tagName === "svg") {
-            onSelectNode(null);
-            setConnectingSourceId(null);
-          }
+        onMouseDown={handleCanvasMouseDown}
+        onWheel={handleCanvasWheel}
+        style={{
+          backgroundPosition: `${pan.x}px ${pan.y}px`,
         }}
-        className="relative flex-1 w-full h-full overflow-auto bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] cursor-grab active:cursor-grabbing"
+        className={`relative flex-1 w-full h-full overflow-hidden select-none bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] ${
+          isPanning ? "cursor-grabbing" : "cursor-grab"
+        }`}
       >
         <div
           style={{
-            transform: `scale(${zoomLevel})`,
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoomLevel})`,
             transformOrigin: "0 0",
-            minWidth: "1600px",
-            minHeight: "1000px",
+            width: "5000px",
+            height: "3500px",
             position: "relative",
           }}
         >
@@ -412,7 +474,7 @@ export function WorkflowCanvas({
                   left: `${node.position.x}px`,
                   top: `${node.position.y}px`,
                 }}
-                className={`absolute w-60 bg-white/95 backdrop-blur-md rounded-2xl border ${border} p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer z-10 ${
+                className={`workflow-node absolute w-60 bg-white/95 backdrop-blur-md rounded-2xl border ${border} p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer z-10 ${
                   isSelected ? `ring-2 ${ring} shadow-lg ring-offset-2` : ""
                 } ${isActive ? "ring-4 ring-blue-500 animate-pulse" : ""}`}
               >
@@ -477,12 +539,12 @@ export function WorkflowCanvas({
         </div>
       </div>
 
-      {/* Zoom & Canvas Controls (Bottom Right) */}
-      <div className="absolute bottom-5 right-5 z-20 flex items-center gap-1.5 bg-white/90 backdrop-blur-md p-1.5 rounded-2xl border border-outline-variant/60 shadow-lg">
+      {/* Canvas Bottom-Right Zoom Controls */}
+      <div className="canvas-control absolute bottom-6 right-6 flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-outline-variant/50 shadow-lg z-20">
         {onOpenAddNode && (
           <button
             onClick={onOpenAddNode}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-white text-xs font-bold shadow-xs hover:bg-primary-dark transition-all hover:scale-105 mr-1"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white hover:bg-primary-dark rounded-xl text-xs font-bold transition-all shadow-xs"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Node</span>
@@ -506,9 +568,12 @@ export function WorkflowCanvas({
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
-          onClick={() => setZoomLevel(1)}
+          onClick={() => {
+            setZoomLevel(1);
+            setPan({ x: 0, y: 0 });
+          }}
           className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors"
-          title="Reset Zoom"
+          title="Reset View (100% & Pan)"
         >
           <Maximize2 className="w-4 h-4" />
         </button>
