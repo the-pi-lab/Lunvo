@@ -30,6 +30,46 @@
 | **MCP Server**        | No              | No            | **✅ `npx lunvo-mcp` (Cursor / Claude Desktop)**    |
 | **बैन रिस्क**         | High (Scrapers) | High          | **✅ Zero Ban Guaranteed**                          |
 
+## 🎥 लाइव मोशन डेमो और स्क्रीनशॉट्स
+
+<div align="center">
+
+<a href="https://lunvo.vercel.app"><img src="./public/screenshots/lunvo-demo-motion.webp" alt="LUNVO 2.0 Motion Demo Walkthrough" width="100%" style="border-radius:12px; border:1px solid #E5E2DA;"/></a>
+
+_Scout 3 वायरल हुक्स निकालता है → Writer आपकी Voice DNA के साथ वर्ड-बाय-वर्ड स्ट्रीम करता है → Critic 94/100 स्कोर देता है → विजुअल नोड ऑटोमेशन पूरा पाइपलाइन चलाता है।_
+
+</div>
+
+<details open>
+<summary><b>📸 UI और फीचर्स गैलरी (क्लिक करें)</b></summary>
+<br/>
+
+### 1. n8n-स्टाइल विजुअल नोड ग्राफ बिल्डर
+
+<img src="./public/screenshots/workflow-canvas.png" alt="LUNVO Visual Workflow Canvas" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 2. नोड इंस्पेक्टर और मॉडल ओवरराइड्स
+
+<img src="./public/screenshots/node-inspector.png" alt="LUNVO Node Inspector Panel" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 3. लाइव 3-एजेंट पाइपलाइन एग्जीक्यूशन और स्कोर आउटपुट
+
+<img src="./public/screenshots/pipeline-execution.png" alt="LUNVO Live Pipeline Execution" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 4. 24/7 टेलीग्राम रिमोट बॉट और मोबाइल फोन कंट्रोल्स
+
+<img src="./public/screenshots/telegram-bot.png" alt="LUNVO Telegram Companion Bot" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 5. हेडलेस Model Context Protocol (MCP) सर्वर (Cursor और Claude के लिए)
+
+<img src="./public/screenshots/mcp-suite.png" alt="LUNVO Headless MCP Server" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 6. आउटबाउंड वेबहूक शेड्यूलर और क्यू मैनेजर (Zapier / Make / Buffer)
+
+<img src="./public/screenshots/distribution-webhooks.png" alt="LUNVO Webhook Distribution" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+</details>
+
 ---
 
 ## ✨ मुख्य फीचर्स (LUNVO 2.0)

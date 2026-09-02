@@ -73,15 +73,15 @@
 
 ---
 
-## ✨ See It In Action — 15s GIF
+## ✨ See It In Action — Live Demo & Motion Walkthrough
 
 <div align="center">
 
 > **Live Demo → https://lunvo.vercel.app** — Try free analysis without signup. `10s me samajh` — paste → Scout (angle + 3 hooks) → Writer (Voice DNA) → Critic (94/100) → Copy.
 
-<a href="https://lunvo.vercel.app"><img src="https://via.placeholder.com/1200x675.png?text=LUNVO+15s+Demo:+Scout→Writer→Critic+Live+Streaming+Word-by-Word" alt="LUNVO 15s Demo GIF — Scout Writer Critic Live" width="90%" style="border-radius:12px; border:1px solid #E5E2DA;"/></a>
+<a href="https://lunvo.vercel.app"><img src="./public/screenshots/lunvo-demo-motion.webp" alt="LUNVO 2.0 Motion Demo Walkthrough" width="100%" style="border-radius:12px; border:1px solid #E5E2DA;"/></a>
 
-_Scout finds 3 hooks → Writer streams word-by-word with your Voice DNA → Critic scores 94/100 — all in 8s. No signup, BYOK or local Ollama._
+_Scout finds 3 hooks → Writer streams word-by-word with your Voice DNA → Critic scores 94/100 → Visual Node Automation executes — all locally and 100% private._
 
 <p>
 <a href="https://lunvo.vercel.app"><img src="https://img.shields.io/badge/LIVE_DEMO-Try_Now-004AC6?style=for-the-badge&logo=vercel" alt="Live Demo"/></a>
@@ -89,13 +89,34 @@ _Scout finds 3 hooks → Writer streams word-by-word with your Voice DNA → Cri
 <a href="https://railway.app/new/template?template=https://github.com/the-pi-lab/Lunvo"><img src="https://img.shields.io/badge/Deploy_on_Railway-0B0D0E?style=for-the-badge&logo=railway" alt="Deploy Railway"/></a>
 </p>
 
-<details>
-<summary><b>📸 Click to see more screenshots</b></summary>
+<details open>
+<summary><b>📸 UI Showcase & Feature Gallery (Click to toggle)</b></summary>
 <br/>
-<img src="https://via.placeholder.com/1000x600.png?text=Dashboard+Bento+Grid+V2+Glass+Pastel" width="100%"/>
-<img src="https://via.placeholder.com/1000x600.png?text=Editor+V2+Tiptap+Slash+Preview+Side-by-Side" width="100%"/>
-<img src="https://via.placeholder.com/1000x600.png?text=Voice+DNA+Tuner+V2+4+Sliders+Auto-fill" width="100%"/>
-<img src="https://via.placeholder.com/1000x600.png?text=Image+Studio+6+Styles+Carousel+PDF" width="100%"/>
+
+### 1. n8n-Style Visual Node Graph Builder
+
+<img src="./public/screenshots/workflow-canvas.png" alt="LUNVO Visual Workflow Canvas" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 2. Dedicated Node Inspector & Model Overrides
+
+<img src="./public/screenshots/node-inspector.png" alt="LUNVO Node Inspector Panel" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 3. Live 3-Agent Pipeline Execution & 92+ Score Output Drawer
+
+<img src="./public/screenshots/pipeline-execution.png" alt="LUNVO Live Pipeline Execution" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 4. 24/7 Telegram Companion Bot & Remote Mobile Phone Controls
+
+<img src="./public/screenshots/telegram-bot.png" alt="LUNVO Telegram Companion Bot" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 5. Headless Model Context Protocol (MCP) Server Suite for Cursor & Claude
+
+<img src="./public/screenshots/mcp-suite.png" alt="LUNVO Headless MCP Server" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 6. Outbound Webhook Scheduler & Queue Manager (Zapier / Make / Buffer)
+
+<img src="./public/screenshots/distribution-webhooks.png" alt="LUNVO Webhook Distribution" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
 </details>
 
 </div>
