@@ -34,7 +34,7 @@
 
 <div align="center">
 
-<a href="https://lunvo.vercel.app"><img src="./public/screenshots/lunvo-demo-motion.webp" alt="LUNVO 2.0 Motion Demo Walkthrough" width="100%" style="border-radius:12px; border:1px solid #E5E2DA;"/></a>
+<a href="https://lunvo-tawny.vercel.app/"><img src="./public/screenshots/lunvo-demo-motion.webp" alt="LUNVO 2.0 Motion Demo Walkthrough" width="100%" style="border-radius:12px; border:1px solid #E5E2DA;"/></a>
 
 _Scout 3 वायरल हुक्स निकालता है → Writer आपकी Voice DNA के साथ वर्ड-बाय-वर्ड स्ट्रीम करता है → Critic 94/100 स्कोर देता है → विजुअल नोड ऑटोमेशन पूरा पाइपलाइन चलाता है।_
 
@@ -114,6 +114,8 @@ chmod +x setup.sh && ./setup.sh
 
 ---
 
-## 📄 लाइसेंस
-
-**MIT** © [THE Π LAB](https://www.thepilab.in) — VINAYAK MAHAVAR
+## 📄 लाइसेंस एवं कंपनी
+ 
+**MIT** © [THE Π LAB](https://www.thepilab.in) — **VINAYAK MAHAVAR**
+- **कंपनी लिंक्डइन:** [THE Π LAB on LinkedIn](https://www.linkedin.com/company/the-%CF%80-lab/)
+- **लाइव प्रोडक्शन:** [https://lunvo-tawny.vercel.app/](https://lunvo-tawny.vercel.app/)

@@ -69,7 +69,7 @@ export function generateICS(content: string, scheduledDate?: string): string {
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
-    `UID:lunvo-${Date.now()}@lunvo.app`,
+    `UID:lunvo-${Date.now()}@lunvo-tawny.vercel.app`,
     `DTSTAMP:${dtStamp}`,
     `DTSTART:${dtStart}`,
     `DTEND:${dtEnd}`,

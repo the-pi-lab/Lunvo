@@ -2,7 +2,7 @@
 
 **Tagline:** `LUNVO — Open Source Taplio Killer. BYOK. Zero Ban. Self-Host in 30s.`
 **Cover:** `1270×760` 5 shots (see `cover.html` / `cover-1270x760.png`)
-**URL:** https://github.com/the-pi-lab/Lunvo + https://lunvo.vercel.app
+**URL:** https://github.com/the-pi-lab/Lunvo + https://lunvo-tawny.vercel.app/
 
 ## Timeline (IST)
 

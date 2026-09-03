@@ -11,7 +11,7 @@ export default function DocsPage() {
       <p className="kicker mb-3">Docs</p>
       <h1 className="font-serif text-4xl font-medium tracking-tight text-zinc-900">LUNVO Docs</h1>
       <p className="mt-3 text-zinc-600 leading-relaxed">
-        BYOK, Self-Host, and API — hosted at <b>lunvo.vercel.app/docs</b>. Local-first, 0% vendor
+        BYOK, Self-Host, and API — hosted at <b>lunvo-tawny.vercel.app/docs</b>. Local-first, 0% vendor
         lock-in.
       </p>
 
@@ -80,7 +80,7 @@ export default function DocsPage() {
         <div className="mt-4 text-xs font-mono text-white/40">Verified: docs/self-host 3 steps</div>
       </div>
 
-      <p className="text-center kicker mt-10">lunvo.vercel.app/docs — live</p>
+      <p className="text-center kicker mt-10">lunvo-tawny.vercel.app/docs — live</p>
     </main>
   );
 }
