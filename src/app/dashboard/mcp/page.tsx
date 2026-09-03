@@ -77,7 +77,8 @@ const MCP_TOOLS = [
   },
   {
     name: "schedule_post",
-    description: "Queues a post locally and dispatches payload to Zapier / Make / Buffer webhook.",
+    description:
+      "Queues a post locally in the browser (Dashboard → Distribution). Headless stdio returns instructions instead of false-queuing.",
     params: "content (string), scheduledTime (ISO string), webhookUrl? (string)",
     icon: Clock,
     color: "text-rose-600 bg-rose-50 border-rose-200",

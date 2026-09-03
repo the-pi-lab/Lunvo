@@ -105,7 +105,7 @@ export default function WorkflowBuilderPage() {
   return (
     <div className="h-full w-full flex flex-col overflow-hidden">
       {/* Top Studio Control Bar */}
-      <header className="h-16 px-6 border-b border-outline-variant/40 bg-surface-container-lowest flex items-center justify-between z-30 shadow-xs">
+      <header className="h-16 shrink-0 px-6 border-b border-outline-variant/40 bg-surface-container-lowest flex items-center justify-between z-30 shadow-xs">
         {/* Left: Mode Switcher & Title */}
         <div className="flex items-center gap-4">
           <ModeSwitcher />
@@ -182,7 +182,7 @@ export default function WorkflowBuilderPage() {
       </header>
 
       {/* Main Canvas & Inspector Viewport */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 min-h-0 flex overflow-hidden">
         <WorkflowCanvas
           workflow={activeWorkflow}
           onUpdateWorkflow={setActiveWorkflow}

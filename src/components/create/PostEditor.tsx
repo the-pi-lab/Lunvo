@@ -275,8 +275,8 @@ export function PostEditor({ content, score, notes }: PostEditorProps) {
             </div>
           </div>
           <p className="text-[0.6875rem] text-on-surface-variant/60 mt-2 leading-relaxed">
-            Banned phrases removed + burstiness varied. Toggle ON → 90% human. Uses your BYOK key if
-            set, else local heuristic.
+            Banned phrases removed + burstiness varied. Toggle ON targets 85%+ human (local
+            heuristic). Uses your BYOK key if set, else local heuristic.
           </p>
         </div>
 

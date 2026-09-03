@@ -236,7 +236,8 @@ export default function TelegramSettingsPage() {
             <div className="p-3.5 rounded-2xl bg-surface-container/40 border border-outline-variant/30 space-y-1">
               <code className="font-bold text-purple-600">/humanize</code>
               <p className="text-on-surface-variant text-[11px]">
-                Strips out AI clichés and boosts sentence burstiness for a 90%+ human score.
+                Strips out AI clichés and boosts sentence burstiness toward an 85%+ human score
+                (heuristic).
               </p>
             </div>
 

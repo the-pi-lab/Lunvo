@@ -51,7 +51,7 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' https://us.i.posthog.com https://us-assets.i.posthog.com",
+              `script-src 'self' 'unsafe-inline' ${process.env.NODE_ENV !== "production" ? "'unsafe-eval' " : ""}https://us.i.posthog.com https://us-assets.i.posthog.com`,
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://image.pollinations.ai https://placehold.co https://avatars.githubusercontent.com https://img.shields.io https://api.dicebear.com https://api.star-history.com https://socialify.git.ci https://capsule-render.vercel.app https://readme-typing-svg.herokuapp.com",

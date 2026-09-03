@@ -31,6 +31,8 @@ import {
   Minus,
   Focus,
   Crosshair,
+  Scan,
+  RotateCcw,
 } from "lucide-react";
 import { executeWorkflow } from "@/lib/workflow/workflowRunner";
 import { getActiveAIProfile } from "@/lib/apiHelper";
@@ -187,6 +189,26 @@ export function WorkflowCanvas({
     }
   }, [workflow?.metadata?.id, workflow.nodes.length, handleFitView]);
 
+  // n8n-style keyboard shortcuts: F / Ctrl+1 fit, Ctrl+0 reset 100%, Ctrl +/- zoom
+  const handleZoomStep = useCallback(
+    (delta: number) => {
+      triggerAnimation();
+      const z = zoomRef.current;
+      const newZoom = Math.min(1.8, Math.max(0.4, Number((z + delta).toFixed(2))));
+      setZoomLevel(newZoom);
+      setPan((prev) => clampPan(prev.x, prev.y, newZoom));
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const handleResetZoom = useCallback(() => {
+    triggerAnimation();
+    setZoomLevel(1);
+    setPan((prev) => clampPan(prev.x, prev.y, 1));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Keyboard shortcut for fit view ('f' or 'Ctrl+1')
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -195,14 +217,27 @@ export function WorkflowCanvas({
 
       if ((e.ctrlKey || e.metaKey) && (e.key === "0" || e.key === "1")) {
         e.preventDefault();
-        handleFitView();
+        if (e.key === "0") handleResetZoom();
+        else handleFitView();
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === "+" || e.key === "=")) {
+        e.preventDefault();
+        handleZoomStep(0.1);
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === "-" || e.key === "_")) {
+        e.preventDefault();
+        handleZoomStep(-0.1);
       } else if (e.key === "f" || e.key === "F") {
         handleFitView();
+      } else if (e.key === "+" || e.key === "=") {
+        handleZoomStep(0.1);
+      } else if (e.key === "-" || e.key === "_") {
+        handleZoomStep(-0.1);
+      } else if (e.key === "0") {
+        handleResetZoom();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleFitView]);
+  }, [handleFitView, handleZoomStep, handleResetZoom]);
 
   // Handle Dragging Canvas (Pan on left-click drag)
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
@@ -445,9 +480,9 @@ export function WorkflowCanvas({
   };
 
   return (
-    <div className="relative flex-1 h-full flex flex-col bg-[#F8F9FB] overflow-hidden select-none">
+    <div className="relative flex-1 min-h-0 w-full flex flex-col bg-[#F8F9FB] overflow-hidden select-none">
       {/* Canvas Top Bar */}
-      <div className="h-14 px-5 border-b border-outline-variant/40 bg-surface-container-lowest/80 backdrop-blur-md flex items-center justify-between z-20 shadow-xs">
+      <div className="h-14 shrink-0 px-5 border-b border-outline-variant/40 bg-surface-container-lowest/80 backdrop-blur-md flex items-center justify-between z-20 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-on-surface-variant">Input Topic:</span>
@@ -503,7 +538,7 @@ export function WorkflowCanvas({
         style={{
           backgroundPosition: `${pan.x}px ${pan.y}px`,
         }}
-        className={`relative flex-1 w-full h-full overflow-hidden select-none bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] ${
+        className={`relative flex-1 min-h-0 w-full overflow-hidden select-none bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] ${
           isPanning ? "cursor-grabbing" : "cursor-grab"
         }`}
       >
@@ -695,101 +730,90 @@ export function WorkflowCanvas({
             );
           })}
         </div>
-      </div>
 
-      {/* n8n-Style Floating Controls Dock */}
-      <div className="canvas-control absolute bottom-6 right-6 flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-outline-variant/60 shadow-xl shadow-black/5 z-20 transition-all">
-        {onOpenAddNode && (
-          <>
+        {/* Canvas Floating Controls Dock (Exact 1:1 match with user reference screenshot) */}
+        <div className="canvas-control absolute bottom-6 right-6 flex items-center gap-2 z-20">
+          {onOpenAddNode && (
             <button
               onClick={onOpenAddNode}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white hover:bg-primary/90 rounded-xl text-xs font-bold transition-all shadow-xs active:scale-95"
+              className="flex items-center gap-1.5 px-3.5 h-9 bg-primary hover:bg-primary/90 text-white rounded-lg text-xs font-bold transition-all shadow-xs hover:shadow-sm active:scale-95 mr-1"
               title="Add Node to Canvas"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-4 h-4" />
               <span>Add Node</span>
             </button>
-            <div className="w-px h-5 bg-outline-variant/60 mx-1" />
-          </>
-        )}
+          )}
 
-        {/* Zoom Out (-) */}
-        <button
-          onClick={() => {
-            triggerAnimation();
-            const newZoom = Math.max(0.4, Number((zoomLevel - 0.1).toFixed(2)));
-            setZoomLevel(newZoom);
-            setPan((prev) => clampPan(prev.x, prev.y, newZoom));
-          }}
-          className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors active:scale-90"
-          title="Zoom Out (Ctrl + -)"
-          aria-label="Zoom Out"
-        >
-          <Minus className="w-4 h-4" />
-        </button>
+          {/* 1. Fit to Screen (4-Corner Frame / Scan) */}
+          <button
+            onClick={handleFitView}
+            className="w-9 h-9 flex items-center justify-center bg-white dark:bg-surface-container-highest border border-slate-200 dark:border-outline-variant/60 rounded-lg shadow-xs hover:shadow-sm text-slate-700 dark:text-slate-200 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
+            title="Fit to Screen (Center all nodes) — Press 'F'"
+            aria-label="Fit View"
+          >
+            <Scan className="w-4 h-4 stroke-[2.2]" />
+          </button>
 
-        {/* Zoom Percentage / Click to Reset to 100% */}
-        <button
-          onClick={() => {
-            triggerAnimation();
-            setZoomLevel(1);
-            setPan((prev) => clampPan(prev.x, prev.y, 1));
-          }}
-          className="px-2 py-1 text-xs font-mono font-bold text-on-surface hover:bg-surface-container rounded-lg transition-colors"
-          title="Click to reset zoom to 100%"
-        >
-          {Math.round(zoomLevel * 100)}%
-        </button>
+          {/* 2. Zoom In (Magnifying glass with +) */}
+          <button
+            onClick={() => handleZoomStep(0.1)}
+            className="w-9 h-9 flex items-center justify-center bg-white dark:bg-surface-container-highest border border-slate-200 dark:border-outline-variant/60 rounded-lg shadow-xs hover:shadow-sm text-slate-700 dark:text-slate-200 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
+            title="Zoom In (Ctrl + +)"
+            aria-label="Zoom In"
+          >
+            <ZoomIn className="w-4 h-4 stroke-[2.2]" />
+          </button>
 
-        {/* Zoom In (+) */}
-        <button
-          onClick={() => {
-            triggerAnimation();
-            const newZoom = Math.min(1.8, Number((zoomLevel + 0.1).toFixed(2)));
-            setZoomLevel(newZoom);
-            setPan((prev) => clampPan(prev.x, prev.y, newZoom));
-          }}
-          className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors active:scale-90"
-          title="Zoom In (Ctrl + +)"
-          aria-label="Zoom In"
-        >
-          <Plus className="w-4 h-4" />
-        </button>
+          {/* 3. Zoom Out (Magnifying glass with -) */}
+          <button
+            onClick={() => handleZoomStep(-0.1)}
+            className="w-9 h-9 flex items-center justify-center bg-white dark:bg-surface-container-highest border border-slate-200 dark:border-outline-variant/60 rounded-lg shadow-xs hover:shadow-sm text-slate-700 dark:text-slate-200 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
+            title="Zoom Out (Ctrl + -)"
+            aria-label="Zoom Out"
+          >
+            <ZoomOut className="w-4 h-4 stroke-[2.2]" />
+          </button>
 
-        <div className="w-px h-5 bg-outline-variant/60 mx-1" />
+          {/* 4. Reset Zoom / Recenter (Counter-clockwise curved arrow) */}
+          <button
+            onClick={() => {
+              triggerAnimation();
+              setZoomLevel(1);
+              setPan((prev) => clampPan(prev.x, prev.y, 1));
+            }}
+            className="w-9 h-9 flex items-center justify-center bg-white dark:bg-surface-container-highest border border-slate-200 dark:border-outline-variant/60 rounded-lg shadow-xs hover:shadow-sm text-slate-700 dark:text-slate-200 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
+            title="Reset zoom to 100% & Recenter"
+            aria-label="Reset Zoom"
+          >
+            <RotateCcw className="w-4 h-4 stroke-[2.2]" />
+          </button>
 
-        {/* n8n-Style Fit to Screen / Recenter */}
-        <button
-          onClick={handleFitView}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-all active:scale-95 shadow-2xs"
-          title="Fit View to Screen (Center all nodes) — Press 'F'"
-        >
-          <Focus className="w-3.5 h-3.5" />
-          <span>Fit View</span>
-        </button>
+          {/* Zoom level percentage badge */}
+          <div
+            onClick={() => {
+              triggerAnimation();
+              setZoomLevel(1);
+              setPan((prev) => clampPan(prev.x, prev.y, 1));
+            }}
+            className="h-9 px-2.5 flex items-center justify-center bg-white dark:bg-surface-container-highest border border-slate-200 dark:border-outline-variant/60 rounded-lg shadow-xs text-xs font-mono font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 cursor-pointer transition-colors select-none"
+            title="Click to reset zoom to 100%"
+          >
+            {Math.round(zoomLevel * 100)}%
+          </div>
+        </div>
 
-        {/* Reset View Origin */}
-        <button
-          onClick={() => {
-            triggerAnimation();
-            setZoomLevel(1);
-            setPan(clampPan(80, 80, 1));
-          }}
-          className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors active:scale-90"
-          title="Reset Origin (Top-Left & 100%)"
-          aria-label="Reset Origin"
-        >
-          <Maximize2 className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Canvas Bottom-Left Helper Badge */}
-      <div className="canvas-control absolute bottom-6 left-6 hidden sm:flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-outline-variant/50 text-[11px] text-on-surface-variant/80 font-mono pointer-events-none z-10 shadow-sm">
-        <span>🖱️ Drag canvas to pan</span>
-        <span>•</span>
-        <span>Wheel to scroll</span>
-        <span>•</span>
-        <span>Press <kbd className="px-1 py-0.5 bg-surface-container rounded font-bold text-[10px]">F</kbd> to Fit View</span>
+        {/* Canvas Bottom-Left Helper Badge */}
+        <div className="canvas-control absolute bottom-6 left-6 hidden sm:flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-outline-variant/50 text-[11px] text-on-surface-variant/80 font-mono pointer-events-none z-10 shadow-sm">
+          <span>🖱️ Drag canvas to pan</span>
+          <span>•</span>
+          <span>Wheel to scroll</span>
+          <span>•</span>
+          <span>
+            Press{" "}
+            <kbd className="px-1 py-0.5 bg-surface-container rounded font-bold text-[10px]">F</kbd>{" "}
+            to Fit View
+          </span>
+        </div>
       </div>
 
       {/* Live Output Drawer (if execution is done) */}

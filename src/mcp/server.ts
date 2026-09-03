@@ -126,7 +126,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       {
         name: "humanize_post",
         description:
-          "Strips out AI clichés ('delve', 'tapestry', 'synergy') and enhances sentence length burstiness for 90%+ human score.",
+          "Strips out AI clichés ('delve', 'tapestry', 'synergy') and enhances sentence length burstiness toward 85%+ human score (local heuristic).",
         inputSchema: {
           type: "object",
           properties: {
