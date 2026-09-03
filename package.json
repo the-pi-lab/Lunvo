@@ -60,7 +60,6 @@
   "devDependencies": {
     "@chromatic-com/storybook": "latest",
     "@playwright/test": "^1.62.1",
-    "@remotion/cli": "^4.0.520",
     "@storybook/addon-a11y": "^10.5.10",
     "@storybook/addon-docs": "^10.5.10",
     "@storybook/addon-mcp": "latest",
@@ -86,7 +85,6 @@
     "playwright": "latest",
     "postcss": "^8.4.47",
     "prettier": "^3.9.6",
-    "remotion": "^4.0.520",
     "storybook": "^10.5.10",
     "tailwindcss": "^3.4.14",
     "tailwindcss-animate": "^1.0.7",

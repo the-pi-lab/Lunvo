@@ -3,8 +3,11 @@
 /.pnp
 .pnp.js
 
-# testing
+# testing & coverage
 /coverage
+playwright-report
+test-results
+playwright/.cache
 
 # next.js
 /.next/
@@ -16,16 +19,30 @@
 # misc
 .DS_Store
 *.pem
-Best SaaS Product Demo Video _ Teamble.mp4
 .freebuff/
 
-# debug
+# videos & media (never track heavy video binaries in repo)
+*.mp4
+*.webm
+*.mov
+*.avi
+*.mkv
+public/showcase-screens/
+test_*.png
+
+# debug & logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.log
+dev-server.log
+prod-build.log
+*storybook.log
+storybook-static
 
 # local env files
 .env
+.env*
 .env.local
 .env.development.local
 .env.test.local
@@ -41,28 +58,17 @@ next-env.d.ts
 # stitch reference files
 stitch_linkedin_ai_growth_assistant/
 
-# Large data files
+# Large data files & backups
 influencers_data.csv
 Ebook-The Hustle-LinkedIn Success Database_ 50 Viral Posts Decoded-1.pdf
-
-# lunvo backups
 *.backup.*
 REBUILD_PLAN.md.backup*
 
-# testing
-coverage
-playwright-report
-test-results
-playwright/.cache
-
-dev-server.log
-
-*storybook.log
-storybook-static
-prod-build.log
+# audits & scratch
+*audit*.md
+*AUDIT*.md
+*audit*.txt
+REBUILD_PLAN.md
 
 # graphify — local knowledge graph (do not publish)
 graphify-out/
-
-.vercel
-.env*
