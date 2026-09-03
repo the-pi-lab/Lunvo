@@ -105,38 +105,58 @@ _Scout discovers contrarian hooks → Writer streams word-by-word with Voice DNA
 </p>
 
 <details open>
-<summary><b>📸 UI Showcase & Feature Gallery (Click to toggle)</b></summary>
+<summary><b>📸 UI Showcase & Feature Gallery — Direct From Live Production (Click to toggle)</b></summary>
 <br/>
 
-### 1. n8n-Style 2D Visual Workflow Canvas
-Full interactive pan, zoom (30% to 200%), wire dragging, and real-time step execution with topological runtime.
+### 1. Modern Landing Page & Atelier Hero
+The entry door to the LinkedIn OS — featuring real-time interactive previews and zero-friction access.
+
+<img src="./public/screenshots/landing-hero.png" alt="LUNVO Live Landing Hero" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 2. Mission Control — Dashboard Bento Grid
+Consolidated view of your LinkedIn growth streak, quick actions, pipeline status, and content health.
+
+<img src="./public/screenshots/dashboard-bento.png" alt="LUNVO Dashboard Bento Grid" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 3. Content Creation Studio & Tiptap AI Editor
+Drafting workstation with inline slash commands (`/hook`, `/cta`), active Voice DNA injection, and live side-by-side LinkedIn mobile preview.
+
+<img src="./public/screenshots/content-studio.png" alt="LUNVO Content Creation Studio" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 4. Post Analyzer & 100-Point Virality Meter
+Instant audit of hook impact, mobile readability, dwell-time estimation, and Anti-AI Humanizer score.
+
+<img src="./public/screenshots/post-analyzer.png" alt="LUNVO Post Analyzer and Virality Engine" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 5. n8n-Style 2D Visual Workflow Automation Canvas
+Full interactive pan, zoom (30% to 200%), node wiring, and live topological pipeline execution.
 
 <img src="./public/screenshots/workflow-canvas.png" alt="LUNVO Visual Workflow Canvas" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
-### 2. Node Inspector & Per-Node AI Model Routing
-Override providers per node — use Groq for fast brainstorming, Claude 3.5 Sonnet for copy, and DeepSeek for critique across 54+ providers.
+### 6. Production Workflow Template Gallery
+12 prebuilt automation recipes — Daily RSS News to Post, YouTube Transcript Repurposer, Bullet Notes to Carousel PDF, Quality Gatekeeper, and more.
 
-<img src="./public/screenshots/node-inspector.png" alt="LUNVO Node Inspector Panel" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+<img src="./public/screenshots/workflow-templates.png" alt="LUNVO Workflow Template Gallery" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
-### 3. Live 3-Agent Pipeline Execution & Virality Drawer
-Visual real-time streaming as Scout, Writer, and Critic synthesize and score posts.
+### 7. SSRF-Protected Outbound Webhook Dispatcher & Queue Manager
+Schedule posts directly to Zapier, Make, and Buffer with zero account risk (no scrapers, no cookie hijacking).
 
-<img src="./public/screenshots/pipeline-execution.png" alt="LUNVO Live Pipeline Execution" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+<img src="./public/screenshots/distribution-webhooks.png" alt="LUNVO Webhook Distribution Queue" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
-### 4. 24/7 Telegram Companion Bot & Remote Mobile Phone Control
-Generate drafts on the go via `/idea`, review inline keyboards, trigger `/humanize`, and `/approve` straight into your schedule.
+### 8. 54+ AI Provider Vault & Settings
+Client-side encrypted BYOK key storage supporting Frontier models, fast inference (Groq, Cerebras), open providers, and offline local Ollama.
+
+<img src="./public/screenshots/settings-vault.png" alt="LUNVO Provider Vault and Settings" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 9. 24/7 Mobile Telegram Companion Bot
+Remote command interface for smartphone control — generate ideas via `/idea`, rewrite via `/humanize`, and `/approve` directly to queue.
 
 <img src="./public/screenshots/telegram-bot.png" alt="LUNVO Telegram Companion Bot" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
-### 5. Headless Model Context Protocol (MCP) Server
-Claude Desktop, Cursor, and Antigravity can directly leverage LUNVO via 8 registered tools (`npx lunvo-mcp`).
+### 10. Headless Model Context Protocol (MCP) Suite
+Direct native IDE integration for Claude Desktop, Cursor, and Antigravity with 8 registered tool endpoints (`npx lunvo-mcp`).
 
 <img src="./public/screenshots/mcp-suite.png" alt="LUNVO Headless MCP Server" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
-
-### 6. SSRF-Protected Outbound Webhook Dispatcher & Queue Manager
-Schedule posts to Zapier, Make, and Buffer with hardened IP blocklists, userinfo sanitization, and manual redirect validation.
-
-<img src="./public/screenshots/distribution-webhooks.png" alt="LUNVO Webhook Distribution" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
 </details>
 

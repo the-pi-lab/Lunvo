@@ -41,32 +41,58 @@ _Scout 3 वायरल हुक्स निकालता है → Writer
 </div>
 
 <details open>
-<summary><b>📸 UI और फीचर्स गैलरी (क्लिक करें)</b></summary>
+<summary><b>📸 UI और फीचर्स गैलरी — लाइव प्रोडक्शन से (क्लिक करें)</b></summary>
 <br/>
 
-### 1. n8n-स्टाइल विजुअल नोड ग्राफ बिल्डर
+### 1. आधुनिक लैंडिंग पेज और अतीलिए हीरो
+लिंक्डइन OS का मुख्य प्रवेश द्वार — लाइव इंटरएक्टिव प्रीव्यू और तत्काल एक्सेस।
+
+<img src="./public/screenshots/landing-hero.png" alt="LUNVO Live Landing Hero" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 2. मिशन कंट्रोल — डैशबोर्ड बेंटो ग्रिड
+ग्रोथ स्ट्रीक, क्विक एक्शन्स, और कंटेंट हेल्थ का एक ही स्क्रीन पर विस्तृत दृश्य।
+
+<img src="./public/screenshots/dashboard-bento.png" alt="LUNVO Dashboard Bento Grid" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 3. कंटेंट क्रिएशन स्टूडियो और Tiptap AI एडिटर
+स्लैश कमांड्स (`/hook`, `/cta`), Voice DNA और लाइव लिंक्डइन मोबाइल प्रीव्यू के साथ।
+
+<img src="./public/screenshots/content-studio.png" alt="LUNVO Content Creation Studio" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 4. पोस्ट एनालाइजर और 100-पॉइंट वायरल मीटर
+हुक इम्पैक्ट, मोबाइल रीडेबिलिटी और Anti-AI ह्यूमन स्कोर का तत्काल ऑडिट।
+
+<img src="./public/screenshots/post-analyzer.png" alt="LUNVO Post Analyzer and Virality Engine" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 5. n8n-स्टाइल 2D विजुअल वर्कफ़्लो ऑटोमेशन कैनवास
+पैन, ज़ूम (30% से 200%), नोड वायरिंग और लाइव पाइपलाइन एग्जीक्यूशन।
 
 <img src="./public/screenshots/workflow-canvas.png" alt="LUNVO Visual Workflow Canvas" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
-### 2. नोड इंस्पेक्टर और मॉडल ओवरराइड्स
+### 6. प्रोडक्शन वर्कफ़्लो टेम्पलेट्स गैलरी
+12 प्रीबिल्ट ऑटोमेशन टेम्पलेट्स — RSS News to Post, YouTube Repurposer, Carousel PDF, Quality Gatekeeper.
 
-<img src="./public/screenshots/node-inspector.png" alt="LUNVO Node Inspector Panel" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+<img src="./public/screenshots/workflow-templates.png" alt="LUNVO Workflow Template Gallery" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
-### 3. लाइव 3-एजेंट पाइपलाइन एग्जीक्यूशन और स्कोर आउटपुट
+### 7. सुरक्षित आउटबाउंड वेबहूक शेड्यूलर और क्यू मैनेजर
+Zapier, Make, और Buffer के जरिए बिना बैन रिस्क के ऑटो-शेड्यूलिंग।
 
-<img src="./public/screenshots/pipeline-execution.png" alt="LUNVO Live Pipeline Execution" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+<img src="./public/screenshots/distribution-webhooks.png" alt="LUNVO Webhook Distribution Queue" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
-### 4. 24/7 टेलीग्राम रिमोट बॉट और मोबाइल फोन कंट्रोल्स
+### 8. 54+ AI प्रोवाइडर वॉल्ट और सेटिंग्स
+Frontier, Groq, Cerebras और ऑफलाइन Ollama के लिए क्लाइंट-साइड सिक्योर की स्टोरेज।
+
+<img src="./public/screenshots/settings-vault.png" alt="LUNVO Provider Vault and Settings" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
+
+### 9. 24/7 टेलीग्राम रिमोट बॉट और मोबाइल फोन कंट्रोल्स
+फोन से बैठे-बैठे `/idea`, `/humanize`, और `/approve` के जरिए पोस्ट शेड्यूल करें।
 
 <img src="./public/screenshots/telegram-bot.png" alt="LUNVO Telegram Companion Bot" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
-### 5. हेडलेस Model Context Protocol (MCP) सर्वर (Cursor और Claude के लिए)
+### 10. हेडलेस Model Context Protocol (MCP) सर्वर
+Claude Desktop, Cursor और Antigravity IDE के लिए 8 टूल्स (`npx lunvo-mcp`).
 
 <img src="./public/screenshots/mcp-suite.png" alt="LUNVO Headless MCP Server" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
-
-### 6. आउटबाउंड वेबहूक शेड्यूलर और क्यू मैनेजर (Zapier / Make / Buffer)
-
-<img src="./public/screenshots/distribution-webhooks.png" alt="LUNVO Webhook Distribution" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
 </details>
 
