@@ -343,12 +343,15 @@ See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for full guidelines.
 
 If this saves you **$199/mo**, please drop a ⭐ — it helps us support open source creators worldwide.
 
-<a href="https://github.com/the-pi-lab/Lunvo/stargazers"><img src="https://api.star-history.com/svg?repos=the-pi-lab/Lunvo&type=Date" width="80%" alt="Star History"/></a>
+## Star History
 
-<br/>
-
-<a href="https://github.com/the-pi-lab/Lunvo"><img src="https://img.shields.io/github/stars/the-pi-lab/Lunvo?style=social" alt="stars"/></a>
-<a href="https://github.com/the-pi-lab/Lunvo/fork"><img src="https://img.shields.io/github/forks/the-pi-lab/Lunvo?style=social" alt="forks"/></a>
+<a href="https://www.star-history.com/?repos=the-pi-lab%2FLunvo.git&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=the-pi-lab/Lunvo.git&type=date&theme=dark&legend=top-left&sealed_token=BTwig5tDje1S1A9MB6fLK9rf6iRppAmWwibrmFEq7hHikO2R3TqM_q22-eXXJITBvWpabmuMtZTH17A9m5osS9ACHKMJHbXTBvGTktp6pumj8K4awFwEFHjZu39NZ-sKJ_O26Kj_5ofrJQVSfKtjW298o36bcLM19bLCGNtfx7PAEI6ZStaNDP2Alaw6" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=the-pi-lab/Lunvo.git&type=date&legend=top-left&sealed_token=BTwig5tDje1S1A9MB6fLK9rf6iRppAmWwibrmFEq7hHikO2R3TqM_q22-eXXJITBvWpabmuMtZTH17A9m5osS9ACHKMJHbXTBvGTktp6pumj8K4awFwEFHjZu39NZ-sKJ_O26Kj_5ofrJQVSfKtjW298o36bcLM19bLCGNtfx7PAEI6ZStaNDP2Alaw6" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=the-pi-lab/Lunvo.git&type=date&legend=top-left&sealed_token=BTwig5tDje1S1A9MB6fLK9rf6iRppAmWwibrmFEq7hHikO2R3TqM_q22-eXXJITBvWpabmuMtZTH17A9m5osS9ACHKMJHbXTBvGTktp6pumj8K4awFwEFHjZu39NZ-sKJ_O26Kj_5ofrJQVSfKtjW298o36bcLM19bLCGNtfx7PAEI6ZStaNDP2Alaw6" />
+ </picture>
+</a>
 
 **Share the love:** Tweet `I just found LUNVO — open source Taplio killer. BYOK. Zero ban. Self-host in 30s. github.com/the-pi-lab/Lunvo` 🚀
 
