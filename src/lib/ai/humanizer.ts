@@ -122,7 +122,8 @@ export function isHumanScore(text: string): number {
   const banned = detectBannedPhrases(text);
   const burst = calculateBurstiness(text);
 
-  let score = 75; // base (slightly higher to make 90 achievable)
+  // Heuristic meter (beta): base 70 per spec; 90+ needs real burst + voice
+  let score = 70;
 
   // Deduct for banned phrases (heavily AI)
   score -= banned.count * 12; // slightly less harsh than 15
@@ -223,21 +224,9 @@ export function humanizeLocal(text: string): string {
   out = out.replace(/So,\s*Note:/g, "Note:");
   out = out.replace(/Note:\s*that/g, "Note that");
 
-  // 4. Ensure contractions and personal voice for human score
-  // If no contraction yet, add one naturally
-  if (!/\b(you're|we're|I'm|it's|don't|can't|won't)\b/i.test(out)) {
-    // Cheap: add a personal punch line with contraction
-    out = out.replace(/\.(\s+)([A-Z])/, ". You're going to feel this. $2");
-  }
-  // Ensure at least 2 personal pronouns
-  const personalCount = (out.match(/\b(I|my|we|our|you)\b/gi) || []).length;
-  if (personalCount < 2) {
-    out = "I've seen this firsthand. " + out;
-  }
-  // Ensure varied punctuation
-  if (!/[—–!?]/.test(out)) {
-    out = out.replace(/\.\s*$/, " — simple as that.");
-  }
+  // 4. Light touch only: contractions via dictionary above (no injected
+  // first-person anecdotes — those fabricate experience to game the meter).
+  // Punctuation variety is handled by burstiness splitting below.
 
   // 5. Burstiness: ensure not all sentences same length — split long sentences + create short punchy ones
   const sentences = out.split(/(?<=[.!?])\s+/);
@@ -253,11 +242,6 @@ export function humanizeLocal(text: string): string {
     }
     return s;
   });
-  // Inject one ultra-short sentence for burstiness if all are medium
-  const hasShort = varied.some((s) => s.split(/\s+/).length <= 5);
-  if (!hasShort && varied.length >= 3) {
-    varied.splice(2, 0, "Here's the truth.");
-  }
   out = varied.join(" ");
 
   // 6. Ensure short lines for mobile (no paragraph >3 lines) and clean

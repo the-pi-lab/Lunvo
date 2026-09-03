@@ -2,6 +2,7 @@
 
 import React from "react";
 import type { WorkflowNode, NodeType } from "@/lib/workflow/types";
+import { PROVIDER_REGISTRY, getProviderDef } from "@/lib/ai/providers/registry";
 import {
   X,
   Sliders,
@@ -64,22 +65,13 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
         },
       });
     } else {
+      const def = getProviderDef(provider);
       onUpdateNode({
         ...node,
         data: {
           ...node.data,
           providerOverride: provider,
-          modelOverride:
-            node.data.modelOverride ||
-            (provider === "groq"
-              ? "llama-3.3-70b-versatile"
-              : provider === "openai"
-                ? "gpt-4o-mini"
-                : provider === "anthropic"
-                  ? "claude-3-5-sonnet-20241022"
-                  : provider === "deepseek"
-                    ? "deepseek-chat"
-                    : "gemini-1.5-flash"),
+          modelOverride: node.data.modelOverride || def?.defaultModel || "gemini-2.0-flash",
         },
       });
     }
@@ -174,13 +166,13 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
                 className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none mb-2"
               >
                 <option value="inherit">Inherit Global Key Vault</option>
-                <option value="groq">Groq Cloud</option>
-                <option value="gemini">Google Gemini</option>
-                <option value="openai">OpenAI</option>
-                <option value="anthropic">Anthropic</option>
-                <option value="deepseek">DeepSeek</option>
-                <option value="openrouter">OpenRouter Gateway</option>
-                <option value="ollama">Local Self-Hosted (Ollama / LM Studio)</option>
+                {PROVIDER_REGISTRY.filter((p) => !p.coming).map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                    {p.local ? " (Local)" : ""}
+                    {p.freeTier ? " · Free" : ""}
+                  </option>
+                ))}
               </select>
 
               {node.data.providerOverride && (

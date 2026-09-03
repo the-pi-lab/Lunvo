@@ -1,6 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { fetchCurrentsNewsByKeyword } from "@/lib/news/currentsService";
 import { searchTrendingArticles } from "@/lib/rss/searchService";
+import { checkRateLimit, extractClientIp, MINUTE_MS } from "@/lib/ai/serverLimiter";
+
+export const dynamic = "force-dynamic";
 
 type LearnNewsItem = {
   topic: string;
@@ -26,7 +29,15 @@ const LEARN_TOPICS = [
   "DevOps",
 ] as const;
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const ip = extractClientIp(req);
+  const rl = await checkRateLimit(`ip:${ip}:learn-news`, 10, MINUTE_MS);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Too many news requests. Please wait a minute." },
+      { status: 429, headers: { "Retry-After": Math.ceil(rl.retryAfterMs / 1000).toString() } }
+    );
+  }
   const items = await Promise.all(
     LEARN_TOPICS.map(async (topic): Promise<LearnNewsItem> => {
       const fromCurrents = await fetchCurrentsNewsByKeyword(topic, 1).catch(() => []);

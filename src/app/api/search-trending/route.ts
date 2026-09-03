@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchTrendingArticles } from "@/lib/rss/searchService";
+import { checkRateLimit, extractClientIp, MINUTE_MS } from "@/lib/ai/serverLimiter";
 
 // Mark this route as dynamic (uses query parameters)
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  // Auth check — require authenticated user
   try {
+    const ip = extractClientIp(req);
+    const rl = await checkRateLimit(`ip:${ip}:search-trending`, 20, MINUTE_MS);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: "Too many search requests. Please wait a minute." },
+        { status: 429, headers: { "Retry-After": Math.ceil(rl.retryAfterMs / 1000).toString() } }
+      );
+    }
     const searchParams = req.nextUrl.searchParams;
     const query = searchParams.get("q") || "";
     const limit = parseInt(searchParams.get("limit") || "10", 10);

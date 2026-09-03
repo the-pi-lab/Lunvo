@@ -106,6 +106,9 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
         )}
 
         <main
+          id="main-content"
+          tabIndex={-1}
+          aria-label="Main content"
           className={
             pathname?.startsWith("/dashboard/workflow")
               ? "flex-1 w-full h-[calc(100vh-3.5rem)] overflow-hidden p-0"

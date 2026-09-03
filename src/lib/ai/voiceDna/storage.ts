@@ -1,8 +1,9 @@
 /**
  * Phase 19 — Voice DNA Storage (local-first, connector-pluggable)
  * Wraps src/lib/voice-dna/memory.ts so call sites can import from
- * @/lib/ai/voiceDna/storage (as PLAN specifies: storage.ts:1)
- * No Supabase. If LUNVO_DNA_CONNECTOR_URL is set, delegate there.
+ * @/lib/ai/voiceDna/storage.
+ * Local-first: ALWAYS writes local. Connector (LUNVO_DNA_CONNECTOR_URL or
+ * NEXT_PUBLIC_DNA_CONNECTOR_URL) is best-effort mirror, never sole store.
  */
 import type { VoiceDNA } from "./types";
 import {
@@ -10,16 +11,23 @@ import {
   saveVoiceDNA as saveLocalVoiceDNA,
 } from "@/lib/voice-dna/memory";
 
+function getConnectorUrl(): string | undefined {
+  if (typeof process === "undefined") return undefined;
+  return (
+    process.env.LUNVO_DNA_CONNECTOR_URL?.trim() ||
+    process.env.NEXT_PUBLIC_DNA_CONNECTOR_URL?.trim() ||
+    undefined
+  );
+}
+
 export async function getVoiceDNA(): Promise<VoiceDNA | null> {
-  // Future: if connector URL is set, fetch from there
-  const connectorUrl =
-    typeof process !== "undefined" ? process.env.NEXT_PUBLIC_DNA_CONNECTOR_URL : undefined;
+  const connectorUrl = getConnectorUrl();
   if (connectorUrl) {
     try {
       const res = await fetch(connectorUrl, { method: "GET", cache: "no-store" });
       if (res.ok) {
         const data = (await res.json()) as VoiceDNA;
-        return data;
+        if (data && typeof data === "object") return data;
       }
     } catch {
       // fall through to local
@@ -33,8 +41,9 @@ export function getVoiceDNASync(): VoiceDNA | null {
 }
 
 export async function saveVoiceDNA(dna: VoiceDNA): Promise<void> {
-  const connectorUrl =
-    typeof process !== "undefined" ? process.env.NEXT_PUBLIC_DNA_CONNECTOR_URL : undefined;
+  // Always persist locally first (no split-brain)
+  saveLocalVoiceDNA(dna);
+  const connectorUrl = getConnectorUrl();
   if (connectorUrl) {
     try {
       await fetch(connectorUrl, {
@@ -42,12 +51,10 @@ export async function saveVoiceDNA(dna: VoiceDNA): Promise<void> {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dna),
       });
-      return;
     } catch {
-      // fallback
+      // best-effort mirror only
     }
   }
-  saveLocalVoiceDNA(dna);
 }
 
 export function saveVoiceDNASync(dna: VoiceDNA): void {

@@ -86,8 +86,9 @@ export async function POST(req: NextRequest) {
         } as never);
         result = parseAIJson(res.text);
       } else {
-        // Local heuristic fallback — no AI keys, still cost-guarded
         const hook = (post.split("\n")[0]?.length ?? 0) > 20 && !post.startsWith("I ") ? 7 : 4;
+        const engagement = post.includes("?") ? 7 : 4;
+        const overall = Math.round((hook + 6 + engagement + 6) / 4);
         result = {
           scores: {
             hook: {
@@ -97,13 +98,13 @@ export async function POST(req: NextRequest) {
             },
             readability: { score: 6, label: "Good", explanation: "Readability estimated locally" },
             engagement: {
-              score: post.includes("?") ? 7 : 4,
-              label: post.includes("?") ? "Good" : "Weak",
+              score: engagement,
+              label: engagement > 6 ? "Good" : "Weak",
               explanation: "CTA check locally",
             },
             structure: { score: 6, label: "Good", explanation: "Structure estimated locally" },
           },
-          overall_score: 6,
+          overall_score: overall,
           top_problems: ["Add specific CTA question", "Shorten first line for hook"],
           improved_post: post,
           improvement_summary: "Local heuristic analysis — configure BYOK key for full AI audit",

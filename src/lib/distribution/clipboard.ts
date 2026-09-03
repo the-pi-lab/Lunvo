@@ -122,6 +122,7 @@ export async function dispatchToWebhook(
 
     const response = await fetch(webhookUrl, {
       method: "POST",
+      redirect: "manual",
       headers: {
         "Content-Type": "application/json",
       },
@@ -130,6 +131,14 @@ export async function dispatchToWebhook(
     });
 
     clearTimeout(timeoutId);
+    const loc = response.headers.get("location");
+    if (response.status >= 300 && response.status < 400 && loc) {
+      const next = new URL(loc, webhookUrl).toString();
+      if (!isSafeWebhookUrl(next).valid) {
+        console.warn("Blocked unsafe webhook redirect");
+        return false;
+      }
+    }
     return response.ok;
   } catch (error) {
     console.error("Webhook dispatch failed:", error);

@@ -103,9 +103,10 @@ export default function CreatePage() {
   useEffect(() => {
     setDnaActive(hasTrainedDna());
     const onStorage = () => setDnaActive(hasTrainedDna());
+    const onCustom = () => setDnaActive(hasTrainedDna());
     window.addEventListener("storage", onStorage);
-    // also poll for same-tab updates (localStorage event doesn't fire in same tab)
-    const iv = window.setInterval(() => setDnaActive(hasTrainedDna()), 1000);
+    window.addEventListener("lunvo:dna-updated", onCustom);
+    window.addEventListener("focus", onCustom);
 
     // Prefill from Marketplace (Use Template -> prefill)
     try {
@@ -123,7 +124,8 @@ export default function CreatePage() {
 
     return () => {
       window.removeEventListener("storage", onStorage);
-      window.clearInterval(iv);
+      window.removeEventListener("lunvo:dna-updated", onCustom);
+      window.removeEventListener("focus", onCustom);
     };
   }, []);
 
@@ -144,7 +146,12 @@ export default function CreatePage() {
     try {
       // Phase 19: local-first Voice DNA (no Supabase). Falls back to null if not trained.
       const voiceDna = getVoiceDNA();
+      let last = 0;
       const final = await runContentPipeline(profile, topic, voiceDna, (p) => {
+        const now = Date.now();
+        // Throttle per-token rerenders to ~10fps (was 50/sec jank)
+        if (p.stage === "writing" && now - last < 100) return;
+        last = now;
         setProgress(p);
       });
       // Phase 21: attach live ER (scoringEngine) — no hard 94%, store for dashboard

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, Mail, ShieldCheck, Building2 } from "lucide-react";
 
 export default function ContactPage() {
@@ -7,10 +8,19 @@ export default function ContactPage() {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-[rgba(229,226,218,0.3)]">
         <div className="max-w-5xl mx-auto px-8 py-4 flex items-center justify-between">
           <div className="inline-flex items-center gap-2">
-            <img src="/brand/lunvo-logo.png" alt="LUNVO logo" className="w-4 h-4 rounded-[3px] object-contain" />
+            <Image
+              src="/brand/lunvo-logo.png"
+              alt="LUNVO logo"
+              width={16}
+              height={16}
+              className="rounded-[3px] object-contain"
+            />
             <span className="font-serif italic text-xl text-on-background">LUNVO Contact Desk</span>
           </div>
-          <Link href="/" className="flex items-center gap-2 text-[0.8125rem] font-medium text-on-surface-variant hover:text-primary transition-colors font-mono">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-[0.8125rem] font-medium text-on-surface-variant hover:text-primary transition-colors font-mono"
+          >
             <ArrowLeft className="w-4 h-4" /> Back to home
           </Link>
         </div>
@@ -25,8 +35,8 @@ export default function ContactPage() {
             Contact Us
           </h1>
           <p className="text-[1rem] text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
-            For payment verification, merchant validation, support, or legal correspondence,
-            please use the details below.
+            For payment verification, merchant validation, support, or legal correspondence, please
+            use the details below.
           </p>
         </div>
 
@@ -42,7 +52,8 @@ export default function ContactPage() {
               MAHAVAR VINAYAK DILIPKUMAR
             </p>
             <p className="text-[0.875rem] text-on-surface-variant mt-5 leading-relaxed">
-              This name is the official merchant identity for payment setup and business verification.
+              This name is the official merchant identity for payment setup and business
+              verification.
             </p>
           </div>
 
@@ -73,10 +84,12 @@ export default function ContactPage() {
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[0.875rem] font-bold text-on-background mb-2">Merchant verification note</p>
+            <p className="text-[0.875rem] font-bold text-on-background mb-2">
+              Merchant verification note
+            </p>
             <p className="text-[0.8125rem] text-on-surface-variant leading-relaxed">
-              If your payment gateway provider asks for explicit merchant identity, share this page URL.
-              It includes the legal merchant name and official communication email.
+              If your payment gateway provider asks for explicit merchant identity, share this page
+              URL. It includes the legal merchant name and official communication email.
             </p>
           </div>
         </div>

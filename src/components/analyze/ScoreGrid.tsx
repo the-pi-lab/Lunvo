@@ -22,6 +22,7 @@ export function ScoreGrid({ scores }: ScoreGridProps) {
             {key}
           </div>
           <div
+            aria-label={`${key} score ${value.score} out of 10, ${value.label}`}
             className={`text-3xl font-serif mb-3 ${
               value.score <= 4
                 ? "text-error"
@@ -33,6 +34,9 @@ export function ScoreGrid({ scores }: ScoreGridProps) {
             {value.score}
             <span className="text-base text-on-surface-variant/30">/10</span>
           </div>
+          <p className="text-[0.6875rem] text-on-surface-variant/60 font-mono">
+            Heuristic 0-10. ER % is separate (scoringEngine).
+          </p>
           <p className="text-[0.8125rem] font-medium text-on-surface-variant leading-relaxed">
             {value.explanation}
           </p>

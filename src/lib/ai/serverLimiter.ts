@@ -132,14 +132,12 @@ class UpstashConnector implements RateLimitConnector {
         retryAfterMs: ttl,
       };
     } catch {
-      // Fallback to allow (fail-open)
-      return {
-        allowed: true,
-        remaining: limit,
-        limit,
-        resetAt: now + windowMs,
-        retryAfterMs: 0,
-      };
+      // Self-host default: fail-open in dev (local-first), fail-closed in prod
+      // so an Upstash outage can't silently grant unlimited paid inference.
+      const prod = process.env.NODE_ENV === "production";
+      return prod
+        ? { allowed: false, remaining: 0, limit, resetAt: now + windowMs, retryAfterMs: windowMs }
+        : { allowed: true, remaining: limit, limit, resetAt: now + windowMs, retryAfterMs: 0 };
     }
   }
 }

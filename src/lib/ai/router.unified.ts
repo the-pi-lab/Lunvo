@@ -120,10 +120,12 @@ export async function unifiedAI(opts: UnifiedAIOptions): Promise<AIFullResponse>
   }
 
   // Server plan mode — platform keys, plan-based quality + fallback chain.
+  // NOTE: plan-mode callAI is non-streaming. If caller asked for stream/onChunk,
+  // simulate word-by-word callbacks from the full text so UI streaming still works.
   const systemPrompt = messages.find((m) => m.role === "system")?.content ?? "";
   const userPrompt = messages
     .filter((m) => m.role !== "system")
-    .map((m) => m.content)
+    .map((m) => `${m.role === "assistant" ? "Assistant" : "User"}: ${m.content}`)
     .join("\n\n");
 
   const text = await callAI(
@@ -134,6 +136,17 @@ export async function unifiedAI(opts: UnifiedAIOptions): Promise<AIFullResponse>
     opts.maxTokens ?? 1000,
     opts.customKeys
   );
+
+  if (opts.stream && opts.onChunk) {
+    const words = text.split(/(\s+)/);
+    let acc = "";
+    for (const w of words) {
+      acc += w;
+      opts.onChunk({ text: w, isDone: false });
+    }
+    opts.onChunk({ text: "", isDone: true });
+    void acc;
+  }
 
   return { text, finishReason: "stop" };
 }

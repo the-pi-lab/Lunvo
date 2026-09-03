@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleTelegramUpdate, type TelegramUpdate } from "@/lib/telegram/botService";
+import { checkRateLimit, extractClientIp, MINUTE_MS } from "@/lib/ai/serverLimiter";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = extractClientIp(req);
+    const rl = await checkRateLimit(`ip:${ip}:telegram-webhook`, 60, MINUTE_MS);
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "Too many webhook requests" }, { status: 429 });
+    }
+
     // Secret token verification if TELEGRAM_WEBHOOK_SECRET is configured
     const secretToken = process.env.TELEGRAM_WEBHOOK_SECRET;
     if (secretToken) {

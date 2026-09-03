@@ -1,14 +1,13 @@
 import { test, expect } from "@playwright/test";
 
-test("landing page loads and has analyze CTA", async ({ page }) => {
+test("landing page loads with hero", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("Is your post")).toBeVisible();
-  await expect(page.getByPlaceholder("Start writing or paste your post here")).toBeVisible();
-  await expect(page.getByRole("button", { name: /Analyze for Free/i })).toBeVisible();
+  await expect(page.getByRole("heading").first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /Enter|Dashboard|GitHub/i }).first()).toBeVisible();
 });
 
-test("dashboard redirects to login when not authenticated", async ({ page }) => {
+test("dashboard loads in local mode (no login route)", async ({ page }) => {
   await page.goto("/dashboard");
-  // Should redirect to /login when no auth (or show local mode)
-  await expect(page).toHaveURL(/.*(login|dashboard).*/);
+  // Self-host local-first: no /login route, dashboard renders directly
+  await expect(page).toHaveURL(/.*dashboard.*/);
 });

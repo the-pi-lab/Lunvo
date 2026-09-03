@@ -67,10 +67,25 @@ export const AnalyzeResultSchema = z
       .strict(),
     overall_score: z.number().min(0).max(10),
     top_problems: z.array(z.string()).min(1).max(5),
-    improved_post: z.string().min(20),
+    improved_post: z.string().trim().min(20),
     improvement_summary: z.string().min(5),
   })
-  .strict();
+  .strict()
+  .superRefine((data, ctx) => {
+    const avg =
+      (data.scores.hook.score +
+        data.scores.readability.score +
+        data.scores.engagement.score +
+        data.scores.structure.score) /
+      4;
+    if (Math.abs(data.overall_score - avg) > 1.5) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `overall_score ${data.overall_score} deviates from avg ${avg.toFixed(2)}`,
+        path: ["overall_score"],
+      });
+    }
+  });
 
 export type AnalyzeResult = z.infer<typeof AnalyzeResultSchema>;
 

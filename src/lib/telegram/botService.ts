@@ -48,6 +48,22 @@ export const lastDraftCache: Record<
   }
 > = {};
 
+export function pruneDraftCache(): void {
+  const now = Date.now();
+  for (const k of Object.keys(lastDraftCache)) {
+    if (now - lastDraftCache[k]!.timestamp > 2 * 60 * 60 * 1000) {
+      delete lastDraftCache[k];
+    }
+  }
+  const remainingKeys = Object.keys(lastDraftCache);
+  if (remainingKeys.length > 50) {
+    remainingKeys
+      .sort((a, b) => lastDraftCache[a]!.timestamp - lastDraftCache[b]!.timestamp)
+      .slice(0, remainingKeys.length - 50)
+      .forEach((k) => delete lastDraftCache[k]);
+  }
+}
+
 function getTelegramConfig() {
   return {
     botToken: process.env.TELEGRAM_BOT_TOKEN || "",
@@ -56,15 +72,36 @@ function getTelegramConfig() {
 }
 
 function getFallbackAIProfile(): AIProfile {
-  const provider = process.env.AI_PROVIDER || (process.env.GROQ_API_KEY ? "groq" : "gemini");
+  const rawProvider = process.env.AI_PROVIDER || (process.env.GROQ_API_KEY ? "groq" : "gemini");
   const apiKey =
     process.env.AI_API_KEY ||
     process.env.GEMINI_API_KEY ||
     process.env.GROQ_API_KEY ||
     process.env.OPENAI_API_KEY ||
     "";
-  const model =
-    process.env.AI_MODEL || (provider === "groq" ? "llama-3.3-70b-versatile" : "gemini-1.5-flash");
+  // Registry parity: unknown provider falls back to gemini default model
+  let provider = rawProvider;
+  let model = process.env.AI_MODEL || "";
+  const knownProviders = new Set([
+    "openai",
+    "anthropic",
+    "gemini",
+    "groq",
+    "deepseek",
+    "openrouter",
+    "ollama",
+    "lmstudio",
+    "xai",
+    "mistral",
+    "cerebras",
+    "nvidia",
+    "together",
+    "moonshot",
+    "qwen",
+    "cohere",
+  ]);
+  if (!knownProviders.has(rawProvider)) provider = "gemini";
+  if (!model) model = provider === "groq" ? "llama-3.3-70b-versatile" : "gemini-2.0-flash";
 
   return {
     id: "telegram-bot-profile",
@@ -332,6 +369,7 @@ _Local-First · Zero-Ban · Autonomous Content OS_`;
       const result = await runContentPipeline(profile, topic, null);
 
       // Cache draft
+      pruneDraftCache();
       lastDraftCache[chatId] = {
         topic,
         post: result.improvedPost,

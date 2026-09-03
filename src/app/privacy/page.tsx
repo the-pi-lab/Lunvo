@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Check, Shield, Database, Download, Trash2, Edit, Mail, Sparkles } from "lucide-react";
 
 export const metadata = {
@@ -141,10 +142,12 @@ export default function PrivacyPolicyPage() {
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-6 max-w-6xl mx-auto">
         <Link href="/" className="inline-flex items-center gap-2">
-          <img
+          <Image
             src="/brand/lunvo-logo.png"
             alt="LUNVO logo"
-            className="w-4 h-4 rounded-[3px] object-contain"
+            width={16}
+            height={16}
+            className="rounded-[3px] object-contain"
           />
           <span className="text-[0.75rem] font-bold uppercase tracking-[0.12em]">LUNVO</span>
         </Link>

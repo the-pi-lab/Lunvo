@@ -55,6 +55,8 @@ export async function POST(req: NextRequest) {
       result = parseAIJson(res.text);
     } else {
       const hook = (post.split("\n")[0]?.length ?? 0) > 20 && !post.startsWith("I ") ? 7 : 4;
+      const engagement = post.includes("?") ? 7 : 4;
+      const overall = Math.round((hook + 6 + engagement + 6) / 4);
       result = {
         scores: {
           hook: {
@@ -64,13 +66,13 @@ export async function POST(req: NextRequest) {
           },
           readability: { score: 6, label: "Good", explanation: "Readability estimated locally" },
           engagement: {
-            score: post.includes("?") ? 7 : 4,
-            label: post.includes("?") ? "Good" : "Weak",
+            score: engagement,
+            label: engagement > 6 ? "Good" : "Weak",
             explanation: "CTA check locally",
           },
           structure: { score: 6, label: "Good", explanation: "Structure estimated locally" },
         },
-        overall_score: 6,
+        overall_score: overall,
         top_problems: ["Add specific CTA question", "Shorten first line for hook"],
         improved_post: post,
         improvement_summary: "Local heuristic analysis — public endpoint",
@@ -87,8 +89,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(validated.data);
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
+    const raw = error instanceof Error ? error.message : String(error);
+    const msg = raw
+      .replace(/sk-[A-Za-z0-9-_]{8,}/g, "[REDACTED]")
+      .replace(/AIza[A-Za-z0-9-_]{8,}/g, "[REDACTED]")
+      .slice(0, 200);
     console.error("Analyze-public error:", msg);
-    return NextResponse.json({ error: "Failed to analyze post", details: msg }, { status: 500 });
+    return NextResponse.json({ error: "Failed to analyze post" }, { status: 500 });
   }
 }

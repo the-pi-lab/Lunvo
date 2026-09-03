@@ -33,9 +33,9 @@ const server = new Server(
   }
 );
 
-// Helper to resolve active AI profile
+// Helper to resolve active AI profile (registry-validated, Studio parity)
 async function getProfileFromEnv() {
-  const provider = process.env.AI_PROVIDER || (process.env.GROQ_API_KEY ? "groq" : "gemini");
+  const rawProvider = process.env.AI_PROVIDER || (process.env.GROQ_API_KEY ? "groq" : "gemini");
   const apiKey =
     process.env.AI_API_KEY ||
     process.env.GEMINI_API_KEY ||
@@ -43,8 +43,16 @@ async function getProfileFromEnv() {
     process.env.OPENAI_API_KEY ||
     process.env.ANTHROPIC_API_KEY ||
     "";
-  const model =
-    process.env.AI_MODEL || (provider === "groq" ? "llama-3.3-70b-versatile" : "gemini-1.5-flash");
+  let provider = rawProvider;
+  let model = process.env.AI_MODEL || "";
+  try {
+    const { getProviderDef } = await import("../lib/ai/providers/registry.ts");
+    const def = getProviderDef(rawProvider);
+    if (!def) provider = "gemini";
+    if (!model) model = getProviderDef(provider)?.defaultModel || "gemini-2.0-flash";
+  } catch {
+    if (!model) model = provider === "groq" ? "llama-3.3-70b-versatile" : "gemini-2.0-flash";
+  }
 
   return {
     id: "mcp-env-profile",
@@ -474,13 +482,43 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     if (name === "schedule_post") {
+      // Honest local-only semantics: queueStore is localStorage-backed (browser).
+      // Under node/stdio there is no window/localStorage — do not claim queued.
       const content = (args?.content as string) || "";
       const scheduledTime = (args?.scheduledTime as string) || new Date().toISOString();
       const webhookUrl = (args?.webhookUrl as string) || "";
+      const isBrowser = typeof window !== "undefined";
 
-      const { saveScheduledPost } = await import("../lib/scheduler/queueStore.ts");
+      if (!isBrowser) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                {
+                  scheduled: false,
+                  queued: false,
+                  reason:
+                    "Local-only queue: schedule_post needs browser localStorage. Copy content into Dashboard → Distribution to queue, or pass webhookUrl for direct dispatch.",
+                  content,
+                  scheduledTime,
+                  targetWebhook: webhookUrl || null,
+                  characterCount: content.length,
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      }
+
+      const { saveScheduledPost } = await import("../lib/scheduler/queueStore");
       const post = {
-        id: `mcp-${Date.now()}`,
+        id:
+          typeof crypto !== "undefined" && "randomUUID" in crypto
+            ? `mcp-${crypto.randomUUID()}`
+            : `mcp-${Date.now()}`,
         title: content.slice(0, 40) || "MCP Scheduled Post",
         content,
         scheduledTime,

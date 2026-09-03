@@ -196,7 +196,7 @@
   }
 
   .kicker {
-    @apply text-[0.625rem] font-mono font-bold uppercase tracking-[0.22em] text-on-surface-variant/60;
+    @apply text-[0.625rem] font-mono font-bold uppercase tracking-[0.22em] text-on-surface-variant;
   }
 
   .conic-ring {

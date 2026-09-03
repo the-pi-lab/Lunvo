@@ -59,6 +59,8 @@ export async function resolveNewsContext(topic: string): Promise<RssArticle[]> {
       NEWS_TIMEOUT_MS
     );
     const articles = result.articles.slice(0, 5);
+    // Don't poison 6hr cache with empty success — cache empty only 30s
+    if (articles.length === 0) return [];
     cache.set(key, { articles, cachedAt: now, totalFound: result.totalFound });
     return [...articles];
   } catch {

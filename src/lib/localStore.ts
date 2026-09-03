@@ -61,7 +61,10 @@ export function saveDraft(
   const now = new Date().toISOString();
   const firstLine = content.trim().split("\n")[0] ?? "Untitled draft";
   const draft: LocalDraft = {
-    id: `draft-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+    id:
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? `draft-${crypto.randomUUID()}`
+        : `draft-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
     content,
     title:
       title ||

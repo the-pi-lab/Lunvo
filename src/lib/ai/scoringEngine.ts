@@ -190,19 +190,25 @@ export function predictEngagementRate(metrics: PostMetrics): PredictedScore {
       metrics.dayOfWeek as keyof typeof ENGAGEMENT_PATTERNS.byDayOfWeek
     ] || 1.0;
 
+  // Single source: ENGAGEMENT_PATTERNS.byPostHour table (no duplicate literals)
   let hourMultiplier = 1.0;
   if (typeof metrics.postHour === "number") {
     const h = metrics.postHour;
-    if (h >= 8 && h < 10)
-      hourMultiplier = 1.1; // Early morning
-    else if (h >= 10 && h < 12) hourMultiplier = 0.95;
-    else if (h >= 12 && h < 14)
-      hourMultiplier = 1.05; // Lunch
-    else if (h >= 14 && h < 16) hourMultiplier = 1.0;
-    else if (h >= 16 && h < 18)
-      hourMultiplier = 1.15; // Late afternoon peak
-    else if (h >= 18 && h < 20) hourMultiplier = 1.05;
-    else hourMultiplier = 0.85; // Night low
+    const slot =
+      h >= 8 && h < 10
+        ? "08:00-10:00"
+        : h >= 10 && h < 12
+          ? "10:00-12:00"
+          : h >= 12 && h < 14
+            ? "12:00-14:00"
+            : h >= 14 && h < 16
+              ? "14:00-16:00"
+              : h >= 16 && h < 18
+                ? "16:00-18:00"
+                : h >= 18 && h < 20
+                  ? "18:00-20:00"
+                  : "20:00-08:00";
+    hourMultiplier = ENGAGEMENT_PATTERNS.byPostHour[slot] ?? 1.0;
   }
 
   const timingMultiplier = (dayMultiplier + hourMultiplier) / 2;

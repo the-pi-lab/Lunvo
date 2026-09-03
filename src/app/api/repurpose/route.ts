@@ -20,24 +20,37 @@ function getProfileFromHeaders(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    let post: string = (body.post ?? body.content ?? "").toString();
+    let post: string = (body.post ?? body.content ?? "").toString().slice(0, 3000);
+    const rawYt: string | undefined =
+      typeof body.youtubeUrl === "string" ? body.youtubeUrl.slice(0, 500) : undefined;
     const youtubeUrl: string | undefined =
-      body.youtubeUrl || (isYouTubeUrl(post) ? post : undefined);
-    const target: string = (body.target || "all").toString(); // twitter | newsletter | video | all
+      rawYt && isYouTubeUrl(rawYt)
+        ? rawYt.trim()
+        : isYouTubeUrl(post.trim())
+          ? post.trim()
+          : undefined;
+    const allowed = new Set(["twitter", "newsletter", "video", "all"]);
+    const target: string = allowed.has((body.target || "all").toString())
+      ? (body.target || "all").toString()
+      : "all";
 
-    // If youtube URL, fetch info and prepend
-    if (youtubeUrl && isYouTubeUrl(youtubeUrl)) {
+    // If youtube URL, fetch info and prepend (strict-validated id only)
+    if (youtubeUrl) {
       const ytInfo = await fetchYouTubeInfo(youtubeUrl);
-      post = ytInfo + (post && !isYouTubeUrl(post) ? `\n\nAdditional context:\n${post}` : "");
-    } else if (post && isYouTubeUrl(post.trim()) && post.trim().split(/\s+/).length === 1) {
-      // post itself is just a YouTube URL
-      const ytInfo = await fetchYouTubeInfo(post.trim());
-      post = ytInfo;
+      const extra =
+        post && !isYouTubeUrl(post) ? `\n\nAdditional context:\n${post.slice(0, 1000)}` : "";
+      post = (ytInfo + extra).slice(0, 5500);
     }
 
     if (!post || post.trim().length < 20) {
       return NextResponse.json(
         { error: "Post or YouTube URL must be at least 20 characters" },
+        { status: 400 }
+      );
+    }
+    if (post.length > 5500) {
+      return NextResponse.json(
+        { error: "Content + transcript exceeds 5500 chars" },
         { status: 400 }
       );
     }
@@ -106,11 +119,16 @@ export async function POST(req: NextRequest) {
     }
 
     // all = 1 post -> Thread + Newsletter 1 click (spec)
-    const [tweets, newsletter] = await Promise.all([doTwitter(), doNewsletter()]);
+    const settled = await Promise.allSettled([doTwitter(), doNewsletter()]);
+    const tweets = settled[0]?.status === "fulfilled" ? settled[0].value : [];
+    const newsletter = settled[1]?.status === "fulfilled" ? settled[1].value : "";
+    if (settled[0]?.status === "rejected" && settled[1]?.status === "rejected") {
+      console.error("Repurpose error: both targets failed");
+      return NextResponse.json({ error: "Failed to repurpose" }, { status: 500 });
+    }
     return NextResponse.json({ tweets, newsletter, target: "all", youtubeUrl: youtubeUrl || null });
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error("Repurpose error:", msg);
-    return NextResponse.json({ error: "Failed to repurpose", details: msg }, { status: 500 });
+  } catch {
+    console.error("Repurpose error");
+    return NextResponse.json({ error: "Failed to repurpose" }, { status: 500 });
   }
 }

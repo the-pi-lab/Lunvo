@@ -512,22 +512,16 @@ export function parseAIJson<T>(rawText: string): T {
     try {
       return JSON.parse(jsonTarget) as T;
     } catch {
-      // 3. Repair common LLM syntax flaws on the extracted JSON target
-      const repaired = jsonTarget
-        .replace(/,\s*([\]}])/g, "$1") // Remove trailing commas
-        .replace(/([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:/g, '$1"$2":'); // Standardize unquoted keys
+      // 3. Repair trailing commas only (safe: structural chars outside strings).
+      // NOTE: unquoted-key and single-quote repairs removed — they corrupted
+      // values like "a: b" / "it's" inside strings. Keep strict JSON contract.
+      const repaired = jsonTarget.replace(/,\s*([\]}])/g, "$1");
 
       try {
         return JSON.parse(repaired) as T;
       } catch {
-        // 4. Try single-quote to double-quote conversion fallback
-        try {
-          const doubleQuoted = repaired.replace(/'([^'\\]*(?:\\.[^'\\]*)*)'/g, '"$1"');
-          return JSON.parse(doubleQuoted) as T;
-        } catch {
-          logger.error("All AI JSON parsing attempts failed for text", rawText);
-          throw new Error("Could not parse AI response as valid data structure.");
-        }
+        logger.error("All AI JSON parsing attempts failed for text", rawText);
+        throw new Error("Could not parse AI response as valid data structure.");
       }
     }
   }

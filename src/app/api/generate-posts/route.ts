@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { refreshRssSystem, getRssSystemSnapshot, startRssScheduler } from "@/lib/rss/scheduler";
+import { checkRateLimit, extractClientIp, MINUTE_MS } from "@/lib/ai/serverLimiter";
 
 export const runtime = "nodejs";
 export const revalidate = 0;
@@ -7,6 +8,14 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = extractClientIp(req);
+    const rl = await checkRateLimit(`ip:${ip}:generate-posts`, 10, MINUTE_MS);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { success: false, error: "Rate limit exceeded. Please wait a minute." },
+        { status: 429, headers: { "Retry-After": Math.ceil(rl.retryAfterMs / 1000).toString() } }
+      );
+    }
     startRssScheduler();
 
     const customKeys = {
@@ -67,6 +76,14 @@ export async function POST(req: NextRequest) {
 // Fallback GET method for simple refresh
 export async function GET(req: NextRequest) {
   try {
+    const ip = extractClientIp(req);
+    const rl = await checkRateLimit(`ip:${ip}:generate-posts-get`, 15, MINUTE_MS);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { success: false, error: "Rate limit exceeded. Please wait a minute." },
+        { status: 429, headers: { "Retry-After": Math.ceil(rl.retryAfterMs / 1000).toString() } }
+      );
+    }
     startRssScheduler();
 
     const snapshot = getRssSystemSnapshot();

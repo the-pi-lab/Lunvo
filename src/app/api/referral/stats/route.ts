@@ -34,11 +34,14 @@ export async function GET(req: NextRequest) {
   const store = getStore();
 
   const leaderboard = Array.from(store.entries())
-    .map(([code, data]) => ({ code, count: data.count, isDemo: !!data.isDemo }))
+    .filter(([, data]) => !data.isDemo)
+    .map(([code, data]) => ({ code, count: data.count, isDemo: false }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 20);
 
-  const total = Array.from(store.values()).reduce((a, b) => a + b.count, 0);
+  const total = Array.from(store.values())
+    .filter((d) => !d.isDemo)
+    .reduce((a, b) => a + b.count, 0);
 
   return NextResponse.json({
     leaderboard,
@@ -79,6 +82,10 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (ipStore.size >= 5000) {
+      const toDelete = Array.from(ipStore).slice(0, 2000);
+      toDelete.forEach((k) => ipStore.delete(k));
+    }
     ipStore.add(ipKey);
     const store = getStore();
     const current = store.get(code) || { count: 0, isDemo: false };

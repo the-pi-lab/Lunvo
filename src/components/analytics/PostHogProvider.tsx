@@ -9,9 +9,12 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
     if (!key) return;
 
     // CDN lazy-load — no npm dep needed, zero bundle cost when disabled
+    // SRI note: PostHog array.js is version-pinned by CDN without published hash;
+    // gated behind explicit key + opt-out default, never auto-enabled.
     const script = document.createElement("script");
     script.src = "https://us-assets.i.posthog.com/array.js";
     script.async = true;
+    script.crossOrigin = "anonymous";
     script.onload = () => {
       const win = window as unknown as { posthog?: { init: (k: string, o: unknown) => void } };
       win.posthog?.init(key, {

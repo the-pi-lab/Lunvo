@@ -178,6 +178,10 @@ export function TiptapEditor({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (!showSlash) return;
+      if (filtered.length === 0) {
+        if (e.key === "Escape") setShowSlash(false);
+        return;
+      }
       if (e.key === "ArrowDown") {
         e.preventDefault();
         setSlashIndex((i) => (i + 1) % filtered.length);
@@ -198,15 +202,26 @@ export function TiptapEditor({
 
   return (
     <div className="relative flex flex-col" onKeyDown={handleKeyDown}>
-      <EditorContent editor={editor} className="w-full flex-1 min-h-[300px] bg-transparent" />
+      <EditorContent
+        editor={editor}
+        className="w-full flex-1 min-h-[300px] bg-transparent"
+        aria-label="Post editor"
+      />
       {showSlash && filtered.length > 0 && (
-        <div className="absolute left-6 top-[3.5rem] z-50 w-72 rounded-xl bg-surface-container-lowest ring-1 ring-outline-variant/40 shadow-premium overflow-hidden">
+        <div
+          role="listbox"
+          aria-label="Slash commands"
+          aria-expanded={showSlash}
+          className="absolute left-6 top-[3.5rem] z-50 w-72 rounded-xl bg-surface-container-lowest ring-1 ring-outline-variant/40 shadow-premium overflow-hidden"
+        >
           <div className="px-3 py-2 text-[0.625rem] font-bold uppercase tracking-widest text-on-surface-variant/50 font-mono border-b border-outline-variant/20">
             Slash commands — type /hook or /cta
           </div>
           {filtered.map((cmd, idx) => (
             <button
               key={cmd.id}
+              role="option"
+              aria-selected={idx === slashIndex}
               onClick={() => insertCommand(cmd)}
               className={`w-full text-left px-4 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors ${idx === slashIndex ? "bg-surface-container-low" : ""}`}
             >

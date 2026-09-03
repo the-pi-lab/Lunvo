@@ -4,29 +4,22 @@
  * without requiring Google API keys.
  */
 
+const YT_ID = "[A-Za-z0-9_-]{11}";
+const YT_RE =
+  /^(?:https?:\/\/)?(?:www\.|m\.|music\.)?(?:youtube\.com\/(?:watch\?[^#\s]*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})(?:[?#\/\s].*)?$/i;
+
 export function extractVideoId(url: string): string | null {
-  try {
-    const u = new URL(url.trim());
-    if (u.hostname.includes("youtu.be")) {
-      return u.pathname.slice(1).split("/")[0] || null;
-    }
-    if (u.searchParams.get("v")) return u.searchParams.get("v");
-    const parts = u.pathname.split("/");
-    const embedIdx = parts.indexOf("embed");
-    if (embedIdx !== -1) return parts[embedIdx + 1] || null;
-    const shortsIdx = parts.indexOf("shorts");
-    if (shortsIdx !== -1) return parts[shortsIdx + 1] || null;
-    return null;
-  } catch {
-    return null;
-  }
+  if (!url || typeof url !== "string" || url.length > 500) return null;
+  const m = url.trim().match(YT_RE);
+  return m?.[1] ?? null;
 }
 
 export function isYouTubeUrl(url: string): boolean {
-  if (!url) return false;
-  const lower = url.toLowerCase();
-  return lower.includes("youtube.com") || lower.includes("youtu.be");
+  if (!url || typeof url !== "string" || url.length > 500) return false;
+  return YT_RE.test(url.trim());
 }
+
+export { YT_RE };
 
 function decodeHtmlEntities(text: string): string {
   return text
@@ -44,8 +37,9 @@ function decodeHtmlEntities(text: string): string {
  * Fetches the spoken transcript for a YouTube video directly from caption tracks.
  */
 export async function fetchYouTubeTranscript(videoId: string): Promise<string | null> {
+  if (!videoId || !new RegExp(`^${YT_ID}$`).test(videoId)) return null;
   try {
-    const pageUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    const pageUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
     const pageRes = await fetch(pageUrl, {
       headers: {
         "User-Agent":
@@ -113,9 +107,9 @@ export async function fetchYouTubeInfo(url: string): Promise<string> {
   let title = "";
   let author = "";
 
-  // 1. Fetch metadata via oEmbed
+  // 1. Fetch metadata via oEmbed (id already strict-validated)
   try {
-    const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`;
+    const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(`https://www.youtube.com/watch?v=${id}`)}&format=json`;
     const res = await fetch(oembedUrl, {
       signal: AbortSignal.timeout(8000),
       next: { revalidate: 3600 },

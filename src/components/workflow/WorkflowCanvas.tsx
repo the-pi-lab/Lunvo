@@ -518,14 +518,32 @@ export function WorkflowCanvas({
 
                 {/* Input Port (Left) */}
                 <div
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Connect input for ${node.id}`}
                   onClick={(e) => handleEndConnection(e, node.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleEndConnection(e as unknown as React.MouseEvent, node.id);
+                    }
+                  }}
                   title="Input Port (Click to connect here)"
-                  className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-slate-200 border-2 border-white shadow-xs hover:scale-125 hover:bg-blue-500 transition-all cursor-crosshair z-20"
+                  className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-slate-200 border-2 border-white shadow-xs hover:scale-125 hover:bg-blue-500 transition-all cursor-crosshair z-20 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
                 />
 
                 {/* Output Port (Right) */}
                 <div
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Connect output for ${node.id}`}
                   onClick={(e) => handleStartConnection(e, node.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      handleStartConnection(e as unknown as React.MouseEvent, node.id);
+                    }
+                  }}
                   title="Output Port (Click to draw connection wire)"
                   className={`absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-white shadow-xs hover:scale-125 transition-all cursor-crosshair z-20 ${
                     connectingSourceId === node.id

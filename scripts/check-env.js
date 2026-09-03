@@ -14,8 +14,11 @@ const requiredEnvs = [
 const aiProviderEnvs = [
   "NVIDIA_API_KEY_DEEPSEEK",
   "NVIDIA_API_KEY_MOONSHOT",
+  "NVIDIA_SHARED_API_KEY",
   "GEMINI_API_KEY",
   "GROQ_API_KEY",
+  "OPENAI_API_KEY",
+  "ANTHROPIC_API_KEY",
 ];
 
 console.log("🔍 Checking Environment Variables...");
@@ -34,11 +37,9 @@ requiredEnvs.forEach((env) => {
 const configuredAiProviders = aiProviderEnvs.filter((env) => Boolean(process.env[env]));
 
 if (configuredAiProviders.length === 0) {
-  console.log("❌ No AI provider key is configured.");
-  console.log(
-    "   Set NVIDIA_API_KEY_DEEPSEEK and NVIDIA_API_KEY_MOONSHOT (recommended), or fallback keys."
-  );
-  missing = true;
+  // Local-first: BYOK via UI vault works keyless-server. Warn only, don't fail.
+  console.log("⚠️  No server AI key configured — local-first BYOK vault still works.");
+  console.log("   Set GEMINI_API_KEY or GROQ_API_KEY for free-tier platform routes.");
 } else {
   console.log(`✅ AI providers configured: ${configuredAiProviders.join(", ")}`);
 }
