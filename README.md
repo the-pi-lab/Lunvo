@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://lunvo.vercel.app"><img src="https://img.shields.io/badge/LIVE_DEMO-lunvo.vercel.app-004AC6?style=for-the-badge&logo=vercel" alt="demo"/></a>
+  <a href="https://lunvo.vercel.app](https://lunvo-tawny.vercel.app/"><img src="https://img.shields.io/badge/LIVE_DEMO-lunvo.vercel.app-004AC6?style=for-the-badge&logo=vercel" alt="demo"/></a>
   <a href="https://vercel.com/new/clone?repository-url=https://github.com/the-pi-lab/Lunvo"><img src="https://img.shields.io/badge/Deploy_with_Vercel-000?style=for-the-badge&logo=vercel" alt="Deploy Vercel"/></a>
   <a href="https://railway.app/new/template?template=https://github.com/the-pi-lab/Lunvo"><img src="https://img.shields.io/badge/Deploy_on_Railway-0B0D0E?style=for-the-badge&logo=railway" alt="Deploy Railway"/></a>
   <a href="#-quick-start-30-seconds"><img src="https://img.shields.io/badge/Self--Host-30s-006e2d?style=for-the-badge&logo=docker" alt="self-host"/></a>
