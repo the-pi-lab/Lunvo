@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import type {
   Workflow,
   WorkflowNode,
@@ -28,6 +28,9 @@ import {
   Trash2,
   Layers,
   Plus,
+  Minus,
+  Focus,
+  Crosshair,
 } from "lucide-react";
 import { executeWorkflow } from "@/lib/workflow/workflowRunner";
 import { getActiveAIProfile } from "@/lib/apiHelper";
@@ -59,8 +62,13 @@ export function WorkflowCanvas({
   // Canvas Pan state (left-click drag canvas)
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const animTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const panRef = useRef({ x: 0, y: 0 });
   panRef.current = pan;
+  const zoomRef = useRef(1);
+  zoomRef.current = zoomLevel;
 
   // Dragging state
   const draggingNodeRef = useRef<{
@@ -71,6 +79,130 @@ export function WorkflowCanvas({
     initY: number;
   } | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  const triggerAnimation = () => {
+    setIsAnimating(true);
+    if (animTimeoutRef.current) clearTimeout(animTimeoutRef.current);
+    animTimeoutRef.current = setTimeout(() => {
+      setIsAnimating(false);
+    }, 280);
+  };
+
+  // Compute bounding box of all nodes in the workflow
+  const getNodeBounds = () => {
+    if (!workflow.nodes || workflow.nodes.length === 0) {
+      return { minX: 100, maxX: 850, minY: 100, maxY: 500 };
+    }
+    const xs = workflow.nodes.map((n) => n.position.x);
+    const ys = workflow.nodes.map((n) => n.position.y);
+    return {
+      minX: Math.min(...xs),
+      maxX: Math.max(...xs) + 260, // node card width + buffer
+      minY: Math.min(...ys),
+      maxY: Math.max(...ys) + 120, // node card height + buffer
+    };
+  };
+
+  // Clamp pan so workflow nodes can NEVER leave the screen or disappear into infinite void
+  const clampPan = (targetX: number, targetY: number, zoom: number = zoomLevel) => {
+    const canvas = canvasRef.current;
+    const vWidth = canvas?.clientWidth || 1200;
+    const vHeight = canvas?.clientHeight || 800;
+    const bounds = getNodeBounds();
+
+    // Ensure at least 15% of viewport or 130px of the nearest node is always visible on screen
+    const marginX = Math.max(130, vWidth * 0.15);
+    const marginY = Math.max(100, vHeight * 0.15);
+
+    // If user pans to the right, leftmost node must not escape past (vWidth - marginX)
+    const maxPanX = vWidth - marginX - bounds.minX * zoom;
+    // If user pans to the left, rightmost node must not escape past marginX
+    const minPanX = marginX - bounds.maxX * zoom;
+
+    // If user pans down, topmost node must not escape past (vHeight - marginY)
+    const maxPanY = vHeight - marginY - bounds.minY * zoom;
+    // If user pans up, bottommost node must not escape past marginY
+    const minPanY = marginY - bounds.maxY * zoom;
+
+    const lowerX = Math.min(minPanX, maxPanX);
+    const upperX = Math.max(minPanX, maxPanX);
+    const lowerY = Math.min(minPanY, maxPanY);
+    const upperY = Math.max(minPanY, maxPanY);
+
+    return {
+      x: Math.round(Math.min(upperX, Math.max(lowerX, targetX))),
+      y: Math.round(Math.min(upperY, Math.max(lowerY, targetY))),
+    };
+  };
+
+  // Fit View / Recenter (n8n Style)
+  const handleFitView = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !workflow.nodes || workflow.nodes.length === 0) {
+      triggerAnimation();
+      setZoomLevel(1);
+      setPan({ x: 80, y: 80 });
+      return;
+    }
+
+    const vWidth = canvas.clientWidth || 1200;
+    const vHeight = canvas.clientHeight || 800;
+
+    const bounds = getNodeBounds();
+    const contentWidth = Math.max(120, bounds.maxX - bounds.minX);
+    const contentHeight = Math.max(120, bounds.maxY - bounds.minY);
+
+    // Padding inside viewport
+    const paddingX = Math.min(140, vWidth * 0.12);
+    const paddingY = Math.min(120, vHeight * 0.12);
+    const availableWidth = Math.max(100, vWidth - paddingX * 2);
+    const availableHeight = Math.max(100, vHeight - paddingY * 2);
+
+    const scaleX = availableWidth / contentWidth;
+    const scaleY = availableHeight / contentHeight;
+    const targetZoom = Math.min(1.15, Math.max(0.45, Math.min(scaleX, scaleY)));
+
+    const centerX = (bounds.minX + bounds.maxX) / 2;
+    const centerY = (bounds.minY + bounds.maxY) / 2;
+
+    const targetPanX = vWidth / 2 - centerX * targetZoom;
+    const targetPanY = vHeight / 2 - centerY * targetZoom;
+
+    triggerAnimation();
+    const finalZoom = Number(targetZoom.toFixed(2));
+    setZoomLevel(finalZoom);
+    setPan(clampPan(targetPanX, targetPanY, finalZoom));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workflow.nodes]);
+
+  // Auto-fit on initial mount or when switching workflow
+  const hasAutoFittedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (workflow?.metadata?.id && hasAutoFittedRef.current !== workflow.metadata.id) {
+      hasAutoFittedRef.current = workflow.metadata.id;
+      const timer = setTimeout(() => {
+        handleFitView();
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [workflow?.metadata?.id, workflow.nodes.length, handleFitView]);
+
+  // Keyboard shortcut for fit view ('f' or 'Ctrl+1')
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeTag = (document.activeElement?.tagName || "").toLowerCase();
+      if (activeTag === "input" || activeTag === "textarea") return;
+
+      if ((e.ctrlKey || e.metaKey) && (e.key === "0" || e.key === "1")) {
+        e.preventDefault();
+        handleFitView();
+      } else if (e.key === "f" || e.key === "F") {
+        handleFitView();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleFitView]);
 
   // Handle Dragging Canvas (Pan on left-click drag)
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
@@ -97,10 +229,7 @@ export function WorkflowCanvas({
     const handleMouseMove = (moveEvent: MouseEvent) => {
       const dx = moveEvent.clientX - startX;
       const dy = moveEvent.clientY - startY;
-      setPan({
-        x: initX + dx,
-        y: initY + dy,
-      });
+      setPan(clampPan(initX + dx, initY + dy, zoomRef.current));
     };
 
     const handleMouseUp = () => {
@@ -117,13 +246,23 @@ export function WorkflowCanvas({
   const handleCanvasWheel = (e: React.WheelEvent) => {
     if (e.ctrlKey || e.metaKey) {
       e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 1.05 : 0.95;
-      setZoomLevel((prev) => Math.min(1.8, Math.max(0.4, prev * zoomFactor)));
+      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+      const newZoom = Math.min(1.8, Math.max(0.4, Number((zoomLevel * zoomFactor).toFixed(2))));
+
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (rect) {
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const newPanX = mouseX - (mouseX - pan.x) * (newZoom / zoomLevel);
+        const newPanY = mouseY - (mouseY - pan.y) * (newZoom / zoomLevel);
+        setZoomLevel(newZoom);
+        setPan(clampPan(newPanX, newPanY, newZoom));
+      } else {
+        setZoomLevel(newZoom);
+        setPan((prev) => clampPan(prev.x, prev.y, newZoom));
+      }
     } else {
-      setPan((prev) => ({
-        x: prev.x - e.deltaX,
-        y: prev.y - e.deltaY,
-      }));
+      setPan((prev) => clampPan(prev.x - e.deltaX, prev.y - e.deltaY, zoomLevel));
     }
   };
 
@@ -150,8 +289,8 @@ export function WorkflowCanvas({
         hasDragged = true;
       }
 
-      const newX = Math.max(20, Math.round(draggingNodeRef.current.initX + dx));
-      const newY = Math.max(20, Math.round(draggingNodeRef.current.initY + dy));
+      const newX = Math.max(20, Math.min(4500, Math.round(draggingNodeRef.current.initX + dx)));
+      const newY = Math.max(20, Math.min(3000, Math.round(draggingNodeRef.current.initY + dy)));
 
       onUpdateWorkflow({
         ...workflow,
@@ -375,6 +514,7 @@ export function WorkflowCanvas({
             width: "5000px",
             height: "3500px",
             position: "relative",
+            transition: isAnimating ? "transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)" : "none",
           }}
         >
           {/* SVG Bezier Connection Edges */}
@@ -557,44 +697,99 @@ export function WorkflowCanvas({
         </div>
       </div>
 
-      {/* Canvas Bottom-Right Zoom Controls */}
-      <div className="canvas-control absolute bottom-6 right-6 flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-outline-variant/50 shadow-lg z-20">
+      {/* n8n-Style Floating Controls Dock */}
+      <div className="canvas-control absolute bottom-6 right-6 flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-outline-variant/60 shadow-xl shadow-black/5 z-20 transition-all">
         {onOpenAddNode && (
-          <button
-            onClick={onOpenAddNode}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white hover:bg-primary-dark rounded-xl text-xs font-bold transition-all shadow-xs"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add Node</span>
-          </button>
+          <>
+            <button
+              onClick={onOpenAddNode}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white hover:bg-primary/90 rounded-xl text-xs font-bold transition-all shadow-xs active:scale-95"
+              title="Add Node to Canvas"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Node</span>
+            </button>
+            <div className="w-px h-5 bg-outline-variant/60 mx-1" />
+          </>
         )}
-        <button
-          onClick={() => setZoomLevel((z) => Math.max(0.6, z - 0.1))}
-          className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors"
-          title="Zoom Out"
-        >
-          <ZoomOut className="w-4 h-4" />
-        </button>
-        <span className="text-xs font-mono font-bold px-2 text-on-surface-variant">
-          {Math.round(zoomLevel * 100)}%
-        </span>
-        <button
-          onClick={() => setZoomLevel((z) => Math.min(1.4, z + 0.1))}
-          className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors"
-          title="Zoom In"
-        >
-          <ZoomIn className="w-4 h-4" />
-        </button>
+
+        {/* Zoom Out (-) */}
         <button
           onClick={() => {
-            setZoomLevel(1);
-            setPan({ x: 0, y: 0 });
+            triggerAnimation();
+            const newZoom = Math.max(0.4, Number((zoomLevel - 0.1).toFixed(2)));
+            setZoomLevel(newZoom);
+            setPan((prev) => clampPan(prev.x, prev.y, newZoom));
           }}
-          className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors"
-          title="Reset View (100% & Pan)"
+          className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors active:scale-90"
+          title="Zoom Out (Ctrl + -)"
+          aria-label="Zoom Out"
+        >
+          <Minus className="w-4 h-4" />
+        </button>
+
+        {/* Zoom Percentage / Click to Reset to 100% */}
+        <button
+          onClick={() => {
+            triggerAnimation();
+            setZoomLevel(1);
+            setPan((prev) => clampPan(prev.x, prev.y, 1));
+          }}
+          className="px-2 py-1 text-xs font-mono font-bold text-on-surface hover:bg-surface-container rounded-lg transition-colors"
+          title="Click to reset zoom to 100%"
+        >
+          {Math.round(zoomLevel * 100)}%
+        </button>
+
+        {/* Zoom In (+) */}
+        <button
+          onClick={() => {
+            triggerAnimation();
+            const newZoom = Math.min(1.8, Number((zoomLevel + 0.1).toFixed(2)));
+            setZoomLevel(newZoom);
+            setPan((prev) => clampPan(prev.x, prev.y, newZoom));
+          }}
+          className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors active:scale-90"
+          title="Zoom In (Ctrl + +)"
+          aria-label="Zoom In"
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+
+        <div className="w-px h-5 bg-outline-variant/60 mx-1" />
+
+        {/* n8n-Style Fit to Screen / Recenter */}
+        <button
+          onClick={handleFitView}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-all active:scale-95 shadow-2xs"
+          title="Fit View to Screen (Center all nodes) — Press 'F'"
+        >
+          <Focus className="w-3.5 h-3.5" />
+          <span>Fit View</span>
+        </button>
+
+        {/* Reset View Origin */}
+        <button
+          onClick={() => {
+            triggerAnimation();
+            setZoomLevel(1);
+            setPan(clampPan(80, 80, 1));
+          }}
+          className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors active:scale-90"
+          title="Reset Origin (Top-Left & 100%)"
+          aria-label="Reset Origin"
         >
           <Maximize2 className="w-4 h-4" />
         </button>
+      </div>
+
+      {/* Canvas Bottom-Left Helper Badge */}
+      <div className="canvas-control absolute bottom-6 left-6 hidden sm:flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-outline-variant/50 text-[11px] text-on-surface-variant/80 font-mono pointer-events-none z-10 shadow-sm">
+        <span>🖱️ Drag canvas to pan</span>
+        <span>•</span>
+        <span>Wheel to scroll</span>
+        <span>•</span>
+        <span>Press <kbd className="px-1 py-0.5 bg-surface-container rounded font-bold text-[10px]">F</kbd> to Fit View</span>
       </div>
 
       {/* Live Output Drawer (if execution is done) */}

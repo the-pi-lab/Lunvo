@@ -71,8 +71,12 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
 
+  const isWorkflow = pathname?.startsWith("/dashboard/workflow");
+
   return (
-    <div className="flex min-h-screen bg-background text-on-background font-sans">
+    <div
+      className={`flex ${isWorkflow ? "h-screen overflow-hidden" : "min-h-screen"} bg-background text-on-background font-sans`}
+    >
       <Sidebar
         collapsed={collapsed}
         mobileOpen={mobileOpen}
@@ -80,7 +84,9 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
         onLogout={handleLogout}
       />
 
-      <div className="relative flex min-w-0 flex-1 flex-col">
+      <div
+        className={`relative flex min-w-0 flex-1 flex-col ${isWorkflow ? "h-screen overflow-hidden" : ""}`}
+      >
         <div className="fixed inset-0 -z-10 pointer-events-none">
           <SilkCanvas intensity={0.4} speed={0.45} />
         </div>
@@ -93,7 +99,7 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
           onOpenCmdK={() => setCmdkOpen(true)}
         />
 
-        {localMode && !pathname?.startsWith("/dashboard/workflow") && (
+        {localMode && !isWorkflow && (
           <div className="px-4 sm:px-6 lg:px-8 pt-4">
             <div className="max-w-7xl mx-auto flex items-center gap-2.5 px-4 py-2.5 rounded-[10px] bg-tertiary/10 border border-tertiary/25">
               <Zap className="w-3.5 h-3.5 text-tertiary shrink-0" />
@@ -110,7 +116,7 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
           tabIndex={-1}
           aria-label="Main content"
           className={
-            pathname?.startsWith("/dashboard/workflow")
+            isWorkflow
               ? "flex-1 w-full h-[calc(100vh-3.5rem)] overflow-hidden p-0"
               : "flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10"
           }
