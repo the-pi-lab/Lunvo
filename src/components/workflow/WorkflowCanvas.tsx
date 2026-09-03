@@ -277,29 +277,37 @@ export function WorkflowCanvas({
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  // Wheel pan / zoom
-  const handleCanvasWheel = (e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
-      const newZoom = Math.min(1.8, Math.max(0.4, Number((zoomLevel * zoomFactor).toFixed(2))));
+  // Wheel pan / zoom — native non-passive listener (React attaches wheel as
+  // passive at root, so ctrl+wheel preventDefault would silently fail and the
+  // browser would page-zoom instead of canvas-zooming).
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      const z = zoomRef.current;
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+        const newZoom = Math.min(1.8, Math.max(0.4, Number((z * zoomFactor).toFixed(2))));
 
-      const rect = canvasRef.current?.getBoundingClientRect();
-      if (rect) {
+        const rect = el.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
-        const newPanX = mouseX - (mouseX - pan.x) * (newZoom / zoomLevel);
-        const newPanY = mouseY - (mouseY - pan.y) * (newZoom / zoomLevel);
+        const p = panRef.current;
+        const newPanX = mouseX - (mouseX - p.x) * (newZoom / z);
+        const newPanY = mouseY - (mouseY - p.y) * (newZoom / z);
+        triggerAnimation();
         setZoomLevel(newZoom);
         setPan(clampPan(newPanX, newPanY, newZoom));
       } else {
-        setZoomLevel(newZoom);
-        setPan((prev) => clampPan(prev.x, prev.y, newZoom));
+        e.preventDefault();
+        setPan((prev) => clampPan(prev.x - e.deltaX, prev.y - e.deltaY, z));
       }
-    } else {
-      setPan((prev) => clampPan(prev.x - e.deltaX, prev.y - e.deltaY, zoomLevel));
-    }
-  };
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Handle Dragging Nodes
   const handleNodeMouseDown = (e: React.MouseEvent, node: WorkflowNode) => {
@@ -480,7 +488,7 @@ export function WorkflowCanvas({
   };
 
   return (
-    <div className="relative flex-1 min-h-0 w-full flex flex-col bg-[#F8F9FB] overflow-hidden select-none">
+    <div className="relative flex-1 min-h-0 w-full flex flex-col bg-[#F8F9FB] overflow-hidden select-none min-h-[50vh]">
       {/* Canvas Top Bar */}
       <div className="h-14 shrink-0 px-5 border-b border-outline-variant/40 bg-surface-container-lowest/80 backdrop-blur-md flex items-center justify-between z-20 shadow-xs">
         <div className="flex items-center gap-3">
@@ -534,11 +542,10 @@ export function WorkflowCanvas({
       <div
         ref={canvasRef}
         onMouseDown={handleCanvasMouseDown}
-        onWheel={handleCanvasWheel}
         style={{
           backgroundPosition: `${pan.x}px ${pan.y}px`,
         }}
-        className={`relative flex-1 min-h-0 w-full overflow-hidden select-none bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] ${
+        className={`relative flex-1 min-h-0 min-h-[40vh] w-full overflow-hidden select-none touch-none bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] ${
           isPanning ? "cursor-grabbing" : "cursor-grab"
         }`}
       >
@@ -731,8 +738,8 @@ export function WorkflowCanvas({
           })}
         </div>
 
-        {/* Canvas Floating Controls Dock (Exact 1:1 match with user reference screenshot) */}
-        <div className="canvas-control absolute bottom-6 right-6 flex items-center gap-2 z-20">
+        {/* Canvas Floating Controls Dock (n8n-style: fit / zoom-in / zoom-out / reset) */}
+        <div className="canvas-control absolute bottom-6 right-6 flex items-center gap-2 z-30">
           {onOpenAddNode && (
             <button
               onClick={onOpenAddNode}
