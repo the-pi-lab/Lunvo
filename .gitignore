@@ -58,11 +58,17 @@ next-env.d.ts
 # stitch reference files
 stitch_linkedin_ai_growth_assistant/
 
-# Large data files & backups
+# Large data files & datasets
+*.csv
 influencers_data.csv
+LinkedIn_Post_Engagement_Analytics_Medium.csv
 Ebook-The Hustle-LinkedIn Success Database_ 50 Viral Posts Decoded-1.pdf
 *.backup.*
 REBUILD_PLAN.md.backup*
+
+# Screenshots & launch scratchpads
+Screenshot*.*
+public/launch/
 
 # audits & scratch
 *audit*.md
