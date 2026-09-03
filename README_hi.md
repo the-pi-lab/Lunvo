@@ -54,8 +54,8 @@ _Scout 3 वायरल हुक्स निकालता है → Writer
 
 <img src="./public/screenshots/dashboard-bento.png" alt="LUNVO Dashboard Bento Grid" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
-### 3. कंटेंट क्रिएशन स्टूडियो और Tiptap AI एडिटर
-स्लैश कमांड्स (`/hook`, `/cta`), Voice DNA और लाइव लिंक्डइन मोबाइल प्रीव्यू के साथ।
+### 3. कंटेंट क्रिएशन स्टूडियो और इमेज स्टूडियो
+3-एजेंट न्यूरल पाइपलाइन (Scout, Writer, Critic) और 6 प्रोफेशनल स्टाइल्स वाले इमेज स्टूडियो के साथ पोस्ट कमीशन करें।
 
 <img src="./public/screenshots/content-studio.png" alt="LUNVO Content Creation Studio" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
@@ -79,8 +79,8 @@ Zapier, Make, और Buffer के जरिए बिना बैन रिस
 
 <img src="./public/screenshots/distribution-webhooks.png" alt="LUNVO Webhook Distribution Queue" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
-### 8. 54+ AI प्रोवाइडर वॉल्ट और सेटिंग्स
-Frontier, Groq, Cerebras और ऑफलाइन Ollama के लिए क्लाइंट-साइड सिक्योर की स्टोरेज।
+### 8. 50+ AI प्रोवाइडर्स यूनिवर्सल रजिस्ट्री और BYOK वॉल्ट
+100% BYOK — 50+ प्रोवाइडर्स (Frontier, Groq, Cerebras, Open & Cheap, Privacy, Local Ollama) मल्टीपल कीज और ऑटो-फेलओवर के साथ।
 
 <img src="./public/screenshots/settings-vault.png" alt="LUNVO Provider Vault and Settings" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 

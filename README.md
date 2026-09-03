@@ -90,8 +90,8 @@ LUNVO is designed, built, and open-sourced by **[THE Π LAB (The Pi Lab)](https:
 
 <div align="center">
 
-> **Live Production App → [https://lunvo-tawny.vercel.app/](https://lunvo-tawny.vercel.app/)**
-> Test free post analysis, Voice DNA tuning, visual workflows, and AI generation without requiring mandatory account creation.
+> **Live Web Preview → [https://lunvo-tawny.vercel.app/](https://lunvo-tawny.vercel.app/)**
+> Live interactive UI showcase. LUNVO is an autonomous, local-first operating system designed to run 100% privately on your own local machine or self-hosted server.
 
 <a href="https://lunvo-tawny.vercel.app/"><img src="./public/screenshots/lunvo-demo-motion.webp" alt="LUNVO 2.0 Motion Demo Walkthrough" width="100%" style="border-radius:12px; border:1px solid #E5E2DA;"/></a>
 
@@ -118,8 +118,8 @@ Consolidated view of your LinkedIn growth streak, quick actions, pipeline status
 
 <img src="./public/screenshots/dashboard-bento.png" alt="LUNVO Dashboard Bento Grid" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
-### 3. Content Creation Studio & Tiptap AI Editor
-Drafting workstation with inline slash commands (`/hook`, `/cta`), active Voice DNA injection, and live side-by-side LinkedIn mobile preview.
+### 3. Content Creation Studio & Image Studio
+Commission posts via the 3-agent neural pipeline (Scout, Writer, Critic) with active Voice DNA injection and built-in Image Studio supporting 6 professional visual styles.
 
 <img src="./public/screenshots/content-studio.png" alt="LUNVO Content Creation Studio" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
@@ -143,8 +143,8 @@ Schedule posts directly to Zapier, Make, and Buffer with zero account risk (no s
 
 <img src="./public/screenshots/distribution-webhooks.png" alt="LUNVO Webhook Distribution Queue" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
-### 8. 54+ AI Provider Vault & Settings
-Client-side encrypted BYOK key storage supporting Frontier models, fast inference (Groq, Cerebras), open providers, and offline local Ollama.
+### 8. 50+ AI Providers Universal Registry & BYOK Vault
+100% BYOK supporting 50+ providers (Frontier, Aggregators, Fast Inference, Open & Cheap, Privacy, Gateways, Local & Free) with multiple keys and automatic failover.
 
 <img src="./public/screenshots/settings-vault.png" alt="LUNVO Provider Vault and Settings" width="100%" style="border-radius:10px; border:1px solid #E5E2DA;"/>
 
