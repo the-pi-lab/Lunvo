@@ -48,6 +48,59 @@ interface WorkflowCanvasProps {
   onOpenAddNode?: () => void;
 }
 
+interface BezierCurveResult {
+  path: string;
+  c1x: number;
+  c1y: number;
+  c2x: number;
+  c2y: number;
+  midX: number;
+  midY: number;
+}
+
+/**
+ * Computes smooth horizontal S-curve bezier path (n8n / React Flow style)
+ * Guaranteed smooth horizontal exit to the right (+X) from source, and smooth entry
+ * from the left (+X) into target, even when nodes are vertically stacked or inverted.
+ */
+function computeBezierCurve(
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number
+): BezierCurveResult {
+  const dx = endX - startX;
+  const dy = endY - startY;
+
+  let c1x: number;
+  const c1y = startY;
+  let c2x: number;
+  const c2y = endY;
+
+  // Minimum horizontal curvature offset so ports always have a clean, smooth exit & entrance
+  const minCurvature = 60;
+
+  if (dx >= 0) {
+    // Normal forward flow: source is to the left of target
+    const curvature = Math.max(dx * 0.5, Math.min(Math.abs(dy) * 0.5, 140), minCurvature);
+    c1x = startX + curvature;
+    c2x = endX - curvature;
+  } else {
+    // Backward loop: target is to the left of source (e.g. node arranged backwards or vertically stacked)
+    const loopOffset = Math.max(Math.abs(dx) * 0.4, 90);
+    c1x = startX + loopOffset;
+    c2x = endX - loopOffset;
+  }
+
+  // Exact midpoint along cubic bezier curve at t = 0.5
+  // B(0.5) = 0.125 * P0 + 0.375 * P1 + 0.375 * P2 + 0.125 * P3
+  const midX = 0.125 * startX + 0.375 * c1x + 0.375 * c2x + 0.125 * endX;
+  const midY = 0.125 * startY + 0.375 * c1y + 0.375 * c2y + 0.125 * endY;
+
+  const path = `M ${startX} ${startY} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${endX} ${endY}`;
+  return { path, c1x, c1y, c2x, c2y, midX, midY };
+}
+
 export function WorkflowCanvas({
   workflow,
   onUpdateWorkflow,
@@ -62,6 +115,9 @@ export function WorkflowCanvas({
   const [topicInput, setTopicInput] = useState("Next.js 15 Partial Prerendering & Server Actions");
   const [zoomLevel, setZoomLevel] = useState(1);
   const [connectingSourceId, setConnectingSourceId] = useState<string | null>(null);
+  const [connectionMousePos, setConnectionMousePos] = useState<{ x: number; y: number } | null>(
+    null
+  );
 
   // Canvas Pan state (left-click drag canvas)
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -74,6 +130,32 @@ export function WorkflowCanvas({
   const workflowRef = useRef(workflow);
   const dragRafRef = useRef<number | null>(null);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  // Track mouse coordinates on canvas during active connection wire creation
+  useEffect(() => {
+    if (!connectingSourceId) {
+      setConnectionMousePos(null);
+      return;
+    }
+
+    const handleWindowMouseMove = (e: MouseEvent) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const z = zoomRef.current || 1;
+      const p = panRef.current;
+      const canvasX = (e.clientX - rect.left - p.x) / z;
+      const canvasY = (e.clientY - rect.top - p.y) / z;
+      setConnectionMousePos({ x: canvasX, y: canvasY });
+    };
+
+    window.addEventListener("mousemove", handleWindowMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleWindowMouseMove);
+    };
+  }, [connectingSourceId]);
+
   useEffect(() => {
     panRef.current = pan;
     zoomRef.current = zoomLevel;
@@ -88,7 +170,6 @@ export function WorkflowCanvas({
     initX: number;
     initY: number;
   } | null>(null);
-  const canvasRef = useRef<HTMLDivElement>(null);
 
   const triggerAnimation = () => {
     setIsAnimating(true);
@@ -612,7 +693,21 @@ export function WorkflowCanvas({
           }}
         >
           {/* SVG Bezier Connection Edges */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+          <svg
+            width="5000"
+            height="3500"
+            viewBox="0 0 5000 3500"
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "5000px",
+              height: "3500px",
+              pointerEvents: "none",
+              overflow: "visible",
+            }}
+            className="workflow-connections-svg z-0 !max-w-none"
+          >
             <defs>
               <marker
                 id="arrow"
@@ -625,7 +720,64 @@ export function WorkflowCanvas({
               >
                 <path d="M 0 1 L 8 5 L 0 9 z" fill="#94A3B8" />
               </marker>
+              <marker
+                id="arrow-active"
+                viewBox="0 0 10 10"
+                refX="6"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 1 L 8 5 L 0 9 z" fill="#3B82F6" />
+              </marker>
+              <marker
+                id="arrow-preview"
+                viewBox="0 0 10 10"
+                refX="6"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto-start-reverse"
+              >
+                <path d="M 0 1 L 8 5 L 0 9 z" fill="#F59E0B" />
+              </marker>
             </defs>
+
+            {/* Active Drawing / Preview Connection Wire */}
+            {connectingSourceId &&
+              connectionMousePos &&
+              (() => {
+                const sourceNode = workflow.nodes.find((n) => n.id === connectingSourceId);
+                if (!sourceNode) return null;
+                const startX = (sourceNode.position?.x ?? 0) + 240;
+                const startY = (sourceNode.position?.y ?? 0) + 50;
+                const { path } = computeBezierCurve(
+                  startX,
+                  startY,
+                  connectionMousePos.x,
+                  connectionMousePos.y
+                );
+                return (
+                  <g className="pointer-events-none">
+                    <path
+                      d={path}
+                      fill="none"
+                      stroke="#F59E0B"
+                      strokeWidth="2.5"
+                      strokeDasharray="5,5"
+                      className="animate-wire-dash"
+                      markerEnd="url(#arrow-preview)"
+                    />
+                    <circle
+                      cx={connectionMousePos.x}
+                      cy={connectionMousePos.y}
+                      r="4"
+                      fill="#F59E0B"
+                    />
+                  </g>
+                );
+              })()}
 
             {workflow.edges.map((edge) => {
               const sourceNode = workflow.nodes.find((n) => n.id === edge.source);
@@ -634,30 +786,39 @@ export function WorkflowCanvas({
 
               // Node dimensions: 240px wide, 100px high (fixed card height
               // below) so ports (top-1/2) and edge endpoints always coincide
-              const startX = sourceNode.position.x + 240;
-              const startY = sourceNode.position.y + 50;
-              const endX = targetNode.position.x;
-              const endY = targetNode.position.y + 50;
+              const startX = (sourceNode.position?.x ?? 0) + 240;
+              const startY = (sourceNode.position?.y ?? 0) + 50;
+              const endX = targetNode.position?.x ?? 0;
+              const endY = (targetNode.position?.y ?? 0) + 50;
 
-              const dx = Math.abs(endX - startX) * 0.5;
-              const pathData = `M ${startX} ${startY} C ${startX + dx} ${startY}, ${endX - dx} ${endY}, ${endX} ${endY}`;
+              const { path: pathData, midX, midY } = computeBezierCurve(startX, startY, endX, endY);
               const isEdgeActive =
                 activeStepNodeId === edge.source || activeStepNodeId === edge.target;
 
               return (
                 <g key={edge.id} className="group pointer-events-auto">
+                  {/* Invisible thicker hit-area for smooth hover & clicking */}
+                  <path
+                    d={pathData}
+                    fill="none"
+                    stroke="transparent"
+                    strokeWidth="16"
+                    className="cursor-pointer"
+                  />
                   <path
                     d={pathData}
                     fill="none"
                     stroke={isEdgeActive ? "#3B82F6" : "#94A3B8"}
                     strokeWidth={isEdgeActive ? "3.5" : "2.5"}
                     strokeDasharray={isEdgeActive ? "6,6" : undefined}
-                    className={`${isEdgeActive ? "animate-[dash_1s_linear_infinite]" : ""} transition-colors`}
-                    markerEnd="url(#arrow)"
+                    className={`${
+                      isEdgeActive ? "animate-wire-dash" : ""
+                    } transition-colors group-hover:stroke-blue-500`}
+                    markerEnd={isEdgeActive ? "url(#arrow-active)" : "url(#arrow)"}
                   />
-                  {/* Midpoint Delete — hover-only so wires render continuous */}
+                  {/* Midpoint Delete — hover-only, placed exactly along the cubic bezier curve */}
                   <g
-                    transform={`translate(${(startX + endX) / 2}, ${(startY + endY) / 2})`}
+                    transform={`translate(${midX}, ${midY})`}
                     className="cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -665,14 +826,14 @@ export function WorkflowCanvas({
                     }}
                   >
                     <rect
-                      x="-20"
+                      x="-18"
                       y="-10"
-                      width="40"
+                      width="36"
                       height="20"
                       rx="6"
                       fill="white"
                       stroke="#CBD5E1"
-                      className="group-hover:stroke-rose-400 group-hover:fill-rose-50"
+                      className="group-hover:stroke-rose-400 group-hover:fill-rose-50 shadow-xs"
                     />
                     <text
                       x="0"

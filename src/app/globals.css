@@ -74,8 +74,7 @@
 
   img,
   video,
-  canvas,
-  svg {
+  canvas {
     max-width: 100%;
     height: auto;
   }
@@ -371,4 +370,24 @@
   .editorial-marquee {
     animation: none;
   }
+}
+
+/* Workflow Canvas SVG Wire Connections */
+@keyframes wireDash {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-wire-dash {
+  animation: wireDash 1s linear infinite;
+}
+
+svg.workflow-connections-svg {
+  overflow: visible !important;
+  max-width: none !important;
+  max-height: none !important;
 }
