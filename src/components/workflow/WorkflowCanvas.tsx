@@ -790,7 +790,7 @@ export function WorkflowCanvas({
             title="Fit to Screen (Center all nodes) — Press 'F'"
             aria-label="Fit View"
           >
-            <Scan className="w-4 h-4 stroke-[2.2]" />
+            <Scan className="w-4 h-4" />
           </button>
 
           {/* 2. Zoom In (Magnifying glass with +) */}
@@ -800,7 +800,7 @@ export function WorkflowCanvas({
             title="Zoom In (Ctrl + +)"
             aria-label="Zoom In"
           >
-            <ZoomIn className="w-4 h-4 stroke-[2.2]" />
+            <ZoomIn className="w-4 h-4" />
           </button>
 
           {/* 3. Zoom Out (Magnifying glass with -) */}
@@ -810,7 +810,7 @@ export function WorkflowCanvas({
             title="Zoom Out (Ctrl + -)"
             aria-label="Zoom Out"
           >
-            <ZoomOut className="w-4 h-4 stroke-[2.2]" />
+            <ZoomOut className="w-4 h-4" />
           </button>
 
           {/* 4. Reset Zoom (Counter-clockwise curved arrow) */}
@@ -820,7 +820,7 @@ export function WorkflowCanvas({
             title="Reset zoom to 100% & Recenter"
             aria-label="Reset Zoom"
           >
-            <RotateCcw className="w-4 h-4 stroke-[2.2]" />
+            <RotateCcw className="w-4 h-4" />
           </button>
 
           {/* Zoom level percentage badge */}
