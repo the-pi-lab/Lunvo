@@ -287,7 +287,7 @@ export function PostEditor({ content, score, notes }: PostEditorProps) {
 
         {/* 1-Click Optimizer */}
         <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-4 shadow-sm">
-          <label className="block text-xs font-semibold text-on-surface dark:text-on-surface-variant/40 mb-2 flex items-center">
+          <label className="block text-xs font-semibold text-on-surface mb-2 flex items-center">
             <Wand2 className="w-3.5 h-3.5 mr-1" />
             1-Click AI Optimizer
           </label>
@@ -329,7 +329,7 @@ export function PostEditor({ content, score, notes }: PostEditorProps) {
 
         {/* LinkedIn Mobile Simulator */}
         <div>
-          <h3 className="text-sm font-semibold text-on-background dark:text-white mb-3">
+          <h3 className="text-sm font-semibold text-on-background mb-3">
             Mobile Preview (Truncation Check)
           </h3>
           <LinkedInMobilePreview content={editedContent} />

@@ -40,9 +40,7 @@ export function EngagementMeter({ metrics, isLoading }: EngagementMeterProps) {
   return (
     <div className="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/40 shadow-sm space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-on-background dark:text-white">
-          Engagement Prediction
-        </h3>
+        <h3 className="text-sm font-semibold text-on-background">Engagement Prediction</h3>
         <div
           className={`px-3 py-1 rounded-full text-xs font-bold border ${getMetricColor(metrics.overallScore)}`}
         >
@@ -53,7 +51,7 @@ export function EngagementMeter({ metrics, isLoading }: EngagementMeterProps) {
       <div className="grid grid-cols-2 gap-4">
         {/* Hook */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-medium text-on-surface-variant dark:text-on-surface-variant/70">
+          <div className="flex items-center justify-between text-xs font-medium text-on-surface-variant">
             <span className="flex items-center">
               <Zap className="w-3.5 h-3.5 mr-1" /> Hook Strength
             </span>
@@ -69,7 +67,7 @@ export function EngagementMeter({ metrics, isLoading }: EngagementMeterProps) {
 
         {/* Readability */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-medium text-on-surface-variant dark:text-on-surface-variant/70">
+          <div className="flex items-center justify-between text-xs font-medium text-on-surface-variant">
             <span className="flex items-center">
               <Eye className="w-3.5 h-3.5 mr-1" /> Readability
             </span>
@@ -85,7 +83,7 @@ export function EngagementMeter({ metrics, isLoading }: EngagementMeterProps) {
 
         {/* Value Density */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-medium text-on-surface-variant dark:text-on-surface-variant/70">
+          <div className="flex items-center justify-between text-xs font-medium text-on-surface-variant">
             <span className="flex items-center">
               <Brain className="w-3.5 h-3.5 mr-1" /> Value Density
             </span>
@@ -101,7 +99,7 @@ export function EngagementMeter({ metrics, isLoading }: EngagementMeterProps) {
 
         {/* Authenticity */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs font-medium text-on-surface-variant dark:text-on-surface-variant/70">
+          <div className="flex items-center justify-between text-xs font-medium text-on-surface-variant">
             <span className="flex items-center">
               <UserCheck className="w-3.5 h-3.5 mr-1" /> Authenticity
             </span>

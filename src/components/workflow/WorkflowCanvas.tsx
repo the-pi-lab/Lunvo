@@ -786,7 +786,7 @@ export function WorkflowCanvas({
           {/* 1. Fit to Screen (4-Corner Frame / Scan) */}
           <button
             onClick={handleFitView}
-            className="w-9 h-9 flex items-center justify-center bg-white dark:bg-surface-container-highest border border-slate-200 dark:border-outline-variant/60 rounded-lg shadow-xs hover:shadow-sm text-slate-700 dark:text-slate-200 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-lg shadow-xs hover:shadow-sm text-slate-700 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
             title="Fit to Screen (Center all nodes) — Press 'F'"
             aria-label="Fit View"
           >
@@ -796,7 +796,7 @@ export function WorkflowCanvas({
           {/* 2. Zoom In (Magnifying glass with +) */}
           <button
             onClick={() => handleZoomStep(0.1)}
-            className="w-9 h-9 flex items-center justify-center bg-white dark:bg-surface-container-highest border border-slate-200 dark:border-outline-variant/60 rounded-lg shadow-xs hover:shadow-sm text-slate-700 dark:text-slate-200 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-lg shadow-xs hover:shadow-sm text-slate-700 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
             title="Zoom In (Ctrl + +)"
             aria-label="Zoom In"
           >
@@ -806,7 +806,7 @@ export function WorkflowCanvas({
           {/* 3. Zoom Out (Magnifying glass with -) */}
           <button
             onClick={() => handleZoomStep(-0.1)}
-            className="w-9 h-9 flex items-center justify-center bg-white dark:bg-surface-container-highest border border-slate-200 dark:border-outline-variant/60 rounded-lg shadow-xs hover:shadow-sm text-slate-700 dark:text-slate-200 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-lg shadow-xs hover:shadow-sm text-slate-700 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
             title="Zoom Out (Ctrl + -)"
             aria-label="Zoom Out"
           >
@@ -816,7 +816,7 @@ export function WorkflowCanvas({
           {/* 4. Reset Zoom (Counter-clockwise curved arrow) */}
           <button
             onClick={() => handleResetZoom()}
-            className="w-9 h-9 flex items-center justify-center bg-white dark:bg-surface-container-highest border border-slate-200 dark:border-outline-variant/60 rounded-lg shadow-xs hover:shadow-sm text-slate-700 dark:text-slate-200 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
+            className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-lg shadow-xs hover:shadow-sm text-slate-700 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
             title="Reset zoom to 100% & Recenter"
             aria-label="Reset Zoom"
           >
@@ -826,7 +826,7 @@ export function WorkflowCanvas({
           {/* Zoom level percentage badge */}
           <div
             onClick={() => handleResetZoom()}
-            className="h-9 px-2.5 flex items-center justify-center bg-white dark:bg-surface-container-highest border border-slate-200 dark:border-outline-variant/60 rounded-lg shadow-xs text-xs font-mono font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 cursor-pointer transition-colors select-none"
+            className="h-9 px-2.5 flex items-center justify-center bg-white border border-slate-200 rounded-lg shadow-xs text-xs font-mono font-bold text-slate-600 hover:bg-slate-50 cursor-pointer transition-colors select-none"
             title="Click to reset zoom to 100%"
           >
             {Math.round(zoomLevel * 100)}%
