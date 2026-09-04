@@ -632,11 +632,12 @@ export function WorkflowCanvas({
               const targetNode = workflow.nodes.find((n) => n.id === edge.target);
               if (!sourceNode || !targetNode) return null;
 
-              // Node dimensions: 240px wide, ~85px high
+              // Node dimensions: 240px wide, 100px high (fixed card height
+              // below) so ports (top-1/2) and edge endpoints always coincide
               const startX = sourceNode.position.x + 240;
-              const startY = sourceNode.position.y + 42;
+              const startY = sourceNode.position.y + 50;
               const endX = targetNode.position.x;
-              const endY = targetNode.position.y + 42;
+              const endY = targetNode.position.y + 50;
 
               const dx = Math.abs(endX - startX) * 0.5;
               const pathData = `M ${startX} ${startY} C ${startX + dx} ${startY}, ${endX - dx} ${endY}, ${endX} ${endY}`;
@@ -654,10 +655,10 @@ export function WorkflowCanvas({
                     className={`${isEdgeActive ? "animate-[dash_1s_linear_infinite]" : ""} transition-colors`}
                     markerEnd="url(#arrow)"
                   />
-                  {/* Midpoint Delete / Label */}
+                  {/* Midpoint Delete — hover-only so wires render continuous */}
                   <g
                     transform={`translate(${(startX + endX) / 2}, ${(startY + endY) / 2})`}
-                    className="cursor-pointer"
+                    className="cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteEdge(edge.id);
@@ -709,7 +710,7 @@ export function WorkflowCanvas({
                   left: `${node.position.x}px`,
                   top: `${node.position.y}px`,
                 }}
-                className={`workflow-node absolute w-60 bg-white/95 backdrop-blur-md rounded-2xl border ${border} p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer z-10 ${
+                className={`workflow-node absolute w-60 h-[100px] overflow-hidden bg-white/95 backdrop-blur-md rounded-2xl border ${border} p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer z-10 ${
                   isSelected ? `ring-2 ${ring} shadow-lg ring-offset-2` : ""
                 } ${isActive ? "ring-4 ring-blue-500 animate-pulse" : ""}`}
               >
@@ -732,8 +733,8 @@ export function WorkflowCanvas({
                   {isActive && <Loader2 className="w-3.5 h-3.5 text-blue-500 animate-spin" />}
                 </div>
 
-                {/* Node Summary details */}
-                <div className="text-[11px] text-on-surface-variant/80 bg-surface-container/50 px-2.5 py-1.5 rounded-lg font-mono truncate">
+                {/* Node Summary details (single line — keeps 100px card height exact) */}
+                <div className="text-[11px] text-on-surface-variant/80 bg-surface-container/50 px-2.5 py-1.5 rounded-lg font-mono truncate whitespace-nowrap">
                   {node.type === "agent_writer" && "Draft Generator"}
                   {node.type === "agent_scout" && "Angle & Hooks"}
                   {node.type === "agent_critic" && "1-100 Virality Audit"}
