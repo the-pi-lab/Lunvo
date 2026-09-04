@@ -87,30 +87,31 @@ LUNVO is designed, built, and open-sourced by **[THE Π LAB (The Pi Lab)](https:
 
 ---
 
-## 🎥 Live Demo Video & Visual Walkthrough
+## 🎥 Live Interactive Walkthrough & Workflow Engine Demo
 
 <div align="center">
 
 > **Live Web Preview → [https://lunvo-tawny.vercel.app/](https://lunvo-tawny.vercel.app/)**
-> Watch the complete 1080p feature walkthrough below. LUNVO is an autonomous, local-first operating system designed to run 100% privately on your machine or self-hosted server.
+> _Watch LUNVO 2.0 execute the Autonomous 3-Agent Neural Pipeline and n8n-Style Workflow Canvas live in action._
 
-<video src="./public/videos/lunvo-demo-tour.mp4" controls="controls" width="100%" style="border-radius:12px; border:1px solid #CBD5E1; max-height:560px;" poster="./public/videos/lunvo-demo-tour-poster.jpg">
-  <p>Your browser does not support embedded videos. <a href="./public/videos/lunvo-demo-tour.mp4"><b>Click here to view or download the full 1080p MP4 demo (2:48)</b></a>.</p>
-</video>
+<a href="https://lunvo-tawny.vercel.app/">
+  <img src="./public/screenshots/lunvo-demo-tour.webp" alt="LUNVO 2.0 Live Walkthrough & Workflow Engine" width="100%" style="border-radius:12px; border:1px solid #CBD5E1; box-shadow: 0 12px 36px rgba(0,0,0,0.12);"/>
+</a>
+
+<br/><br/>
 
 <p align="center">
-  <a href="./public/videos/lunvo-demo-tour.mp4"><b>🎬 Watch Full 1080p Video Tour (2m 48s MP4)</b></a> &nbsp;•&nbsp;
-  <a href="https://lunvo-tawny.vercel.app/"><b>🚀 Launch Live Web App (lunvo-tawny.vercel.app)</b></a>
+  <a href="https://github.com/the-pi-lab/Lunvo/raw/main/public/videos/lunvo-demo-tour.mp4"><img src="https://img.shields.io/badge/▶_Watch_1080p_Video-2:48_MP4-004AC6?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch 1080p Video"/></a> &nbsp;&nbsp;
+  <a href="https://lunvo-tawny.vercel.app/"><img src="https://img.shields.io/badge/🚀_Launch_Live_App-lunvo--tawny.vercel.app-006e2d?style=for-the-badge&logo=vercel" alt="Launch Live App"/></a> &nbsp;&nbsp;
+  <a href="https://www.linkedin.com/company/the-%CF%80-lab/"><img src="https://img.shields.io/badge/LinkedIn-THE%20%CE%A0%20LAB-0A66C2?style=for-the-badge&logo=linkedin" alt="Company"/></a>
 </p>
 
-_Scout discovers contrarian hooks → Writer streams word-by-word with Voice DNA → Critic scores virality & dwell time → Visual Workflow executes — 100% locally and private._
-
-<p>
-<a href="https://lunvo-tawny.vercel.app/"><img src="https://img.shields.io/badge/LIVE_DEMO-Try_Now-004AC6?style=for-the-badge&logo=vercel" alt="Live Demo"/></a>
-<a href="https://vercel.com/new/clone?repository-url=https://github.com/the-pi-lab/Lunvo"><img src="https://img.shields.io/badge/Deploy_with_Vercel-000?style=for-the-badge&logo=vercel" alt="Deploy Vercel"/></a>
-<a href="https://railway.app/new/template?template=https://github.com/the-pi-lab/Lunvo"><img src="https://img.shields.io/badge/Deploy_on_Railway-0B0D0E?style=for-the-badge&logo=railway" alt="Deploy Railway"/></a>
-<a href="https://www.linkedin.com/company/the-%CF%80-lab/"><img src="https://img.shields.io/badge/Follow-THE%20%CE%A0%20LAB-0A66C2?style=for-the-badge&logo=linkedin" alt="LinkedIn Follow"/></a>
+<p align="center">
+  <sub>👆 <b>Autoplaying Live Walkthrough:</b> Scout extracts 3 viral hooks ➔ Writer streams draft word-by-word with Voice DNA ➔ Critic scores 92/100 ➔ Visual node automation executes the pipeline.</sub><br/>
+  <sub>🎬 <i>Want to watch the full 2m 48s 1080p HD video with audio? Click the blue <b>Watch 1080p Video</b> badge above!</i></sub>
 </p>
+
+</div>
 
 <details open>
 <summary><b>📸 UI Showcase & Feature Gallery — Direct From Live Production (Click to toggle)</b></summary>

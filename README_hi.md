@@ -51,18 +51,24 @@ LUNVO का निर्माण और ओपन-सोर्स **[THE Π LA
 <div align="center">
 
 > **लाइव वेब प्रीव्यू → [https://lunvo-tawny.vercel.app/](https://lunvo-tawny.vercel.app/)**
-> नीचे दिए गए 1080p वीडियो में LUNVO 2.0 के सभी फीचर्स (3-एजेंट न्यूरल पाइपलाइन, n8n विजुअल नोड बिल्डर, वॉइस डीएनए, और प्रोवाइडर वॉल्ट) का पूरा वॉकथ्रू देखें।
+> _LUNVO 2.0 की 3-एजेंट न्यूरल पाइपलाइन और n8n-स्टाइल विजुअल वर्कफ़्लो कैनवास का लाइव वॉकथ्रू:_
 
-<video src="./public/videos/lunvo-demo-tour.mp4" controls="controls" width="100%" style="border-radius:12px; border:1px solid #CBD5E1; max-height:560px;" poster="./public/videos/lunvo-demo-tour-poster.jpg">
-  <p>आपका ब्राउज़र एम्बेडेड वीडियो सपोर्ट नहीं करता। <a href="./public/videos/lunvo-demo-tour.mp4"><b>1080p MP4 वीडियो डाउनलोड करने या देखने के लिए यहाँ क्लिक करें (2:48)</b></a>।</p>
-</video>
+<a href="https://lunvo-tawny.vercel.app/">
+  <img src="./public/screenshots/lunvo-demo-tour.webp" alt="LUNVO 2.0 Live Walkthrough & Workflow Engine" width="100%" style="border-radius:12px; border:1px solid #CBD5E1; box-shadow: 0 12px 36px rgba(0,0,0,0.12);"/>
+</a>
+
+<br/><br/>
 
 <p align="center">
-  <a href="./public/videos/lunvo-demo-tour.mp4"><b>🎬 पूरा HD 1080p वीडियो वॉकथ्रू देखें (2m 48s MP4)</b></a> &nbsp;•&nbsp;
-  <a href="https://lunvo-tawny.vercel.app/"><b>🚀 लाइव ऐप टेस्ट करें (lunvo-tawny.vercel.app)</b></a>
+  <a href="https://github.com/the-pi-lab/Lunvo/raw/main/public/videos/lunvo-demo-tour.mp4"><img src="https://img.shields.io/badge/▶_1080p_वीडियो_देखें-2:48_MP4-004AC6?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch 1080p Video"/></a> &nbsp;&nbsp;
+  <a href="https://lunvo-tawny.vercel.app/"><img src="https://img.shields.io/badge/🚀_लाइव_ऐप_लॉन्च_करें-lunvo--tawny.vercel.app-006e2d?style=for-the-badge&logo=vercel" alt="Launch Live App"/></a> &nbsp;&nbsp;
+  <a href="https://www.linkedin.com/company/the-%CF%80-lab/"><img src="https://img.shields.io/badge/LinkedIn-THE%20%CE%A0%20LAB-0A66C2?style=for-the-badge&logo=linkedin" alt="Company"/></a>
 </p>
 
-_Scout 3 वायरल हुक्स निकालता है → Writer आपकी Voice DNA के साथ वर्ड-बाय-वर्ड स्ट्रीम करता है → Critic 94/100 स्कोर देता है → विजुअल नोड ऑटोमेशन पूरा पाइपलाइन चलाता है।_
+<p align="center">
+  <sub>👆 <b>ऑटो-प्लेइंग लाइव वॉकथ्रू:</b> Scout 3 वायरल हुक्स निकालता है ➔ Writer आपकी Voice DNA के साथ वर्ड-बाय-वर्ड स्ट्रीम करता है ➔ Critic 92/100 स्कोर देता है ➔ विजुअल नोड ऑटोमेशन पूरा पाइपलाइन चलाता है।</sub><br/>
+  <sub>🎬 <i>पूरा 2 मिनट 48 सेकंड का 1080p HD वीडियो ऑडियो के साथ देखने के लिए ऊपर दिए गए नीले <b>1080p वीडियो देखें</b> बटन पर क्लिक करें!</i></sub>
+</p>
 
 </div>
 
