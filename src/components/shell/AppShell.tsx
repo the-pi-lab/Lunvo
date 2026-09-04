@@ -119,8 +119,11 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
           tabIndex={-1}
           aria-label="Main content"
           className={
+            // Explicit viewport height (NOT flex-1): percentage heights inside
+            // flex items resolve as indefinite in Chrome and blow up to content
+            // height (~3600px). dvh keeps mobile browser-chrome correct.
             isWorkflow
-              ? "flex-1 min-h-0 w-full overflow-hidden p-0"
+              ? "h-[calc(100dvh-3.5rem)] flex-none w-full overflow-hidden p-0"
               : "flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10"
           }
         >

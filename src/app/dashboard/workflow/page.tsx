@@ -157,7 +157,10 @@ export default function WorkflowBuilderPage() {
   };
 
   return (
-    <div className="h-full w-full flex flex-col overflow-hidden">
+    // Explicit viewport height (NOT h-full): PageTransition wraps pages in an
+    // unstyled motion.div (height auto), so % heights resolve to content height
+    // (~3600px) and the canvas + dock render far below the fold. dvh matches AppShell.
+    <div className="h-[calc(100dvh-3.5rem)] w-full flex flex-col overflow-hidden">
       {/* Top Studio Control Bar */}
       <header className="h-16 shrink-0 px-6 border-b border-outline-variant/40 bg-surface-container-lowest flex items-center justify-between z-30 shadow-xs">
         {/* Left: Mode Switcher & Title */}

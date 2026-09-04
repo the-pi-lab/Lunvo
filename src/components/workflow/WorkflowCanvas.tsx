@@ -520,7 +520,7 @@ export function WorkflowCanvas({
   };
 
   return (
-    <div className="relative flex-1 min-h-0 w-full flex flex-col bg-[#F8F9FB] overflow-hidden select-none min-h-[50vh]">
+    <div className="relative flex-1 min-h-0 w-full flex flex-col bg-[#F8F9FB] overflow-hidden select-none">
       {/* Canvas Top Bar */}
       <div className="h-14 shrink-0 px-5 border-b border-outline-variant/40 bg-surface-container-lowest/80 backdrop-blur-md flex items-center justify-between z-20 shadow-xs">
         <div className="flex items-center gap-3">
@@ -577,7 +577,7 @@ export function WorkflowCanvas({
         style={{
           backgroundPosition: `${pan.x}px ${pan.y}px`,
         }}
-        className={`relative flex-1 min-h-0 min-h-[40vh] w-full overflow-hidden select-none touch-none bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] ${
+        className={`relative flex-1 min-h-0 w-full overflow-hidden select-none touch-none bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:24px_24px] ${
           isPanning ? "cursor-grabbing" : "cursor-grab"
         }`}
       >
