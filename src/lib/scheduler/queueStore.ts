@@ -35,17 +35,37 @@ const DEFAULT_WEBHOOKS: WebhookConfig[] = [
   },
 ];
 
+function isValidQueuedPost(p: unknown): p is ScheduledPost {
+  return (
+    !!p &&
+    typeof p === "object" &&
+    typeof (p as ScheduledPost).id === "string" &&
+    typeof (p as ScheduledPost).content === "string" &&
+    typeof (p as ScheduledPost).scheduledTime === "string"
+  );
+}
+
 /**
  * Retrieves all scheduled posts from storage.
+ * Invalid entries are filtered (one bad item must not wipe the queue —
+ * the next save would otherwise persist the `[]` fallback = data loss).
  */
 export function getScheduledQueue(): ScheduledPost[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(SCHEDULED_QUEUE_KEY);
     if (!raw) return [];
-    return JSON.parse(raw) as ScheduledPost[];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) throw new Error("queue is not an array");
+    return parsed.filter(isValidQueuedPost);
   } catch (e) {
     console.error("Failed to load scheduled queue:", e);
+    try {
+      const bad = localStorage.getItem(SCHEDULED_QUEUE_KEY);
+      if (bad) localStorage.setItem(`${SCHEDULED_QUEUE_KEY}__corrupt_backup`, bad.slice(0, 50000));
+    } catch {
+      // backup best-effort only
+    }
     return [];
   }
 }
@@ -103,7 +123,11 @@ export function updatePostStatus(
       target.errorMessage = error || "Dispatch failed";
       target.retryCount = (target.retryCount || 0) + 1;
     }
-    localStorage.setItem(SCHEDULED_QUEUE_KEY, JSON.stringify(queue));
+    try {
+      localStorage.setItem(SCHEDULED_QUEUE_KEY, JSON.stringify(queue));
+    } catch (e) {
+      console.error("Failed to persist post status (quota?):", e);
+    }
   }
 }
 

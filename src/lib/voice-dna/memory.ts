@@ -128,11 +128,20 @@ export function getTierLabel(tier: EngineTier): string {
   }
 }
 
+function notifyDnaUpdated(): void {
+  // Same-tab listeners (`storage` event doesn't fire in the writing tab):
+  // create/page + studio/page refresh their DNA state from this.
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("lunvo:dna-updated"));
+  }
+}
+
 export function saveTrainedDna(dna: unknown): void {
   window.localStorage.setItem(
     DNA_KEY,
     JSON.stringify({ dna, trainedAt: new Date().toISOString(), postCount: getPosts().length })
   );
+  notifyDnaUpdated();
 }
 
 export interface TrainedDnaRecord {

@@ -60,6 +60,13 @@ export async function executeWorkflow(
   const startNodes = workflow.nodes.filter(
     (n) => !incomingEdges.has(n.id) || incomingEdges.get(n.id)!.length === 0
   );
+  // Fully-cyclic graph: every node has an incoming edge → silently returning
+  // an "empty success" is a lie. Fail loudly so the user can break the cycle.
+  if (workflow.nodes.length > 0 && startNodes.length === 0) {
+    throw new Error(
+      "Workflow has no entry point — every node has an incoming edge (cycle). Remove an edge or add a trigger node."
+    );
+  }
   const queue: string[] = startNodes.map((n) => n.id);
   const executedNodes = new Set<string>();
 
@@ -118,6 +125,15 @@ export async function executeWorkflow(
       context.stepResults[nodeId] = { status: "failed", error: errorMsg, timestamp: Date.now() };
       onStepUpdate?.(nodeId, "failed", undefined, `Error: ${errorMsg}`);
       throw new Error(`Workflow node '${node.data.label || nodeId}' failed: ${errorMsg}`);
+    }
+  }
+
+  // Nodes never reached (condition_gate fail-branch with no retry edge, or
+  // disconnected islands): mark skipped instead of pretending success.
+  for (const n of workflow.nodes) {
+    if (!executedNodes.has(n.id) && !context.stepResults[n.id]) {
+      context.stepResults[n.id] = { status: "skipped", timestamp: Date.now() };
+      onStepUpdate?.(n.id, "skipped", undefined, "Not reached — no incoming path executed.");
     }
   }
 

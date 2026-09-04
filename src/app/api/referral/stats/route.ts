@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, extractClientIp, DAY_MS } from "@/lib/ai/serverLimiter";
+import { checkRateLimit, extractClientIp, DAY_MS, MINUTE_MS } from "@/lib/ai/serverLimiter";
 
 export const dynamic = "force-dynamic";
 
@@ -29,8 +29,13 @@ function getIpStore(): Set<string> {
 }
 
 export async function GET(req: NextRequest) {
+  const ip = extractClientIp(req);
+  const rl = await checkRateLimit(`ip:${ip}:referral-read`, 60, MINUTE_MS);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+  }
   const { searchParams } = new URL(req.url);
-  const ref = searchParams.get("ref")?.trim().toLowerCase();
+  const ref = searchParams.get("ref")?.trim().toLowerCase().slice(0, 20);
   const store = getStore();
 
   const leaderboard = Array.from(store.entries())

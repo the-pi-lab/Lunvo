@@ -11,6 +11,9 @@ import { PREBUILT_WORKFLOWS } from "@/lib/workflow/templates";
 import {
   saveWorkflow,
   getAllWorkflows,
+  getWorkflowById,
+  getActiveWorkflowId,
+  setActiveWorkflowId,
   exportWorkflowToJson,
   importWorkflowFromJson,
 } from "@/lib/workflow/workflowStore";
@@ -25,11 +28,17 @@ export default function WorkflowBuilderPage() {
   const [isRunModalOpen, setIsRunModalOpen] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Load from local storage or fallback to default prebuilt
+  // Load last-active workflow from local storage or fallback to default prebuilt
   useEffect(() => {
+    const active = getWorkflowById(getActiveWorkflowId());
+    if (active) {
+      setActiveWorkflow(active);
+      return;
+    }
     const saved = getAllWorkflows();
     if (saved && saved.length > 0 && saved[0]) {
       setActiveWorkflow(saved[0]);
+      setActiveWorkflowId(saved[0].metadata.id);
     }
   }, []);
 
@@ -51,10 +60,19 @@ export default function WorkflowBuilderPage() {
     setSelectedNodeId(null);
   };
 
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   const handleSaveWorkflow = () => {
-    saveWorkflow(activeWorkflow);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 2000);
+    try {
+      saveWorkflow(activeWorkflow);
+      setActiveWorkflowId(activeWorkflow.metadata.id);
+      setSaveError(null);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : "Save failed");
+      setTimeout(() => setSaveError(null), 3000);
+    }
   };
 
   const handleExportJson = () => {
@@ -68,28 +86,64 @@ export default function WorkflowBuilderPage() {
     URL.revokeObjectURL(url);
   };
 
+  const [importError, setImportError] = useState<string | null>(null);
+
   const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 500000) {
+      setImportError("File too large (max 500KB)");
+      setTimeout(() => setImportError(null), 3000);
+      e.target.value = "";
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const content = event.target?.result as string;
-      const imported = importWorkflowFromJson(content);
-      if (imported) {
+      try {
+        const content = event.target?.result as string;
+        const imported = importWorkflowFromJson(content);
         setActiveWorkflow(imported);
-        saveWorkflow(imported);
+        setActiveWorkflowId(imported.metadata.id);
+        setImportError(null);
+      } catch (err) {
+        setImportError(err instanceof Error ? err.message : "Import failed");
+        setTimeout(() => setImportError(null), 4000);
       }
     };
+    reader.onerror = () => {
+      setImportError("Could not read file");
+      setTimeout(() => setImportError(null), 3000);
+    };
     reader.readAsText(file);
+    e.target.value = "";
   };
 
   const handleAddNode = (type: NodeType) => {
-    const newId = `node-${Date.now()}`;
+    const newId =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? `node-${crypto.randomUUID()}`
+        : `node-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    // Spawn near the graph centroid so the node lands in view when fitted
+    // (random corners end up off-viewport once the user has panned far).
+    const nodes = activeWorkflow.nodes;
+    const cx =
+      nodes.length > 0
+        ? nodes.reduce((a, n) => a + (Number.isFinite(n.position?.x) ? n.position.x : 0), 0) /
+          nodes.length
+        : 300;
+    const cy =
+      nodes.length > 0
+        ? nodes.reduce((a, n) => a + (Number.isFinite(n.position?.y) ? n.position.y : 0), 0) /
+          nodes.length
+        : 300;
     const newNode: WorkflowNode = {
       id: newId,
       type,
-      position: { x: 120 + Math.random() * 160, y: 120 + Math.random() * 160 },
+      position: {
+        x: Math.round(Math.max(20, Math.min(4500, cx + 40 + Math.random() * 120))),
+        y: Math.round(Math.max(20, Math.min(3000, cy + 40 + Math.random() * 120))),
+      },
       data: {
         label: `New ${type.replace(/_/g, " ")}`,
       },
@@ -160,6 +214,15 @@ export default function WorkflowBuilderPage() {
             {saveSuccess ? <Check className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
             <span>{saveSuccess ? "Saved!" : "Save"}</span>
           </button>
+          {saveError && (
+            <span
+              role="alert"
+              className="text-[11px] font-bold text-rose-600 max-w-[220px] truncate"
+              title={saveError}
+            >
+              {saveError}
+            </span>
+          )}
 
           {/* Export JSON */}
           <button
@@ -176,8 +239,22 @@ export default function WorkflowBuilderPage() {
             className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-xl transition-colors cursor-pointer"
           >
             <Upload className="w-4 h-4" />
-            <input type="file" accept=".json" onChange={handleImportJson} className="hidden" />
+            <input
+              type="file"
+              accept=".json,application/json"
+              onChange={handleImportJson}
+              className="hidden"
+            />
           </label>
+          {importError && (
+            <span
+              role="alert"
+              className="text-[11px] font-bold text-rose-600 max-w-[220px] truncate"
+              title={importError}
+            >
+              {importError}
+            </span>
+          )}
         </div>
       </header>
 

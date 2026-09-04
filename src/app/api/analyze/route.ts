@@ -15,14 +15,18 @@ function getIsBYOK(req: NextRequest): boolean {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json().catch(() => ({}));
-    const post: string = (body.post ?? "").toString();
+    const body: unknown = await req.json().catch(() => null);
+    // Strict shape: no .toString() coercion of arrays/objects (prompt-injection
+    // via crafted JSON + token-cost bypass).
+    const rawPost =
+      body && typeof body === "object" ? (body as { post?: unknown }).post : undefined;
+    if (typeof rawPost !== "string") {
+      return NextResponse.json({ error: "Post must be a string" }, { status: 400 });
+    }
+    const post = rawPost.slice(0, 3000);
 
     if (!post || post.trim().length < 20) {
       return NextResponse.json({ error: "Post must be at least 20 characters" }, { status: 400 });
-    }
-    if (post.length > 3000) {
-      return NextResponse.json({ error: "Post too long (max 3000 chars)" }, { status: 400 });
     }
 
     // Phase 24: Cost Guard — unauth IP limit 5/day, 6th -> 429
@@ -48,6 +52,16 @@ export async function POST(req: NextRequest) {
     const apiKey = req.headers.get("x-ai-key") || undefined;
     const baseURL = req.headers.get("x-ai-url") || undefined;
     const model = req.headers.get("x-ai-model") || undefined;
+
+    // SSRF guard: x-ai-url is server-fetched — same rules as /api/ai/models
+    // (local providers restricted to loopback, everything else validated).
+    if (provider && apiKey && baseURL) {
+      const { validateModelBaseURL } = await import("@/lib/ai/baseUrlGuard");
+      const guard = validateModelBaseURL(provider, baseURL);
+      if (!guard.ok) {
+        return NextResponse.json({ error: guard.error }, { status: 400 });
+      }
+    }
 
     let result: unknown;
 
@@ -114,10 +128,8 @@ export async function POST(req: NextRequest) {
 
     const validated = AnalyzeResultSchema.safeParse(result);
     if (!validated.success) {
-      return NextResponse.json(
-        { error: "AI returned invalid JSON", details: validated.error.flatten() },
-        { status: 502 }
-      );
+      console.error("Analyze validation failed:", validated.error.flatten());
+      return NextResponse.json({ error: "AI returned invalid response" }, { status: 502 });
     }
 
     return NextResponse.json(validated.data);

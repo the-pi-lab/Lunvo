@@ -16,8 +16,9 @@ export async function GET(req: NextRequest) {
       );
     }
     const searchParams = req.nextUrl.searchParams;
-    const query = searchParams.get("q") || "";
-    const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const query = (searchParams.get("q") || "").slice(0, 200);
+    const parsedLimit = parseInt(searchParams.get("limit") || "10", 10);
+    const limit = Number.isFinite(parsedLimit) ? Math.min(Math.max(parsedLimit, 1), 20) : 10;
 
     if (!query || query.trim().length < 2) {
       return NextResponse.json(
@@ -26,7 +27,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const results = await searchTrendingArticles(query, Math.min(limit, 20));
+    const results = await searchTrendingArticles(query, limit);
 
     return NextResponse.json({
       success: true,

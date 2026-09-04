@@ -30,54 +30,64 @@ const LEARN_TOPICS = [
 ] as const;
 
 export async function GET(req: NextRequest) {
-  const ip = extractClientIp(req);
-  const rl = await checkRateLimit(`ip:${ip}:learn-news`, 10, MINUTE_MS);
-  if (!rl.allowed) {
-    return NextResponse.json(
-      { error: "Too many news requests. Please wait a minute." },
-      { status: 429, headers: { "Retry-After": Math.ceil(rl.retryAfterMs / 1000).toString() } }
+  try {
+    const ip = extractClientIp(req);
+    const rl = await checkRateLimit(`ip:${ip}:learn-news`, 10, MINUTE_MS);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: "Too many news requests. Please wait a minute." },
+        { status: 429, headers: { "Retry-After": Math.ceil(rl.retryAfterMs / 1000).toString() } }
+      );
+    }
+    // allSettled: one slow/dead source must not 500 the whole page
+    const settled = await Promise.allSettled(
+      LEARN_TOPICS.map(async (topic): Promise<LearnNewsItem> => {
+        const fromCurrents = await fetchCurrentsNewsByKeyword(topic, 1).catch(() => []);
+
+        if (fromCurrents.length > 0) {
+          const article = fromCurrents[0]!;
+          return {
+            topic,
+            article: {
+              title: article.title,
+              description: article.description || article.title,
+              source: article.source,
+              link: article.link,
+              date: article.date,
+            },
+          };
+        }
+
+        const fallback = await searchTrendingArticles(topic, 1).catch(() => ({ articles: [] }));
+
+        if (fallback.articles.length > 0) {
+          const article = fallback.articles[0]!;
+          return {
+            topic,
+            article: {
+              title: article.title,
+              description: article.description || article.title,
+              source: article.source,
+              link: article.link,
+              date: article.date,
+            },
+          };
+        }
+
+        return { topic, article: null };
+      })
     );
+
+    const items: LearnNewsItem[] = settled.map((s, i) =>
+      s.status === "fulfilled" ? s.value : { topic: LEARN_TOPICS[i]!, article: null }
+    );
+
+    return NextResponse.json({
+      topics: LEARN_TOPICS,
+      items,
+    });
+  } catch {
+    console.error("Learn-news error");
+    return NextResponse.json({ error: "Failed to load news" }, { status: 500 });
   }
-  const items = await Promise.all(
-    LEARN_TOPICS.map(async (topic): Promise<LearnNewsItem> => {
-      const fromCurrents = await fetchCurrentsNewsByKeyword(topic, 1).catch(() => []);
-
-      if (fromCurrents.length > 0) {
-        const article = fromCurrents[0]!;
-        return {
-          topic,
-          article: {
-            title: article.title,
-            description: article.description || article.title,
-            source: article.source,
-            link: article.link,
-            date: article.date,
-          },
-        };
-      }
-
-      const fallback = await searchTrendingArticles(topic, 1).catch(() => ({ articles: [] }));
-
-      if (fallback.articles.length > 0) {
-        const article = fallback.articles[0]!;
-        return {
-          topic,
-          article: {
-            title: article.title,
-            description: article.description || article.title,
-            source: article.source,
-            link: article.link,
-            date: article.date,
-          },
-        };
-      }
-
-      return { topic, article: null };
-    })
-  );
-
-  return NextResponse.json({
-    topics: LEARN_TOPICS,
-    items,
-  });
 }

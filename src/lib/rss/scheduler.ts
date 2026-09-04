@@ -17,68 +17,83 @@ import type { AICustomKeys } from "../ai/router";
 
 const REFRESH_INTERVAL_MS = 60 * 60 * 1000;
 
+// Re-entrancy guard: concurrent generate-posts + cron hits used to pile up
+// full RSS+AI pipelines with last-writer-wins caches. One flight at a time.
+let inFlight: Promise<void> | null = null;
+
 async function rebuildCaches(customKeys?: AICustomKeys): Promise<void> {
+  if (inFlight) return inFlight;
+  if (getRssCacheSnapshot().refreshing) return;
   setRefreshing(true);
 
-  try {
-    // Fetch from all sources in parallel
-    const [rssArticles, hnArticles, devtoArticles, githubArticles, currentsArticles] = await Promise.all([
-      fetchLatestRssArticles().catch((error) => {
-        console.error("RSS fetch error:", error);
-        return [];
-      }),
-      fetchHackerNewsStories(15).catch((error) => {
-        console.error("Hacker News fetch error:", error);
-        return [];
-      }),
-      fetchDevtoArticles(15, "technology").catch((error) => {
-        console.error("Dev.to fetch error:", error);
-        return [];
-      }),
-      fetchGithubTrendingViaAPI(15).catch((error) => {
-        console.error("GitHub fetch error:", error);
-        return [];
-      }),
-      fetchCurrentsLatestNews(20).catch((error) => {
-        console.error("Currents fetch error:", error);
-        return [];
-      }),
-    ]);
+  inFlight = (async () => {
+    try {
+      // Fetch from all sources in parallel
+      const [rssArticles, hnArticles, devtoArticles, githubArticles, currentsArticles] =
+        await Promise.all([
+          fetchLatestRssArticles().catch((error) => {
+            console.error("RSS fetch error:", error);
+            return [];
+          }),
+          fetchHackerNewsStories(15).catch((error) => {
+            console.error("Hacker News fetch error:", error);
+            return [];
+          }),
+          fetchDevtoArticles(15, "technology").catch((error) => {
+            console.error("Dev.to fetch error:", error);
+            return [];
+          }),
+          fetchGithubTrendingViaAPI(15).catch((error) => {
+            console.error("GitHub fetch error:", error);
+            return [];
+          }),
+          fetchCurrentsLatestNews(20).catch((error) => {
+            console.error("Currents fetch error:", error);
+            return [];
+          }),
+        ]);
 
-    // Combine all articles
-    const allArticles: RssArticle[] = [
-      ...rssArticles,
-      ...hnArticles,
-      ...devtoArticles,
-      ...githubArticles,
-      ...currentsArticles,
-    ];
+      // Combine all articles
+      const allArticles: RssArticle[] = [
+        ...rssArticles,
+        ...hnArticles,
+        ...devtoArticles,
+        ...githubArticles,
+        ...currentsArticles,
+      ];
 
-    // Store combined articles
-    if (allArticles.length > 0) {
-      setCachedFeeds(allArticles);
-    }
-
-    // Select diverse articles (up to 25 from combined sources)
-    const sourceArticles = allArticles.length > 0 ? allArticles : getRssCacheSnapshot().cachedFeeds;
-    const selectedArticles = pickRandomArticles(Math.min(25, sourceArticles.length));
-
-    // Generate LinkedIn posts from selected articles
-    if (selectedArticles.length > 0) {
-      const generatedPosts = await generateLinkedInPostsFromArticles(selectedArticles, customKeys);
-      if (generatedPosts.length > 0) {
-        setGeneratedPostsCache(generatedPosts);
+      // Store combined articles
+      if (allArticles.length > 0) {
+        setCachedFeeds(allArticles);
       }
-    }
 
-    setLastError(null);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "RSS refresh failed";
-    setLastError(message);
-    console.error("Scheduler error:", message);
-  } finally {
-    setRefreshing(false);
-  }
+      // Select diverse articles (up to 25 from combined sources)
+      const sourceArticles =
+        allArticles.length > 0 ? allArticles : getRssCacheSnapshot().cachedFeeds;
+      const selectedArticles = pickRandomArticles(Math.min(25, sourceArticles.length));
+
+      // Generate LinkedIn posts from selected articles
+      if (selectedArticles.length > 0) {
+        const generatedPosts = await generateLinkedInPostsFromArticles(
+          selectedArticles,
+          customKeys
+        );
+        if (generatedPosts.length > 0) {
+          setGeneratedPostsCache(generatedPosts);
+        }
+      }
+
+      setLastError(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "RSS refresh failed";
+      setLastError(message);
+      console.error("Scheduler error:", message);
+    } finally {
+      setRefreshing(false);
+      inFlight = null;
+    }
+  })();
+  return inFlight;
 }
 
 export async function refreshRssSystem(customKeys?: AICustomKeys): Promise<void> {

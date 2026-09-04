@@ -57,6 +57,14 @@ export async function POST(req: NextRequest) {
 
     // Cost guard: 10 repurposes per day per IP for public (BYOK bypasses)
     const profile = getProfileFromHeaders(req);
+    // SSRF guard: x-ai-url is server-fetched (local providers → loopback only)
+    if (profile?.baseURL) {
+      const { validateModelBaseURL } = await import("@/lib/ai/baseUrlGuard");
+      const guard = validateModelBaseURL(profile.provider, profile.baseURL);
+      if (!guard.ok) {
+        return NextResponse.json({ error: guard.error }, { status: 400 });
+      }
+    }
     if (!profile) {
       const ip = extractClientIp(req);
       const rl = await checkRateLimit(`ip:${ip}:repurpose`, 10, DAY_MS);

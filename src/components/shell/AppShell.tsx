@@ -57,6 +57,9 @@ export default function AppShell({ profile, localMode, children }: AppShellProps
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        // Don't steal Ctrl+K from editors, selects, or open dialogs
+        const t = e.target as HTMLElement | null;
+        if (t?.closest?.('input,textarea,select,[contenteditable="true"],[role="dialog"]')) return;
         e.preventDefault();
         setCmdkOpen((v) => !v);
       }

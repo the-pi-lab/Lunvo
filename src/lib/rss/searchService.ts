@@ -60,7 +60,14 @@ function getCachedResult(cacheKey: string): SearchResult | null {
   };
 }
 
+const SEARCH_CACHE_MAX_KEYS = 200;
+
 function setCachedResult(cacheKey: string, result: SearchResult): void {
+  // LRU-ish cap: random query strings from attackers must not grow memory forever
+  if (searchCache.size >= SEARCH_CACHE_MAX_KEYS) {
+    const oldest = searchCache.keys().next().value;
+    if (oldest !== undefined) searchCache.delete(oldest);
+  }
   searchCache.set(cacheKey, {
     result: {
       ...result,
@@ -167,28 +174,29 @@ export async function searchTrendingArticles(
 
   try {
     // Fetch from all sources in parallel
-    const [rssArticles, hnArticles, devtoArticles, githubArticles, currentsArticles] = await Promise.all([
-      fetchLatestRssArticles().catch((error) => {
-        console.error("RSS search error:", error);
-        return [];
-      }),
-      fetchHackerNewsStories(30).catch((error) => {
-        console.error("HN search error:", error);
-        return [];
-      }),
-      fetchDevtoArticles(15, devtoTag).catch((error) => {
-        console.error("DevTo search error:", error);
-        return [];
-      }),
-      fetchGithubTrendingViaAPI(15, normalizedQuery).catch((error) => {
-        console.error("GitHub search error:", error);
-        return [];
-      }),
-      fetchCurrentsNewsByKeyword(normalizedQuery, 15).catch((error) => {
-        console.error("Currents search error:", error);
-        return [];
-      }),
-    ]);
+    const [rssArticles, hnArticles, devtoArticles, githubArticles, currentsArticles] =
+      await Promise.all([
+        fetchLatestRssArticles().catch((error) => {
+          console.error("RSS search error:", error);
+          return [];
+        }),
+        fetchHackerNewsStories(30).catch((error) => {
+          console.error("HN search error:", error);
+          return [];
+        }),
+        fetchDevtoArticles(15, devtoTag).catch((error) => {
+          console.error("DevTo search error:", error);
+          return [];
+        }),
+        fetchGithubTrendingViaAPI(15, normalizedQuery).catch((error) => {
+          console.error("GitHub search error:", error);
+          return [];
+        }),
+        fetchCurrentsNewsByKeyword(normalizedQuery, 15).catch((error) => {
+          console.error("Currents search error:", error);
+          return [];
+        }),
+      ]);
 
     // Combine all articles
     const allArticles = [

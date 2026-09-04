@@ -308,7 +308,14 @@ export async function callAI(
     providerErrors.push("groq fallback unavailable (missing GROQ_API_KEY)");
   }
 
-  throw new Error(`All AI providers failed. ${providerErrors.join(" | ")}`.trim());
+  // Redact anything that looks like a secret before the message leaves the server
+  const safe = providerErrors
+    .join(" | ")
+    .replace(/sk-[A-Za-z0-9-_]{8,}/g, "[REDACTED]")
+    .replace(/AIza[A-Za-z0-9-_]{8,}/g, "[REDACTED]")
+    .replace(/Bearer\s+[A-Za-z0-9-_.~+/=]{8,}/gi, "Bearer [REDACTED]")
+    .slice(0, 600);
+  throw new Error(`All AI providers failed. ${safe}`.trim());
 }
 
 async function callNvidia(
@@ -398,7 +405,14 @@ async function callGemini(
     },
   });
 
-  const result = await model.generateContent(userPrompt);
+  // SDK has no timeout of its own — a stalled provider would hang the
+  // serverless function until the platform kills it.
+  const result = (await Promise.race([
+    model.generateContent(userPrompt),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Gemini request timeout after 15s")), 15000)
+    ),
+  ])) as Awaited<ReturnType<typeof model.generateContent>>;
   const text = result.response.text();
 
   if (!text) throw new Error("Gemini returned empty response");
@@ -415,7 +429,7 @@ async function callGroq(
 ): Promise<string> {
   const key = apiKey || process.env.GROQ_API_KEY;
   if (!key) throw new Error("Groq API key is required");
-  const groqClient = new Groq({ apiKey: key });
+  const groqClient = new Groq({ apiKey: key, timeout: 15000 });
   const completion = await groqClient.chat.completions.create({
     model: modelName,
     temperature,

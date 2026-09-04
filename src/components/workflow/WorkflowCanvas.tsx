@@ -68,9 +68,15 @@ export function WorkflowCanvas({
   const animTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const panRef = useRef({ x: 0, y: 0 });
-  panRef.current = pan;
   const zoomRef = useRef(1);
-  zoomRef.current = zoomLevel;
+  const workflowRef = useRef(workflow);
+  const dragRafRef = useRef<number | null>(null);
+  const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => {
+    panRef.current = pan;
+    zoomRef.current = zoomLevel;
+    workflowRef.current = workflow;
+  });
 
   // Dragging state
   const draggingNodeRef = useRef<{
@@ -90,13 +96,19 @@ export function WorkflowCanvas({
     }, 280);
   };
 
-  // Compute bounding box of all nodes in the workflow
+  // Compute bounding box of all nodes in the workflow.
+  // NaN/undefined positions (corrupt imports) are filtered — otherwise the
+  // canvas centers on NaN and the graph is lost in the void forever.
   const getNodeBounds = () => {
-    if (!workflow.nodes || workflow.nodes.length === 0) {
-      return { minX: 100, maxX: 850, minY: 100, maxY: 500 };
-    }
-    const xs = workflow.nodes.map((n) => n.position.x);
-    const ys = workflow.nodes.map((n) => n.position.y);
+    const fallback = { minX: 100, maxX: 850, minY: 100, maxY: 500 };
+    if (!workflow.nodes || workflow.nodes.length === 0) return fallback;
+    const xs = workflow.nodes
+      .map((n) => n.position?.x)
+      .filter((v): v is number => typeof v === "number" && Number.isFinite(v));
+    const ys = workflow.nodes
+      .map((n) => n.position?.y)
+      .filter((v): v is number => typeof v === "number" && Number.isFinite(v));
+    if (xs.length === 0 || ys.length === 0) return fallback;
     return {
       minX: Math.min(...xs),
       maxX: Math.max(...xs) + 260, // node card width + buffer
@@ -105,37 +117,9 @@ export function WorkflowCanvas({
     };
   };
 
-  // Clamp pan so workflow nodes can NEVER leave the screen or disappear into infinite void
-  const clampPan = (targetX: number, targetY: number, zoom: number = zoomLevel) => {
-    const canvas = canvasRef.current;
-    const vWidth = canvas?.clientWidth || 1200;
-    const vHeight = canvas?.clientHeight || 800;
-    const bounds = getNodeBounds();
-
-    // Ensure at least 15% of viewport or 130px of the nearest node is always visible on screen
-    const marginX = Math.max(130, vWidth * 0.15);
-    const marginY = Math.max(100, vHeight * 0.15);
-
-    // If user pans to the right, leftmost node must not escape past (vWidth - marginX)
-    const maxPanX = vWidth - marginX - bounds.minX * zoom;
-    // If user pans to the left, rightmost node must not escape past marginX
-    const minPanX = marginX - bounds.maxX * zoom;
-
-    // If user pans down, topmost node must not escape past (vHeight - marginY)
-    const maxPanY = vHeight - marginY - bounds.minY * zoom;
-    // If user pans up, bottommost node must not escape past marginY
-    const minPanY = marginY - bounds.maxY * zoom;
-
-    const lowerX = Math.min(minPanX, maxPanX);
-    const upperX = Math.max(minPanX, maxPanX);
-    const lowerY = Math.min(minPanY, maxPanY);
-    const upperY = Math.max(minPanY, maxPanY);
-
-    return {
-      x: Math.round(Math.min(upperX, Math.max(lowerX, targetX))),
-      y: Math.round(Math.min(upperY, Math.max(lowerY, targetY))),
-    };
-  };
+  // Free infinite canvas (n8n-style): no pan bounds. If you ever lose your
+  // nodes in the void, press F / Fit View to jump back. Zoom stays 0.4–1.8
+  // so text never becomes unreadable — movement itself is unbounded.
 
   // Fit View / Recenter (n8n Style)
   const handleFitView = useCallback(() => {
@@ -173,7 +157,7 @@ export function WorkflowCanvas({
     triggerAnimation();
     const finalZoom = Number(targetZoom.toFixed(2));
     setZoomLevel(finalZoom);
-    setPan(clampPan(targetPanX, targetPanY, finalZoom));
+    setPan({ x: Math.round(targetPanX), y: Math.round(targetPanY) });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workflow.nodes]);
 
@@ -196,7 +180,6 @@ export function WorkflowCanvas({
       const z = zoomRef.current;
       const newZoom = Math.min(1.8, Math.max(0.4, Number((z + delta).toFixed(2))));
       setZoomLevel(newZoom);
-      setPan((prev) => clampPan(prev.x, prev.y, newZoom));
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -205,15 +188,35 @@ export function WorkflowCanvas({
   const handleResetZoom = useCallback(() => {
     triggerAnimation();
     setZoomLevel(1);
-    setPan((prev) => clampPan(prev.x, prev.y, 1));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Keyboard shortcut for fit view ('f' or 'Ctrl+1')
+  // Unmount safety: never setState on timers after unmount
+  useEffect(() => {
+    return () => {
+      if (animTimeoutRef.current) clearTimeout(animTimeoutRef.current);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      if (dragRafRef.current) cancelAnimationFrame(dragRafRef.current);
+    };
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Never steal keys from typing surfaces, selects, or open dialogs
+      const t = e.target as HTMLElement | null;
+      if (
+        t?.closest?.('input,textarea,select,[contenteditable="true"],[role="dialog"],[data-modal]')
+      )
+        return;
       const activeTag = (document.activeElement?.tagName || "").toLowerCase();
-      if (activeTag === "input" || activeTag === "textarea") return;
+      if (activeTag === "input" || activeTag === "textarea" || activeTag === "select") return;
+
+      if (e.key === "Escape") {
+        setConnectingSourceId(null);
+        onSelectNode(null);
+        return;
+      }
 
       if ((e.ctrlKey || e.metaKey) && (e.key === "0" || e.key === "1")) {
         e.preventDefault();
@@ -237,6 +240,7 @@ export function WorkflowCanvas({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [handleFitView, handleZoomStep, handleResetZoom]);
 
   // Handle Dragging Canvas (Pan on left-click drag)
@@ -264,7 +268,7 @@ export function WorkflowCanvas({
     const handleMouseMove = (moveEvent: MouseEvent) => {
       const dx = moveEvent.clientX - startX;
       const dy = moveEvent.clientY - startY;
-      setPan(clampPan(initX + dx, initY + dy, zoomRef.current));
+      setPan({ x: initX + dx, y: initY + dy });
     };
 
     const handleMouseUp = () => {
@@ -298,10 +302,10 @@ export function WorkflowCanvas({
         const newPanY = mouseY - (mouseY - p.y) * (newZoom / z);
         triggerAnimation();
         setZoomLevel(newZoom);
-        setPan(clampPan(newPanX, newPanY, newZoom));
+        setPan({ x: newPanX, y: newPanY });
       } else {
         e.preventDefault();
-        setPan((prev) => clampPan(prev.x - e.deltaX, prev.y - e.deltaY, z));
+        setPan((prev) => ({ x: prev.x - e.deltaX, y: prev.y - e.deltaY }));
       }
     };
     el.addEventListener("wheel", onWheel, { passive: false });
@@ -309,11 +313,12 @@ export function WorkflowCanvas({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handle Dragging Nodes
+  // Handle Dragging Nodes — rAF-throttled, reads latest workflow via ref
+  // (the mousedown closure goes stale mid-drag and would overwrite
+  // concurrent edge/node edits on every pixel without this).
   const handleNodeMouseDown = (e: React.MouseEvent, node: WorkflowNode) => {
     e.stopPropagation();
     onSelectNode(node.id);
-    let hasDragged = false;
 
     draggingNodeRef.current = {
       id: node.id,
@@ -325,25 +330,35 @@ export function WorkflowCanvas({
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
       if (!draggingNodeRef.current) return;
-      const dx = (moveEvent.clientX - draggingNodeRef.current.startX) / zoomLevel;
-      const dy = (moveEvent.clientY - draggingNodeRef.current.startY) / zoomLevel;
+      if (dragRafRef.current) return;
+      const { clientX, clientY } = moveEvent;
+      dragRafRef.current = requestAnimationFrame(() => {
+        dragRafRef.current = null;
+        const drag = draggingNodeRef.current;
+        if (!drag) return;
+        const z = zoomRef.current || 1;
+        const dx = (clientX - drag.startX) / z;
+        const dy = (clientY - drag.startY) / z;
 
-      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
-        hasDragged = true;
-      }
+        const newX = Math.max(20, Math.min(4500, Math.round(drag.initX + dx)));
+        const newY = Math.max(20, Math.min(3000, Math.round(drag.initY + dy)));
+        if (!Number.isFinite(newX) || !Number.isFinite(newY)) return;
 
-      const newX = Math.max(20, Math.min(4500, Math.round(draggingNodeRef.current.initX + dx)));
-      const newY = Math.max(20, Math.min(3000, Math.round(draggingNodeRef.current.initY + dy)));
-
-      onUpdateWorkflow({
-        ...workflow,
-        nodes: workflow.nodes.map((n) =>
-          n.id === draggingNodeRef.current?.id ? { ...n, position: { x: newX, y: newY } } : n
-        ),
+        const latest = workflowRef.current;
+        onUpdateWorkflow({
+          ...latest,
+          nodes: latest.nodes.map((n) =>
+            n.id === drag.id ? { ...n, position: { x: newX, y: newY } } : n
+          ),
+        });
       });
     };
 
     const handleMouseUp = () => {
+      if (dragRafRef.current) {
+        cancelAnimationFrame(dragRafRef.current);
+        dragRafRef.current = null;
+      }
       draggingNodeRef.current = null;
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
@@ -371,8 +386,12 @@ export function WorkflowCanvas({
     );
 
     if (!edgeExists) {
+      const uid =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       const newEdge: WorkflowEdge = {
-        id: `e-${connectingSourceId}-${targetNodeId}-${Date.now()}`,
+        id: `e-${connectingSourceId}-${targetNodeId}-${uid}`,
         source: connectingSourceId,
         target: targetNodeId,
       };
@@ -429,11 +448,24 @@ export function WorkflowCanvas({
     }
   };
 
-  const handleCopyPost = () => {
-    if (executionResult?.currentDraft) {
-      navigator.clipboard.writeText(executionResult.currentDraft);
+  const handleCopyPost = async () => {
+    if (!executionResult?.currentDraft) return;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(executionResult.currentDraft);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = executionResult.currentDraft;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+      }
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard denied (insecure context/permissions) — leave text selectable
     }
   };
 
@@ -781,13 +813,9 @@ export function WorkflowCanvas({
             <ZoomOut className="w-4 h-4 stroke-[2.2]" />
           </button>
 
-          {/* 4. Reset Zoom / Recenter (Counter-clockwise curved arrow) */}
+          {/* 4. Reset Zoom (Counter-clockwise curved arrow) */}
           <button
-            onClick={() => {
-              triggerAnimation();
-              setZoomLevel(1);
-              setPan((prev) => clampPan(prev.x, prev.y, 1));
-            }}
+            onClick={() => handleResetZoom()}
             className="w-9 h-9 flex items-center justify-center bg-white dark:bg-surface-container-highest border border-slate-200 dark:border-outline-variant/60 rounded-lg shadow-xs hover:shadow-sm text-slate-700 dark:text-slate-200 hover:text-primary hover:border-slate-300 transition-all active:scale-95 cursor-pointer"
             title="Reset zoom to 100% & Recenter"
             aria-label="Reset Zoom"
@@ -797,11 +825,7 @@ export function WorkflowCanvas({
 
           {/* Zoom level percentage badge */}
           <div
-            onClick={() => {
-              triggerAnimation();
-              setZoomLevel(1);
-              setPan((prev) => clampPan(prev.x, prev.y, 1));
-            }}
+            onClick={() => handleResetZoom()}
             className="h-9 px-2.5 flex items-center justify-center bg-white dark:bg-surface-container-highest border border-slate-200 dark:border-outline-variant/60 rounded-lg shadow-xs text-xs font-mono font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 cursor-pointer transition-colors select-none"
             title="Click to reset zoom to 100%"
           >

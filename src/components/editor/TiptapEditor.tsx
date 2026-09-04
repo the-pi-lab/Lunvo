@@ -76,7 +76,7 @@ export function TiptapEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none focus:outline-none min-h-[300px] p-6 text-[0.9375rem] leading-relaxed text-on-background",
+          "prose prose-sm max-w-none min-h-[300px] p-6 text-[0.9375rem] leading-relaxed text-on-background focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40 rounded-lg",
       },
       handlePaste: (view, event) => {
         const text = event.clipboardData?.getData("text/plain");

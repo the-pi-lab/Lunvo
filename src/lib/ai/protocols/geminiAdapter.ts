@@ -67,6 +67,7 @@ export async function callGemini(
         ...profile.customHeaders,
       },
       body: JSON.stringify(requestBody),
+      signal: AbortSignal.timeout(15000),
     });
 
     if (!response.ok) {
@@ -97,10 +98,11 @@ export async function callGemini(
     else finishReason = "stop";
 
     if (shouldStream && payload.onChunk) {
-      const words = text.split(/(\s+)/);
+      // No per-word sleep: 12ms/word on long outputs added tens of seconds;
+      // UI throttles rerenders itself. Cap mirrored from openaiCompatible.
+      const words = text.slice(0, 4000).split(/(\s+)/);
       for (const w of words) {
         payload.onChunk({ text: w, isDone: false });
-        await new Promise((r) => setTimeout(r, 12));
       }
       payload.onChunk({ text: "", isDone: true, finishReason });
     }

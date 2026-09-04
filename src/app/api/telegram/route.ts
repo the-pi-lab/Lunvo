@@ -21,8 +21,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const update: TelegramUpdate = await req.json();
-    if (!update || typeof update !== "object") {
+    const raw: unknown = await req.json().catch(() => null);
+    const update = raw as TelegramUpdate;
+    if (
+      !update ||
+      typeof update !== "object" ||
+      (typeof update.update_id !== "number" && !update.message && !update.callback_query)
+    ) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
 

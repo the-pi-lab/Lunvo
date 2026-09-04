@@ -9,13 +9,32 @@ import { getProviderDef } from "./ai/providers/registry";
 
 /* ---------------- Generic helpers ---------------- */
 
+const MAX_DRAFTS = 100;
+
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
     const raw = window.localStorage.getItem(key);
     if (!raw) return fallback;
-    return JSON.parse(raw) as T;
+    const parsed = JSON.parse(raw) as T;
+    // Shape-guard the two big lists: one corrupt entry must not wipe all data
+    if (Array.isArray(parsed)) {
+      if (key === DRAFTS_KEY && !parsed.every((d) => d && typeof d.id === "string")) {
+        throw new Error("corrupt drafts");
+      }
+      return parsed;
+    }
+    if (parsed === null || typeof parsed !== "object") throw new Error("corrupt store");
+    return parsed;
   } catch {
+    // Don't auto-overwrite on next write with the fallback: stash the corrupt
+    // blob so a future repair can recover it instead of silent data loss.
+    try {
+      const bad = window.localStorage.getItem(key);
+      if (bad) window.localStorage.setItem(`${key}__corrupt_backup`, bad.slice(0, 50000));
+    } catch {
+      // backup best-effort only
+    }
     return fallback;
   }
 }
@@ -74,6 +93,8 @@ export function saveDraft(
     source,
   };
   drafts.push(draft);
+  // LRU cap: unbounded drafts fill the 5MB quota, then every save silently drops
+  while (drafts.length > MAX_DRAFTS) drafts.shift();
   write(DRAFTS_KEY, drafts);
   return draft;
 }

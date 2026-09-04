@@ -242,18 +242,23 @@ export function PostEditor({ content, score, notes }: PostEditorProps) {
         <div className="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span
-                className={`w-9 h-5 rounded-full p-0.5 flex items-center transition-colors ${humanizerOn ? "bg-primary justify-end" : "bg-surface-container-high justify-start"}`}
-              >
-                <span className="w-4 h-4 rounded-full bg-white shadow-sm" />
-              </span>
               <button
+                role="switch"
+                aria-checked={humanizerOn}
+                aria-label="Humanizer — remove AI clichés"
+                aria-busy={isHumanizing}
                 onClick={() => handleHumanizerToggle(!humanizerOn)}
                 disabled={isHumanizing}
+                className={`w-9 h-5 rounded-full p-0.5 flex items-center transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none disabled:opacity-50 ${humanizerOn ? "bg-primary justify-end" : "bg-surface-container-high justify-start"}`}
+              >
+                <span className="w-4 h-4 rounded-full bg-white shadow-sm" />
+              </button>
+              <span
+                aria-hidden="true"
                 className={`text-xs font-bold uppercase tracking-wider ${humanizerOn ? "text-primary" : "text-on-surface-variant"}`}
               >
                 Humanizer {humanizerOn ? "ON" : "OFF"}
-              </button>
+              </span>
               {isHumanizing && (
                 <span className="text-xs text-on-surface-variant/60 animate-pulse">
                   Humanizing…

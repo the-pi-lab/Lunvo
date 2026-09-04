@@ -209,7 +209,7 @@ export default function CreatePage() {
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="E.g., Analyze why open-source models are replacing proprietary SaaS wrappers..."
-            className="w-full h-36 bg-transparent px-7 pb-6 text-[0.9375rem] leading-relaxed text-on-background outline-none resize-none placeholder:text-on-surface-variant/40 border-none focus:ring-0"
+            className="w-full h-36 bg-transparent px-7 pb-6 text-[0.9375rem] leading-relaxed text-on-background resize-none placeholder:text-on-surface-variant/40 border-none outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40"
           />
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 px-7 py-5 border-t border-outline-variant/30 bg-surface-container-low/50">
             <div className="flex items-center gap-2.5">

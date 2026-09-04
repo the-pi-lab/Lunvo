@@ -37,6 +37,8 @@ export async function callOpenAICompatible(
       method: "POST",
       headers: { ...headers, Accept: "text/event-stream" },
       body: JSON.stringify(streamBody),
+      // Hangs without this held the serverless function until platform kill
+      signal: AbortSignal.timeout(15000),
     });
 
     if (!response.ok) {
@@ -53,7 +55,7 @@ export async function callOpenAICompatible(
       );
     }
 
-    // Try true SSE streaming
+    // Try true SSE streaming (45s overall deadline: trickle-feeds can't hold us forever)
     if (response.body) {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -63,6 +65,7 @@ export async function callOpenAICompatible(
 
       try {
         while (true) {
+          if (Date.now() - startTime > 45000) break;
           const { done, value } = await reader.read();
           if (done) break;
           buffer += decoder.decode(value, { stream: true });
@@ -117,21 +120,19 @@ export async function callOpenAICompatible(
       method: "POST",
       headers,
       body: JSON.stringify({ ...requestBody, stream: false }),
+      signal: AbortSignal.timeout(15000),
     });
     if (!fallback.ok) {
       const t = await fallback.text();
       throw new AIError(`OpenAI-Compatible API Error: ${t}`, profile.provider, fallback.status);
     }
     const data = await fallback.json();
-    const text: string = data.choices?.[0]?.message?.content ?? "";
-    // simulate streaming word-by-word for UI
+    const text: string = (data.choices?.[0]?.message?.content ?? "").slice(0, 4000);
+    // simulate streaming word-by-word for UI (capped: 12ms/word on 4k tokens
+    // added ~48s latency before; UI already throttles to ~10fps)
     const words = text.split(/(\s+)/);
-    let acc = "";
     for (const w of words) {
-      acc += w;
       payload.onChunk({ text: w, isDone: false });
-      // micro delay to allow UI to render word-by-word without blocking
-      await new Promise((r) => setTimeout(r, 12));
     }
     payload.onChunk({
       text: "",
@@ -157,6 +158,7 @@ export async function callOpenAICompatible(
       method: "POST",
       headers,
       body: JSON.stringify(requestBody),
+      signal: AbortSignal.timeout(15000),
     });
 
     if (!response.ok) {

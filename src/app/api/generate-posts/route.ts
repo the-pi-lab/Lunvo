@@ -6,6 +6,11 @@ export const runtime = "nodejs";
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
+// forceRefresh triggers a full RSS+AI rebuild (up to 10 paid calls).
+// Debounce it: toggling the flag must not mint a fresh pipeline every hit.
+let lastForceRefreshAt = 0;
+const FORCE_REFRESH_DEBOUNCE_MS = 60 * 1000;
+
 export async function POST(req: NextRequest) {
   try {
     const ip = extractClientIp(req);
@@ -18,18 +23,23 @@ export async function POST(req: NextRequest) {
     }
     startRssScheduler();
 
+    const capKey = (v: string | null) => (v && v.length >= 8 && v.length <= 512 ? v : undefined);
     const customKeys = {
-      gemini: req.headers.get("x-gemini-key") || undefined,
-      groq: req.headers.get("x-groq-key") || undefined,
+      gemini: capKey(req.headers.get("x-gemini-key")),
+      groq: capKey(req.headers.get("x-groq-key")),
     };
 
     // Check if user wants to force refresh
     const body = await req.json().catch(() => ({}));
     const forceRefresh = body.forceRefresh === true;
 
-    // If force refresh requested, refresh the system
+    // If force refresh requested, refresh the system (debounced)
     if (forceRefresh) {
-      await refreshRssSystem(customKeys);
+      const now = Date.now();
+      if (now - lastForceRefreshAt >= FORCE_REFRESH_DEBOUNCE_MS) {
+        lastForceRefreshAt = now;
+        await refreshRssSystem(customKeys);
+      }
     }
 
     // Get cached posts

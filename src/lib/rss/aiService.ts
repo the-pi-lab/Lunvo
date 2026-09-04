@@ -118,7 +118,15 @@ export async function generateLinkedInPostsFromArticles(
 
   const limit = Math.min(10, articles.length);
   const selectedArticles = articles.slice(0, limit);
-  return Promise.all(
-    selectedArticles.map((article) => generateLinkedInPostFromArticle(article, customKeys))
-  );
+  // Concurrency 2: 10 parallel paid calls per refresh was a cost burst
+  // (spoofable limits made it 100/min). Sequential batches, same result.
+  const out: GeneratedLinkedInPost[] = [];
+  for (let i = 0; i < selectedArticles.length; i += 2) {
+    const batch = selectedArticles.slice(i, i + 2);
+    const done = await Promise.all(
+      batch.map((article) => generateLinkedInPostFromArticle(article, customKeys))
+    );
+    out.push(...done);
+  }
+  return out;
 }

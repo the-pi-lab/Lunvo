@@ -101,7 +101,7 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
   const isTelegram = node.type === "trigger_telegram";
 
   return (
-    <aside className="w-84 border-l border-outline-variant/50 bg-surface-container-lowest flex flex-col h-full shadow-2xl z-30 animate-in slide-in-from-right duration-200">
+    <aside className="w-[336px] max-w-[90vw] shrink-0 border-l border-outline-variant/50 bg-surface-container-lowest flex flex-col h-full shadow-2xl z-30 animate-in slide-in-from-right duration-200">
       {/* Header */}
       <div className="p-4 border-b border-outline-variant/40 flex items-center justify-between bg-surface-container/30">
         <div className="flex items-center gap-2">

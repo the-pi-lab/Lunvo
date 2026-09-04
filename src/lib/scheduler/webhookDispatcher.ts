@@ -219,6 +219,26 @@ export async function dispatchScheduledPost(
 
   const payload = buildOutboundPayload(post);
 
+  // carouselPdfBase64 is unbounded — a huge PDF would OOM the function
+  // and burst egress. 1MB hard cap.
+  let body: string;
+  try {
+    body = JSON.stringify(payload);
+  } catch {
+    return {
+      success: false,
+      error: "Payload is not serializable",
+      timestamp: new Date().toISOString(),
+    };
+  }
+  if (body.length > 1000000) {
+    return {
+      success: false,
+      error: `Payload exceeds 1MB limit (${Math.round(body.length / 1024)}KB) — remove the carousel PDF and retry`,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout
@@ -233,7 +253,7 @@ export async function dispatchScheduledPost(
         "X-Lunvo-Delivery-Timestamp": new Date().toISOString(),
         "X-Lunvo-Post-Id": post.id,
       },
-      body: JSON.stringify(payload),
+      body,
       signal: controller.signal,
     });
     const loc = response.headers.get("location");

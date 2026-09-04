@@ -107,7 +107,7 @@ export default function EntryPage() {
   ];
 
   return (
-    <main className="relative">
+    <main id="main-content" className="relative">
       <SmoothScroll />
 
       {/* Soft flowing motion — subtle pastel aurora (not vibrant) */}

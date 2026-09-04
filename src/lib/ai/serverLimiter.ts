@@ -24,11 +24,31 @@ export interface RateLimitConnector {
 
 type MemEntry = { count: number; resetAt: number };
 
+const MEMORY_MAX_KEYS = 10000;
+
 class MemoryConnector implements RateLimitConnector {
   private store = new Map<string, MemEntry>();
 
+  private sweep(now: number): void {
+    if (this.store.size <= MEMORY_MAX_KEYS) return;
+    // Evict expired first, then oldest-inserted (Map preserves insertion order)
+    for (const [k, v] of this.store) {
+      if (v.resetAt <= now) this.store.delete(k);
+      if (this.store.size <= MEMORY_MAX_KEYS) return;
+    }
+    const overflow = this.store.size - MEMORY_MAX_KEYS;
+    if (overflow > 0) {
+      let i = 0;
+      for (const k of this.store.keys()) {
+        if (i++ >= overflow) break;
+        this.store.delete(k);
+      }
+    }
+  }
+
   async check(key: string, limit: number, windowMs: number): Promise<RateLimitResult> {
     const now = Date.now();
+    this.sweep(now);
     const existing = this.store.get(key);
 
     if (!existing || now >= existing.resetAt) {
@@ -85,7 +105,8 @@ class UpstashConnector implements RateLimitConnector {
     const redisKey = `lunvo:rl:${key}`;
 
     try {
-      // Execute INCR and PTTL together via Upstash pipeline for atomic evaluation
+      // Execute INCR and PTTL together via Upstash pipeline for atomic evaluation.
+      // 2s deadline: a hung limiter must never hang every API route behind it.
       const pipeRes = await fetch(`${this.url}/pipeline`, {
         method: "POST",
         headers: {
@@ -96,6 +117,7 @@ class UpstashConnector implements RateLimitConnector {
           ["INCR", redisKey],
           ["PTTL", redisKey],
         ]),
+        signal: AbortSignal.timeout(2000),
       });
 
       if (!pipeRes.ok) throw new Error(`upstash pipeline ${pipeRes.status}`);
@@ -108,6 +130,7 @@ class UpstashConnector implements RateLimitConnector {
         await fetch(`${this.url}/pexpire/${encodeURIComponent(redisKey)}/${windowMs}`, {
           method: "POST",
           headers: { Authorization: `Bearer ${this.token}` },
+          signal: AbortSignal.timeout(2000),
         });
         ttl = windowMs;
       }
@@ -154,9 +177,20 @@ class CustomConnector implements RateLimitConnector {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ key, limit, windowMs }),
+      signal: AbortSignal.timeout(2000),
     });
     if (!res.ok) throw new Error(`connector ${res.status}`);
-    return (await res.json()) as RateLimitResult;
+    const data = (await res.json()) as Partial<RateLimitResult>;
+    if (typeof data.allowed !== "boolean" || typeof data.limit !== "number") {
+      throw new Error("connector returned malformed RateLimitResult");
+    }
+    return {
+      allowed: data.allowed,
+      remaining: typeof data.remaining === "number" ? data.remaining : 0,
+      limit: data.limit,
+      resetAt: typeof data.resetAt === "number" ? data.resetAt : Date.now() + windowMs,
+      retryAfterMs: typeof data.retryAfterMs === "number" ? data.retryAfterMs : 0,
+    };
   }
 }
 

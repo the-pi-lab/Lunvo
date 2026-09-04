@@ -77,18 +77,24 @@ function TunerSection() {
   }, [savedTick]);
 
   useEffect(() => {
-    const iv = window.setInterval(() => {
+    // Event-driven (storage + same-tab custom event + refocus) — no 1s polling.
+    // The DnaTuner save path dispatches `lunvo:dna-updated` (see create/page).
+    const refresh = () => {
       const fresh = getVoiceDNA();
       // if dna was null and now we have one (trained), show tuner
-      if (fresh && !dna) setDna(fresh);
-    }, 1000);
+      if (fresh) setDna(fresh);
+    };
     const onStorage = () => setDna(getVoiceDNA());
     window.addEventListener("storage", onStorage);
+    window.addEventListener("lunvo:dna-updated", refresh);
+    window.addEventListener("focus", refresh);
     return () => {
-      window.clearInterval(iv);
       window.removeEventListener("storage", onStorage);
+      window.removeEventListener("lunvo:dna-updated", refresh);
+      window.removeEventListener("focus", refresh);
     };
-  }, [dna]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!dna) return null;
 

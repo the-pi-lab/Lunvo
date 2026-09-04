@@ -52,8 +52,12 @@ export async function fetchYouTubeTranscript(videoId: string): Promise<string | 
     if (!pageRes.ok) return null;
     const html = await pageRes.text();
 
-    // Locate captionTracks inside ytInitialPlayerResponse
-    const playerResponseMatch = html.match(/ytInitialPlayerResponse\s*=\s*({.+?});/s);
+    // Locate captionTracks inside ytInitialPlayerResponse. Bound the scan:
+    // running the regex over multi-MB HTML risks long backtrack stalls.
+    const marker = html.indexOf("ytInitialPlayerResponse");
+    if (marker === -1) return null;
+    const window = html.slice(marker, marker + 500000);
+    const playerResponseMatch = window.match(/ytInitialPlayerResponse\s*=\s*({.+?});/s);
     if (!playerResponseMatch || !playerResponseMatch[1]) return null;
 
     let playerResponse: any;
@@ -123,8 +127,13 @@ export async function fetchYouTubeInfo(url: string): Promise<string> {
     // ignore
   }
 
-  // 2. Fetch full spoken transcript
-  const transcript = await fetchYouTubeTranscript(id);
+  // 2. Fetch full spoken transcript — 9s overall deadline so a slow
+  // transcript fetch can't hold the repurpose route past Vercel timeouts
+  // (oEmbed already has its own 8s signal above).
+  const transcript = await Promise.race([
+    fetchYouTubeTranscript(id),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), 9000)),
+  ]);
 
   if (transcript) {
     const header = title
