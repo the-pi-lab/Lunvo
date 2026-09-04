@@ -27,8 +27,10 @@ playwright/.cache
 *.mov
 *.avi
 *.mkv
+!public/videos/lunvo-demo-tour.mp4
 public/showcase-screens/
 test_*.png
+ChatGPT Image*.png
 
 # debug & logs
 npm-debug.log*
