@@ -33,6 +33,8 @@ import {
   Crosshair,
   Scan,
   RotateCcw,
+  StickyNote,
+  Timer,
 } from "lucide-react";
 import { executeWorkflow } from "@/lib/workflow/workflowRunner";
 import { getActiveAIProfile } from "@/lib/apiHelper";
@@ -340,8 +342,10 @@ export function WorkflowCanvas({
         const dx = (clientX - drag.startX) / z;
         const dy = (clientY - drag.startY) / z;
 
-        const newX = Math.max(20, Math.min(4500, Math.round(drag.initX + dx)));
-        const newY = Math.max(20, Math.min(3000, Math.round(drag.initY + dy)));
+        // Fully free placement (n8n-style): no min/max cage. NaN guard only —
+        // a corrupt delta must not teleport the node into the void.
+        const newX = Math.round(drag.initX + dx);
+        const newY = Math.round(drag.initY + dy);
         if (!Number.isFinite(newX) || !Number.isFinite(newY)) return;
 
         const latest = workflowRef.current;
@@ -501,6 +505,22 @@ export function WorkflowCanvas({
         border: "border-emerald-300",
         bg: "bg-emerald-50/90 text-emerald-700",
         ring: "ring-emerald-400",
+      };
+    }
+    if (type === "note_sticky") {
+      return {
+        icon: StickyNote,
+        border: "border-yellow-300",
+        bg: "bg-yellow-50/90 text-yellow-700",
+        ring: "ring-yellow-400",
+      };
+    }
+    if (type === "delay_timer") {
+      return {
+        icon: Timer,
+        border: "border-slate-300",
+        bg: "bg-slate-100/90 text-slate-700",
+        ring: "ring-slate-400",
       };
     }
     if (type.startsWith("output_")) {
@@ -684,6 +704,7 @@ export function WorkflowCanvas({
                   e.stopPropagation();
                   onSelectNode(node.id);
                 }}
+                title={node.data.description || node.data.label || node.id}
                 style={{
                   left: `${node.position.x}px`,
                   top: `${node.position.y}px`,
@@ -728,6 +749,12 @@ export function WorkflowCanvas({
                   {node.type === "voice_dna_transform" && "Voice DNA Tone Ingest"}
                   {node.type === "repurpose_transformer" && "Multi-Channel Formats"}
                   {node.type === "output_draft_store" && "Local Draft Store"}
+                  {node.type === "note_sticky" &&
+                    (
+                      ((node.data.note as string) || "").trim() || "Sticky note — click to edit"
+                    ).slice(0, 80)}
+                  {node.type === "delay_timer" &&
+                    `Wait ${node.data.seconds ?? 5}s before next step`}
                 </div>
 
                 {/* Input Port (Left) */}

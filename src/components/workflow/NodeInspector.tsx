@@ -21,6 +21,8 @@ import {
   Repeat,
   Youtube,
   Send,
+  StickyNote,
+  Timer,
 } from "lucide-react";
 
 interface NodeInspectorProps {
@@ -52,6 +54,21 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
       },
     });
   };
+
+  // Number fields must never become NaN (empty input → Number("") === 0 would
+  // silently rewrite thresholds). Clamp into the control's own min/max.
+  const handleNumberChange = (
+    key: string,
+    raw: string,
+    fallback: number,
+    min: number,
+    max: number
+  ) => {
+    const n = raw.trim() === "" ? fallback : Number(raw);
+    handleDataChange(key, Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback);
+  };
+
+  const isValidTimeOfDay = (v: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(v.trim());
 
   const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const provider = e.target.value;
@@ -99,6 +116,8 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
   const isDraftStore = node.type === "output_draft_store";
   const isYouTube = node.type === "trigger_youtube";
   const isTelegram = node.type === "trigger_telegram";
+  const isNote = node.type === "note_sticky";
+  const isDelay = node.type === "delay_timer";
 
   return (
     <aside className="w-[336px] max-w-[90vw] shrink-0 border-l border-outline-variant/50 bg-surface-container-lowest flex flex-col h-full shadow-2xl z-30 animate-in slide-in-from-right duration-200">
@@ -143,8 +162,64 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
             type="text"
             value={node.data.label || ""}
             onChange={handleLabelChange}
+            maxLength={80}
             className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
           />
+        </div>
+
+        {/* Description (hover tooltip on canvas) */}
+        <div>
+          <label className="block text-xs font-bold text-on-background mb-1.5">
+            Description{" "}
+            <span className="font-medium text-on-surface-variant/60">(canvas tooltip)</span>
+          </label>
+          <textarea
+            rows={2}
+            placeholder="What does this step do? Shown on hover over the node…"
+            value={node.data.description || ""}
+            onChange={(e) => handleDataChange("description", e.target.value.slice(0, 300))}
+            className="w-full text-xs p-2.5 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none resize-none"
+          />
+        </div>
+
+        {/* Precise Position */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
+              Position X
+            </label>
+            <input
+              type="number"
+              value={Math.round(node.position.x)}
+              onChange={(e) => {
+                const n = e.target.value.trim() === "" ? node.position.x : Number(e.target.value);
+                if (!Number.isFinite(n)) return;
+                onUpdateNode({
+                  ...node,
+                  position: { x: Math.round(n), y: Math.round(node.position.y) },
+                });
+              }}
+              className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
+              Position Y
+            </label>
+            <input
+              type="number"
+              value={Math.round(node.position.y)}
+              onChange={(e) => {
+                const n = e.target.value.trim() === "" ? node.position.y : Number(e.target.value);
+                if (!Number.isFinite(n)) return;
+                onUpdateNode({
+                  ...node,
+                  position: { x: Math.round(node.position.x), y: Math.round(n) },
+                });
+              }}
+              className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
+            />
+          </div>
         </div>
 
         {/* 1. AI Agent Node Controls */}
@@ -189,13 +264,24 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
             <div>
               <div className="flex justify-between items-center mb-1">
                 <label className="text-[11px] font-medium text-on-surface-variant">
-                  Temperature ({node.data.temperature ?? 0.7})
+                  Temperature ({node.data.temperature ?? "agent default"})
                 </label>
+                {node.data.temperature !== undefined && (
+                  <button
+                    onClick={() => {
+                      const { temperature: _dropped, ...rest } = node.data;
+                      onUpdateNode({ ...node, data: rest });
+                    }}
+                    className="text-[10px] font-bold text-primary hover:underline"
+                  >
+                    Reset
+                  </button>
+                )}
               </div>
               <input
                 type="range"
                 min="0"
-                max="1"
+                max="2"
                 step="0.05"
                 value={node.data.temperature ?? 0.7}
                 onChange={(e) => handleDataChange("temperature", parseFloat(e.target.value))}
@@ -255,6 +341,7 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
                   <option value="gt">&gt; (Greater than)</option>
                   <option value="lte">&lt;= (Less or Equal)</option>
                   <option value="lt">&lt; (Less than)</option>
+                  <option value="eq">= (Exactly equal)</option>
                 </select>
               </div>
               <div>
@@ -264,7 +351,7 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
                 <input
                   type="number"
                   value={node.data.threshold ?? 85}
-                  onChange={(e) => handleDataChange("threshold", Number(e.target.value))}
+                  onChange={(e) => handleNumberChange("threshold", e.target.value, 85, 0, 100000)}
                   className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
                 />
               </div>
@@ -272,14 +359,14 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
 
             <div>
               <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
-                Max Retry Cycles
+                Max Retry Cycles (1-5)
               </label>
               <input
                 type="number"
                 min={1}
                 max={5}
                 value={node.data.maxRetries ?? 2}
-                onChange={(e) => handleDataChange("maxRetries", Number(e.target.value))}
+                onChange={(e) => handleNumberChange("maxRetries", e.target.value, 2, 1, 5)}
                 className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
               />
             </div>
@@ -302,7 +389,27 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
                 type="url"
                 placeholder="https://hooks.zapier.com/hooks/catch/..."
                 value={node.data.url || ""}
-                onChange={(e) => handleDataChange("url", e.target.value)}
+                onChange={(e) => handleDataChange("url", e.target.value.slice(0, 500))}
+                className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
+              />
+              {node.data.url && !/^https?:\/\/.+\..+/.test(node.data.url.trim()) && (
+                <p className="text-[10px] text-amber-600 mt-1">
+                  Doesn't look like a valid http(s) URL — dispatch will be blocked.
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
+                Secret Token{" "}
+                <span className="text-on-surface-variant/60">(sent as X-Webhook-Token)</span>
+              </label>
+              <input
+                type="password"
+                placeholder="Optional shared secret…"
+                value={node.data.secretToken || ""}
+                autoComplete="off"
+                onChange={(e) => handleDataChange("secretToken", e.target.value.slice(0, 256))}
                 className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
               />
             </div>
@@ -335,15 +442,22 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
 
             <div>
               <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
-                Time of Day (24h)
+                Time of Day (24h, HH:MM)
               </label>
               <input
                 type="text"
                 placeholder="09:00"
                 value={node.data.timeOfDay || "09:00"}
-                onChange={(e) => handleDataChange("timeOfDay", e.target.value)}
-                className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
+                onChange={(e) => handleDataChange("timeOfDay", e.target.value.slice(0, 5))}
+                className={`w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border focus:outline-none ${
+                  isValidTimeOfDay(node.data.timeOfDay || "09:00")
+                    ? "border-outline-variant/60 focus:border-primary"
+                    : "border-amber-500 focus:border-amber-500"
+                }`}
               />
+              {!isValidTimeOfDay(node.data.timeOfDay || "09:00") && (
+                <p className="text-[10px] text-amber-600 mt-1">Use HH:MM (00:00–23:59).</p>
+              )}
             </div>
           </div>
         )}
@@ -374,13 +488,28 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
 
             <div>
               <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
-                Search Query / Keywords
+                Search Query / Keywords{" "}
+                <span className="text-on-surface-variant/60">(blank = use Category)</span>
               </label>
               <input
                 type="text"
                 placeholder="e.g. Next.js 15, AI agents"
                 value={node.data.query || ""}
-                onChange={(e) => handleDataChange("query", e.target.value)}
+                onChange={(e) => handleDataChange("query", e.target.value.slice(0, 200))}
+                className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
+                Max Articles (1-10)
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={10}
+                value={node.data.limit ?? 3}
+                onChange={(e) => handleNumberChange("limit", e.target.value, 3, 1, 10)}
                 className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
               />
             </div>
@@ -397,14 +526,14 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
 
             <div>
               <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
-                Slide Count
+                Slide Count (3-10)
               </label>
               <input
                 type="number"
                 min={3}
                 max={10}
-                value={node.data.slideCount || 5}
-                onChange={(e) => handleDataChange("slideCount", Number(e.target.value))}
+                value={node.data.slideCount ?? 5}
+                onChange={(e) => handleNumberChange("slideCount", e.target.value, 5, 3, 10)}
                 className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
               />
             </div>
@@ -562,9 +691,72 @@ export function NodeInspector({ node, onClose, onUpdateNode, onDeleteNode }: Nod
                 type="text"
                 placeholder="/workflow"
                 value={node.data.telegramCommand || "/workflow"}
-                onChange={(e) => handleDataChange("telegramCommand", e.target.value)}
+                onChange={(e) => handleDataChange("telegramCommand", e.target.value.slice(0, 60))}
                 className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
               />
+            </div>
+          </div>
+        )}
+
+        {/* 12. Sticky Note (annotation, zero AI cost) */}
+        {isNote && (
+          <div className="space-y-4 pt-2 border-t border-outline-variant/30">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-on-background">
+              <StickyNote className="w-3.5 h-3.5 text-yellow-600" />
+              <span>Sticky Note</span>
+            </div>
+            <div>
+              <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
+                Note Text
+              </label>
+              <textarea
+                rows={4}
+                placeholder="Document this flow: assumptions, TODOs, owner…"
+                value={node.data.note || ""}
+                onChange={(e) => handleDataChange("note", e.target.value.slice(0, 2000))}
+                className="w-full text-xs p-2.5 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
+                Note Color
+              </label>
+              <select
+                value={node.data.color || "yellow"}
+                onChange={(e) => handleDataChange("color", e.target.value)}
+                className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
+              >
+                <option value="yellow">Yellow</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+                <option value="pink">Pink</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* 13. Delay Timer (bounded wait between steps) */}
+        {isDelay && (
+          <div className="space-y-4 pt-2 border-t border-outline-variant/30">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-on-background">
+              <Timer className="w-3.5 h-3.5 text-slate-600" />
+              <span>Delay Timer</span>
+            </div>
+            <div>
+              <label className="block text-[11px] font-medium text-on-surface-variant mb-1">
+                Wait Seconds (1-120)
+              </label>
+              <input
+                type="number"
+                min={1}
+                max={120}
+                value={node.data.seconds ?? 5}
+                onChange={(e) => handleNumberChange("seconds", e.target.value, 5, 1, 120)}
+                className="w-full text-xs px-3 py-2 rounded-xl bg-surface-container/50 border border-outline-variant/60 focus:border-primary focus:outline-none"
+              />
+              <p className="text-[10px] text-on-surface-variant/60 mt-1">
+                Capped at 120s so a typo can't hang a run past platform timeouts.
+              </p>
             </div>
           </div>
         )}

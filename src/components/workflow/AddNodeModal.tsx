@@ -20,12 +20,14 @@ import {
   Repeat,
   Bookmark,
   Plus,
+  StickyNote,
+  Timer,
 } from "lucide-react";
 
 interface NodeDef {
   type: NodeType;
   name: string;
-  category: "agents" | "triggers" | "logic" | "output";
+  category: "agents" | "triggers" | "logic" | "output" | "utility";
   icon: typeof Sparkles;
   color: string;
   badge: string;
@@ -156,6 +158,26 @@ const ALL_NODES: NodeDef[] = [
     desc: "Reformats primary LinkedIn post into X thread, Newsletter intro, and Reddit summary.",
   },
 
+  // Utility (annotations & flow control — zero AI cost)
+  {
+    type: "note_sticky",
+    name: "Sticky Note",
+    category: "utility",
+    icon: StickyNote,
+    color: "bg-yellow-500/10 text-yellow-700 border-yellow-200",
+    badge: "Note",
+    desc: "Annotate the graph with assumptions, TODOs, or ownership. Skipped cost-free at run.",
+  },
+  {
+    type: "delay_timer",
+    name: "Delay Timer",
+    category: "utility",
+    icon: Timer,
+    color: "bg-slate-500/10 text-slate-600 border-slate-200",
+    badge: "Wait",
+    desc: "Pauses the run for N seconds between steps (1-120s cap).",
+  },
+
   // Output & Delivery
   {
     type: "output_webhook",
@@ -211,7 +233,7 @@ export function AddNodeModal({ isOpen, onClose, onAddNode }: AddNodeModalProps) 
               <span>Add Node to Canvas</span>
             </h3>
             <p className="text-xs text-on-surface-variant/70 mt-0.5">
-              Select any of the 15 autonomous node primitives to chain in your workflow.
+              Select any of the 17 autonomous node primitives to chain in your workflow.
             </p>
           </div>
           <button
@@ -238,10 +260,11 @@ export function AddNodeModal({ isOpen, onClose, onAddNode }: AddNodeModalProps) 
 
           <div className="flex flex-wrap gap-1.5">
             {[
-              { id: "all", label: "All Nodes (15)" },
+              { id: "all", label: "All Nodes (17)" },
               { id: "agents", label: "AI Agents (3)" },
               { id: "triggers", label: "Triggers (5)" },
               { id: "logic", label: "Logic & Gates (5)" },
+              { id: "utility", label: "Utility (2)" },
               { id: "output", label: "Output & Delivery (2)" },
             ].map((cat) => (
               <button

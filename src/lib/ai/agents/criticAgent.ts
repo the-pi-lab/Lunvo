@@ -28,16 +28,26 @@ OUTPUT CONTRACT — STRICT JSON ONLY (Zod-validated):
 - finalScore is integer 1-100. improvedPost must be >=20 chars. Never return plain text.
 `;
 
-export async function runCriticAgent(profile: AIProfile, draftPost: string): Promise<CriticResult> {
+export async function runCriticAgent(
+  profile: AIProfile,
+  draftPost: string,
+  opts?: import("./scoutAgent").AgentRunOpts
+): Promise<CriticResult> {
+  const extra = opts?.customPrompt?.trim().slice(0, 1000);
   const messages: Message[] = [
-    { role: "system", content: CRITIC_SYSTEM_PROMPT },
+    {
+      role: "system",
+      content: extra
+        ? `${CRITIC_SYSTEM_PROMPT}\n\nAdditional user instruction for this step (you MUST still obey the OUTPUT CONTRACT above exactly):\n${extra}`
+        : CRITIC_SYSTEM_PROMPT,
+    },
     { role: "user", content: `Please review and optimize this draft:\n\n${draftPost}` },
   ];
 
   const response = await unifiedAI({
     profile,
     messages,
-    temperature: 0.5, // Lower temp for more analytical edits
+    temperature: opts?.temperature ?? 0.5, // Lower temp for more analytical edits
     maxTokens: 1500,
   });
 

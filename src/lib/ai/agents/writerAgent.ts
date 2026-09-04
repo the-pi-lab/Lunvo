@@ -22,10 +22,16 @@ export async function runWriterAgent(
   rawTopic: string,
   scoutResult: ScoutResult,
   voiceDna: VoiceDNA | null,
-  onChunk?: (chunk: string, fullText: string) => void
+  onChunk?: (chunk: string, fullText: string) => void,
+  opts?: import("./scoutAgent").AgentRunOpts
 ): Promise<string> {
-  // Inject the user's voice into the system prompt
+  // Inject the user's voice into the system prompt (+ optional node customPrompt)
   const systemMessage = injectVoiceDNA(voiceDna, WRITER_SYSTEM_PROMPT);
+  const extra = opts?.customPrompt?.trim().slice(0, 1000);
+  if (extra) {
+    systemMessage.content += `\n\nAdditional user instruction for this step (plain-text post output still required):\n${extra}`;
+  }
+  const temperature = opts?.temperature ?? 0.7;
 
   const promptContent = `
 Raw Topic / Idea from User:
@@ -49,7 +55,7 @@ Write the final LinkedIn post now. Output ONLY the post content.
     const response = await unifiedAI({
       profile,
       messages,
-      temperature: 0.7,
+      temperature,
       maxTokens: 1500,
       stream: true,
       onChunk: (c) => {
@@ -90,7 +96,7 @@ Write the final LinkedIn post now. Output ONLY the post content.
   const response = await unifiedAI({
     profile,
     messages,
-    temperature: 0.7,
+    temperature,
     maxTokens: 1500,
   });
 

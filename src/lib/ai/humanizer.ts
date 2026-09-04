@@ -158,14 +158,15 @@ export function isHumanScore(text: string): number {
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
+export type HumanizeMode = "minimal" | "balanced" | "aggressive";
+
 /**
  * Local heuristic humanize — fast, no AI key needed
- * - Remove banned phrases
- * - Add contractions
- * - Vary sentence length (burstiness)
- * - Break long paragraphs
+ * - minimal: banned-phrase replacements + contractions only (light touch)
+ * - balanced: + burstiness splitting + mobile line cleanup
+ * - aggressive: balanced + filler-phrase surgery
  */
-export function humanizeLocal(text: string): string {
+export function humanizeLocal(text: string, mode: HumanizeMode = "balanced"): string {
   let out = text;
 
   // 1. Remove/replace banned phrases (case-insensitive) — longest first to avoid partial
@@ -227,6 +228,33 @@ export function humanizeLocal(text: string): string {
   // 4. Light touch only: contractions via dictionary above (no injected
   // first-person anecdotes — those fabricate experience to game the meter).
   // Punctuation variety is handled by burstiness splitting below.
+
+  if (mode === "aggressive") {
+    // Filler-phrase surgery (aggressive only — minimal/balanced never touch these)
+    const fillers: Record<string, string> = {
+      "in order to": "to",
+      "due to the fact that": "because",
+      "at the end of the day": "",
+      "needless to say": "",
+      "first and foremost": "first",
+      "each and every": "every",
+      "in the event that": "if",
+      "in the process of": "while",
+    };
+    for (const [filler, repl] of Object.entries(fillers)) {
+      const re = new RegExp(`\\b${escapeRegExp(filler)}\\b`, "gi");
+      out = out.replace(re, repl);
+    }
+    out = out
+      .replace(/ {2,}/g, " ")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  }
+
+  if (mode === "minimal") {
+    // Light touch ends here: no sentence restructuring at all
+    return out.replace(/\n{3,}/g, "\n\n").trim();
+  }
 
   // 5. Burstiness: ensure not all sentences same length — split long sentences + create short punchy ones
   const sentences = out.split(/(?<=[.!?])\s+/);

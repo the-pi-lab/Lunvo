@@ -22,6 +22,8 @@ export type NodeType =
   | "carousel_formatter"
   | "repurpose_transformer"
   | "condition_gate"
+  | "note_sticky"
+  | "delay_timer"
   | "output_draft_store"
   | "output_webhook";
 
@@ -63,6 +65,15 @@ export interface OutputWebhookData extends BaseNodeData {
   url: string;
   targetPlatform?: "zapier" | "make" | "buffer" | "custom";
   secretToken?: string;
+}
+
+export interface NoteStickyData extends BaseNodeData {
+  note?: string;
+  color?: "yellow" | "blue" | "green" | "pink";
+}
+
+export interface DelayTimerData extends BaseNodeData {
+  seconds?: number;
 }
 
 export interface WorkflowNode {

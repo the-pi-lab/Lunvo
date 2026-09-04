@@ -23,24 +23,36 @@ OUTPUT CONTRACT — STRICT JSON ONLY (Zod-validated):
 - hookIdeas must be exactly 3 strings, each >=10 chars. Never return plain text.
 `;
 
+export interface AgentRunOpts {
+  temperature?: number;
+  customPrompt?: string;
+}
+
+function withCustomPrompt(system: string, customPrompt?: string): string {
+  const extra = customPrompt?.trim();
+  if (!extra) return system;
+  return `${system}\n\nAdditional user instruction for this step (you MUST still obey the OUTPUT CONTRACT above exactly):\n${extra.slice(0, 1000)}`;
+}
+
 export async function runScoutAgent(
   profile: AIProfile,
   rawTopic: string,
-  newsContext?: string
+  newsContext?: string,
+  opts?: AgentRunOpts
 ): Promise<ScoutResult> {
   const userContent = newsContext
     ? `Raw Topic / Idea:\n\n${rawTopic}\n\n--- Trending context (for angle inspiration, do not copy verbatim) ---\n${newsContext}`
     : `Raw Topic / Idea:\n\n${rawTopic}`;
 
   const messages: Message[] = [
-    { role: "system", content: SCOUT_SYSTEM_PROMPT },
+    { role: "system", content: withCustomPrompt(SCOUT_SYSTEM_PROMPT, opts?.customPrompt) },
     { role: "user", content: userContent },
   ];
 
   const response = await unifiedAI({
     profile,
     messages,
-    temperature: 0.8, // Slightly higher for creativity in angles
+    temperature: opts?.temperature ?? 0.8, // Slightly higher for creativity in angles
     maxTokens: 1000,
   });
 

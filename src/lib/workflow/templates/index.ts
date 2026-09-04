@@ -542,7 +542,7 @@ export const PREBUILT_WORKFLOWS: Workflow[] = [
         id: "node-3",
         type: "repurpose_transformer",
         position: { x: 650, y: 100 },
-        data: { label: "Twitter Thread Adapter", format: "twitter" },
+        data: { label: "Twitter Thread Adapter", format: "twitter_thread" },
       },
       {
         id: "node-4",

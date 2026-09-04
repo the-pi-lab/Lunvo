@@ -13,6 +13,7 @@ import { humanizeLocal, isHumanScore } from "@/lib/ai/humanizer";
 import { saveDraft } from "@/lib/localStore";
 import { resolveNewsContext } from "@/lib/news/newsCache";
 import { isSafeWebhookUrl } from "@/lib/scheduler/webhookDispatcher";
+import { fetchYouTubeInfo, isYouTubeUrl } from "@/lib/youtube";
 
 export interface RunWorkflowOptions {
   workflow: Workflow;
@@ -21,6 +22,38 @@ export interface RunWorkflowOptions {
   content?: string;
   voiceDna?: VoiceDNA | null;
   onStepUpdate?: StepUpdateCallback;
+}
+
+/** Node-data number reader: NaN/empty/garbage can never silently become 0. */
+function numOpt(value: unknown, fallback: number, min: number, max: number): number {
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+
+const RSS_CATEGORY_QUERIES: Record<string, string> = {
+  tech: "technology",
+  ai: "AI models",
+  saas: "SaaS startups",
+  general: "business growth",
+};
+
+const REPURPOSE_FORMATS = new Set([
+  "linkedin_variants",
+  "twitter_thread",
+  "newsletter",
+  "short_script",
+]);
+
+/** Inspector temperature/customPrompt → agent opts (validated, else defaults). */
+function nodeAgentOpts(node: WorkflowNode): { temperature?: number; customPrompt?: string } {
+  const t = (node.data as any).temperature;
+  const c = (node.data as any).customPrompt;
+  return {
+    temperature:
+      typeof t === "number" && Number.isFinite(t) ? Math.min(2, Math.max(0, t)) : undefined,
+    customPrompt: typeof c === "string" && c.trim() ? c : undefined,
+  };
 }
 
 /**
@@ -157,15 +190,40 @@ async function executeSingleNode(
 
   switch (node.type) {
     case "trigger_manual":
-    case "trigger_youtube":
     case "trigger_telegram":
     case "trigger_schedule": {
       return { topic: context.inputTopic, content: context.inputContent };
     }
 
+    case "trigger_youtube": {
+      // Actually resolves the Inspector's Video URL into title + transcript
+      // (previously echoed inputs and the URL setting did nothing).
+      const url =
+        typeof (node.data as any).youtubeUrl === "string"
+          ? (node.data as any).youtubeUrl.trim()
+          : "";
+      if (url && isYouTubeUrl(url)) {
+        try {
+          const info = await fetchYouTubeInfo(url);
+          context.inputContent = info;
+          (context as any).videoTranscript = info;
+          return { topic: context.inputTopic, content: info, youtubeUrl: url };
+        } catch {
+          // fall through to plain passthrough
+        }
+      }
+      return { topic: context.inputTopic, content: context.inputContent };
+    }
+
     case "trigger_rss": {
-      const query = (node.data as any).query || context.inputTopic || "AI tech";
-      const limit = (node.data as any).limit || 3;
+      const data = node.data as any;
+      // Inspector category acts as query fallback so the setting is never decorative
+      const query =
+        (typeof data.query === "string" && data.query.trim()) ||
+        RSS_CATEGORY_QUERIES[data.category] ||
+        context.inputTopic ||
+        "AI tech";
+      const limit = numOpt(data.limit, 3, 1, 10);
       let newsContext = "";
       try {
         const articles = await resolveNewsContext(query);
@@ -184,6 +242,7 @@ async function executeSingleNode(
 
     case "agent_scout": {
       const topic = context.inputTopic || context.currentDraft || "AI technology trends";
+      // YouTube trigger feeds the transcript in as scouting context
       let newsCtx: string | undefined;
       try {
         const articles = await resolveNewsContext(topic);
@@ -193,8 +252,14 @@ async function executeSingleNode(
       } catch {
         // Non-blocking
       }
+      const videoCtx =
+        typeof (context as any).videoTranscript === "string" &&
+        (context as any).videoTranscript.length > 50
+          ? `Video transcript excerpt:\n${(context as any).videoTranscript.slice(0, 2000)}`
+          : undefined;
+      const scoutCtx = [newsCtx, videoCtx].filter(Boolean).join("\n\n") || undefined;
       try {
-        const scoutResult = await runScoutAgent(nodeProfile, topic, newsCtx);
+        const scoutResult = await runScoutAgent(nodeProfile, topic, scoutCtx, nodeAgentOpts(node));
         context.scoutResult = scoutResult;
         return scoutResult;
       } catch (e: any) {
@@ -215,7 +280,35 @@ async function executeSingleNode(
     }
 
     case "voice_dna_transform": {
-      return { voiceDna: context.voiceDna };
+      // Applies the Inspector's Tone Persona on top of trained DNA and writes
+      // it back to context (previously returned DNA untouched AND never set
+      // context, so neither persona nor trained DNA reached the writer).
+      const persona = (node.data as any).tonePersona || "default";
+      const base: VoiceDNA | null = context.voiceDna || null;
+      if (persona === "default" || !persona) {
+        return { voiceDna: base };
+      }
+      const personaTones: Record<string, string[]> = {
+        contrarian: ["direct", "contrarian", "bold"],
+        storyteller: ["vulnerable", "conversational", "storyteller"],
+        analytical: ["analytical", "data-driven", "precise"],
+      };
+      const merged: VoiceDNA = {
+        id: base?.id || "workflow-persona",
+        tone: personaTones[persona] || base?.tone || [],
+        formatting_preferences: base?.formatting_preferences || {
+          uses_bullet_points: false,
+          paragraph_length: "short",
+          emoji_frequency: "low",
+          capitalization_style: "standard",
+          hook_style: "starts with a bold statement",
+        },
+        vocabulary: base?.vocabulary || { commonly_used_words: [], banned_words: [] },
+        sentence_structure: base?.sentence_structure || "mixed",
+        last_updated: new Date().toISOString(),
+      };
+      context.voiceDna = merged;
+      return { voiceDna: merged, persona };
     }
 
     case "agent_writer": {
@@ -234,7 +327,8 @@ async function executeSingleNode(
           context.voiceDna || null,
           (chunk, full) => {
             context.currentDraft = full;
-          }
+          },
+          nodeAgentOpts(node)
         );
         context.currentDraft = draft;
         return { draft };
@@ -264,7 +358,7 @@ What is your experience with this? Drop your thoughts below.`;
     case "agent_critic": {
       const draft = context.currentDraft || context.inputContent || "";
       try {
-        const criticResult = await runCriticAgent(nodeProfile, draft);
+        const criticResult = await runCriticAgent(nodeProfile, draft, nodeAgentOpts(node));
         context.criticResult = criticResult;
         if (criticResult.improvedPost) {
           context.currentDraft = criticResult.improvedPost;
@@ -287,47 +381,69 @@ What is your experience with this? Drop your thoughts below.`;
 
     case "humanizer_filter": {
       const raw = context.currentDraft || context.inputContent || "";
-      const cleaned = humanizeLocal(raw);
+      const strictness = (node.data as any).strictness;
+      const mode =
+        strictness === "minimal" || strictness === "aggressive" ? strictness : "balanced";
+      const cleaned = humanizeLocal(raw, mode);
       const score = isHumanScore(cleaned);
       context.currentDraft = cleaned;
       context.humanScore = score;
-      return { cleanedDraft: cleaned, humanScore: score };
+      return { cleanedDraft: cleaned, humanScore: score, strictness: mode };
     }
 
     case "carousel_formatter": {
       const raw = context.currentDraft || context.inputContent || "";
-      const slides = [
-        { slideNumber: 1, title: "The Hook", body: raw.split("\n\n")[0] || raw.slice(0, 100) },
-        {
-          slideNumber: 2,
-          title: "The Core Problem",
-          body: "Why traditional approaches fail and cost you time.",
-        },
-        { slideNumber: 3, title: "The Shift", body: "The exact blueprint we used to solve it." },
-        {
-          slideNumber: 4,
-          title: "Key Takeaways",
-          body: raw.split("\n\n")[1] || "3 key rules to implement today.",
-        },
-        {
-          slideNumber: 5,
-          title: "What's Next?",
-          body: "Save this post and share your thoughts in the comments.",
-        },
+      // Inspector slideCount/theme now drive output (was always 5 fixed slides).
+      const count = numOpt((node.data as any).slideCount, 5, 3, 10);
+      const theme = (node.data as any).theme || "aurora";
+      const paras = raw
+        .split(/\n\n+/)
+        .map((p) => p.trim())
+        .filter(Boolean);
+      const titles = [
+        "The Hook",
+        "The Core Problem",
+        "The Shift",
+        "Key Takeaways",
+        "What's Next?",
+        "Deep Dive",
+        "Proof Point",
+        "Playbook",
+        "Mistakes to Avoid",
+        "Your Turn",
       ];
+      const fallbacks = [
+        "Why traditional approaches fail and cost you time.",
+        "The exact blueprint we used to solve it.",
+        "3 key rules to implement today.",
+        "Save this post and share your thoughts in the comments.",
+      ];
+      const slides = Array.from({ length: count }, (_, i) => ({
+        slideNumber: i + 1,
+        title: titles[i % titles.length]!,
+        body: paras[i] || paras[i % Math.max(1, paras.length)] || fallbacks[i % fallbacks.length]!,
+        theme,
+      }));
       context.carouselSlides = slides;
-      return { slides };
+      return { slides, theme };
     }
 
     case "repurpose_transformer": {
-      const format = (node.data as any).format || "linkedin_variants";
+      const requested = (node.data as any).format || "linkedin_variants";
+      // Legacy alias from older templates ("twitter" → current vocabulary)
+      const aliased = requested === "twitter" ? "twitter_thread" : requested;
+      const format = REPURPOSE_FORMATS.has(aliased) ? aliased : "linkedin_variants";
       const raw = context.currentDraft || context.inputContent || "";
       return { format, text: raw };
     }
 
     case "condition_gate": {
-      const field = (node.data as any).field || "critic_score";
-      const threshold = (node.data as any).threshold || 80;
+      const data = node.data as any;
+      const field = data.field || "critic_score";
+      const threshold = numOpt(data.threshold, 80, 0, 100000);
+      const operator = ["gte", "gt", "lte", "lt", "eq"].includes(data.operator)
+        ? data.operator
+        : "gte";
       let val = 0;
       if (field === "critic_score") {
         val = context.criticResult?.finalScore || 85;
@@ -336,16 +452,30 @@ What is your experience with this? Drop your thoughts below.`;
       } else if (field === "character_count") {
         val = (context.currentDraft || "").length;
       }
-      const passed = val >= threshold;
-      return { passed, actualValue: val, threshold };
+      // The Inspector's operator was previously ignored (always >=).
+      const passed =
+        operator === "gt"
+          ? val > threshold
+          : operator === "lte"
+            ? val <= threshold
+            : operator === "lt"
+              ? val < threshold
+              : operator === "eq"
+                ? val === threshold
+                : val >= threshold;
+      return { passed, actualValue: val, threshold, operator };
     }
 
     case "output_draft_store": {
       const textToSave = context.currentDraft || context.inputContent || "";
+      const tag =
+        typeof (node.data as any).tag === "string" && (node.data as any).tag.trim()
+          ? (node.data as any).tag.trim().slice(0, 60)
+          : "Automated Draft";
       if (textToSave && typeof window !== "undefined") {
-        saveDraft(textToSave, "created", "Automated Workflow Draft");
+        saveDraft(textToSave, "created", tag);
       }
-      return { saved: true, length: textToSave.length };
+      return { saved: true, length: textToSave.length, tag };
     }
 
     case "output_webhook": {
@@ -371,9 +501,18 @@ What is your experience with this? Drop your thoughts below.`;
         },
       };
       try {
+        // Inspector secretToken is forwarded so private webhooks can verify us
+        const secret =
+          typeof (node.data as any).secretToken === "string" &&
+          (node.data as any).secretToken.length > 0
+            ? (node.data as any).secretToken.slice(0, 256)
+            : undefined;
         const res = await fetch(webhookUrl, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(secret ? { "X-Webhook-Token": secret } : {}),
+          },
           body: JSON.stringify(payload),
           signal: AbortSignal.timeout(12000),
         });
@@ -381,6 +520,21 @@ What is your experience with this? Drop your thoughts below.`;
       } catch (e: any) {
         return { dispatched: false, error: e?.message };
       }
+    }
+
+    case "note_sticky": {
+      // Annotation only: zero AI cost, keeps graph documentation in the run log
+      const note =
+        typeof (node.data as any).note === "string" ? (node.data as any).note.slice(0, 2000) : "";
+      return { note, executed: true };
+    }
+
+    case "delay_timer": {
+      // Bounded wait between steps (e.g. spacing AI calls). Capped at 120s so
+      // a typo can't hang a serverless run past platform timeouts.
+      const seconds = numOpt((node.data as any).seconds, 5, 1, 120);
+      await new Promise((r) => setTimeout(r, seconds * 1000));
+      return { waitedMs: seconds * 1000, executed: true };
     }
 
     default:
