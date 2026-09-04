@@ -94,21 +94,21 @@ LUNVO is designed, built, and open-sourced by **[THE Π LAB (The Pi Lab)](https:
 > **Live Web Preview → [https://lunvo-tawny.vercel.app/](https://lunvo-tawny.vercel.app/)**
 > _Watch LUNVO 2.0 execute the Autonomous 3-Agent Neural Pipeline and n8n-Style Workflow Canvas live in action._
 
-<a href="https://lunvo-tawny.vercel.app/">
+<a href="https://github.com/the-pi-lab/Lunvo/blob/main/public/videos/lunvo-demo-tour.mp4">
   <img src="./public/screenshots/lunvo-demo-tour.webp" alt="LUNVO 2.0 Live Walkthrough & Workflow Engine" width="100%" style="border-radius:12px; border:1px solid #CBD5E1; box-shadow: 0 12px 36px rgba(0,0,0,0.12);"/>
 </a>
 
 <br/><br/>
 
 <p align="center">
-  <a href="https://github.com/the-pi-lab/Lunvo/raw/main/public/videos/lunvo-demo-tour.mp4"><img src="https://img.shields.io/badge/▶_Watch_1080p_Video-2:48_MP4-004AC6?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch 1080p Video"/></a> &nbsp;&nbsp;
+  <a href="https://github.com/the-pi-lab/Lunvo/blob/main/public/videos/lunvo-demo-tour.mp4"><img src="https://img.shields.io/badge/▶_Watch_Full_1080p_Video-2:48_MP4-004AC6?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch Full Video"/></a> &nbsp;&nbsp;
   <a href="https://lunvo-tawny.vercel.app/"><img src="https://img.shields.io/badge/🚀_Launch_Live_App-lunvo--tawny.vercel.app-006e2d?style=for-the-badge&logo=vercel" alt="Launch Live App"/></a> &nbsp;&nbsp;
   <a href="https://www.linkedin.com/company/the-%CF%80-lab/"><img src="https://img.shields.io/badge/LinkedIn-THE%20%CE%A0%20LAB-0A66C2?style=for-the-badge&logo=linkedin" alt="Company"/></a>
 </p>
 
 <p align="center">
-  <sub>👆 <b>Autoplaying Live Walkthrough:</b> Scout extracts 3 viral hooks ➔ Writer streams draft word-by-word with Voice DNA ➔ Critic scores 92/100 ➔ Visual node automation executes the pipeline.</sub><br/>
-  <sub>🎬 <i>Want to watch the full 2m 48s 1080p HD video with audio? Click the blue <b>Watch 1080p Video</b> badge above!</i></sub>
+  <sub>👆 <b>Autoplaying Video Tour (loop):</b> Scout extracts 3 viral hooks ➔ Writer streams draft word-by-word with Voice DNA ➔ Critic scores 92/100 ➔ Visual node automation executes the pipeline.</sub><br/>
+  <sub>🎬 <i>Full 2m 48s 1080p HD video with audio dekhne ke liye upar <b>Watch Full 1080p Video</b> badge ya video image par click karein!</i></sub>
 </p>
 
 </div>

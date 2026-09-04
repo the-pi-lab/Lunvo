@@ -53,21 +53,21 @@ LUNVO का निर्माण और ओपन-सोर्स **[THE Π LA
 > **लाइव वेब प्रीव्यू → [https://lunvo-tawny.vercel.app/](https://lunvo-tawny.vercel.app/)**
 > _LUNVO 2.0 की 3-एजेंट न्यूरल पाइपलाइन और n8n-स्टाइल विजुअल वर्कफ़्लो कैनवास का लाइव वॉकथ्रू:_
 
-<a href="https://lunvo-tawny.vercel.app/">
+<a href="https://github.com/the-pi-lab/Lunvo/blob/main/public/videos/lunvo-demo-tour.mp4">
   <img src="./public/screenshots/lunvo-demo-tour.webp" alt="LUNVO 2.0 Live Walkthrough & Workflow Engine" width="100%" style="border-radius:12px; border:1px solid #CBD5E1; box-shadow: 0 12px 36px rgba(0,0,0,0.12);"/>
 </a>
 
 <br/><br/>
 
 <p align="center">
-  <a href="https://github.com/the-pi-lab/Lunvo/raw/main/public/videos/lunvo-demo-tour.mp4"><img src="https://img.shields.io/badge/▶_1080p_वीडियो_देखें-2:48_MP4-004AC6?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch 1080p Video"/></a> &nbsp;&nbsp;
+  <a href="https://github.com/the-pi-lab/Lunvo/blob/main/public/videos/lunvo-demo-tour.mp4"><img src="https://img.shields.io/badge/▶_पूरा_1080p_वीडियो_देखें-2:48_MP4-004AC6?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch 1080p Video"/></a> &nbsp;&nbsp;
   <a href="https://lunvo-tawny.vercel.app/"><img src="https://img.shields.io/badge/🚀_लाइव_ऐप_लॉन्च_करें-lunvo--tawny.vercel.app-006e2d?style=for-the-badge&logo=vercel" alt="Launch Live App"/></a> &nbsp;&nbsp;
   <a href="https://www.linkedin.com/company/the-%CF%80-lab/"><img src="https://img.shields.io/badge/LinkedIn-THE%20%CE%A0%20LAB-0A66C2?style=for-the-badge&logo=linkedin" alt="Company"/></a>
 </p>
 
 <p align="center">
-  <sub>👆 <b>ऑटो-प्लेइंग लाइव वॉकथ्रू:</b> Scout 3 वायरल हुक्स निकालता है ➔ Writer आपकी Voice DNA के साथ वर्ड-बाय-वर्ड स्ट्रीम करता है ➔ Critic 92/100 स्कोर देता है ➔ विजुअल नोड ऑटोमेशन पूरा पाइपलाइन चलाता है।</sub><br/>
-  <sub>🎬 <i>पूरा 2 मिनट 48 सेकंड का 1080p HD वीडियो ऑडियो के साथ देखने के लिए ऊपर दिए गए नीले <b>1080p वीडियो देखें</b> बटन पर क्लिक करें!</i></sub>
+  <sub>👆 <b>ऑटो-प्लेइंग वीडियो वॉकथ्रू:</b> Scout 3 वायरल हुक्स निकालता है ➔ Writer आपकी Voice DNA के साथ वर्ड-बाय-वर्ड स्ट्रीम करता है ➔ Critic 92/100 स्कोर देता है ➔ विजुअल नोड ऑटोमेशन पूरा पाइपलाइन चलाता है।</sub><br/>
+  <sub>🎬 <i>पूरा 2 मिनट 48 सेकंड का 1080p HD वीडियो ऑडियो के साथ देखने के लिए ऊपर दिए गए <b>पूरा 1080p वीडियो देखें</b> बटन या वीडियो इमेज पर क्लिक करें!</i></sub>
 </p>
 
 </div>
